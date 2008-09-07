@@ -7,11 +7,9 @@ devices, such as a telescope and its associated instruments.
 """
 
 ## @package tops
-# Telesope Operations Software
+# Core Telesope Operations Software
 #
 # @author David Kirkby, dkirkby@uci.edu
-# @version $Revision$
 # @date Created 6-Sep-2008
-# @date Last changed $LastChangedDate$ by $LastChangedBy$
 #
-# $URL$
+# This project is hosted at http://tops.googlecode.com/
