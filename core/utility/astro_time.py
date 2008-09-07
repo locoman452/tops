@@ -171,7 +171,7 @@ class AstroTimeTests(unittest.TestCase):
 		dt2 = AstroTime(*args)
 		self.assertEqual(dt1.timetuple(),dt2.timetuple())
 		self.assertEqual(dt1.utctimetuple(),dt2.utctimetuple())
-		self.assertEqual(str(dt1),str(dt2))
+		self.assertNotEqual(str(dt1),str(dt2))
 		self.assertNotEqual(repr(dt1),repr(dt2))
 	def test02_AstroTime(self):
 		"""AstroTime constructor tests using UTC"""
