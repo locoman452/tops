@@ -4,7 +4,7 @@ Utilities for Telescope Operations Software
 General-purpose utilities for the telescope operations software package.
 """
 
-## @package tops
+## @package utility
 # Utilities for Telesope Operations Software
 #
 # @author David Kirkby, dkirkby@uci.edu
