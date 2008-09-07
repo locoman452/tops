@@ -11,7 +11,7 @@ devices, such as a telescope and its associated instruments.
 #
 # @author David Kirkby, dkirkby@uci.edu
 # @version $Revision$
-# @date Created 1-Sep-2008
+# @date Created 6-Sep-2008
 # @date Last changed $LastChangedDate$ by $LastChangedBy$
 #
 # $URL$
