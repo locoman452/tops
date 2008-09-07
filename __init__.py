@@ -7,7 +7,7 @@ devices, such as a telescope and its associated instruments.
 """
 
 ## @package tops
-# Core Telesope Operations Software
+# Telesope Operations Software
 #
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 6-Sep-2008
