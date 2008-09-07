@@ -153,7 +153,7 @@ TAI = InternationalAtomicTime()
 
 import unittest
 
-class DateTimeTests(unittest.TestCase):
+class AstroTimeTests(unittest.TestCase):
 	def test00_AstroTime(self):
 		"""Special AstroTime constructors"""
 		dt = datetime.now()
