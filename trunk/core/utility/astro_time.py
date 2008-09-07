@@ -4,7 +4,7 @@ Astronomical date and time utilities
 Enhancements to the standard datetime package for astronomical applications.
 """
 
-## @package tops
+## @package tops.core.utility.astro_time
 # Astronomical date and time utilities
 #
 # @author David Kirkby, dkirkby@uci.edu
