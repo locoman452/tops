@@ -283,7 +283,7 @@ class HTMLTests(unittest.TestCase):
 		)
 		self.validate(doc)
 	def test01_HTML(self):
-		"""Test accessing HTML elements by id"""
+		"""HTML element access by id"""
 		doc = HTMLDocument(
 			Head(),
 			Body(
@@ -293,13 +293,13 @@ class HTMLTests(unittest.TestCase):
 		doc['appendme'].append(Span('TITLE',className='bigtext'))
 		self.validate(doc)
 	def test02_HTML(self):
-		"""Test adding external links to css and javascript files"""
+		"""Add external links to css and javascript files"""
 		h = Head(title='This is the Title',css='styles1.css')
 		h.css += ('styles2.css','styles3.css')
 		h.js += ('actions1.js',)
 		h.js.append('actions2.js')
 	def test03_HTML(self):
-		"""Test HTML element attribute accessors"""
+		"""HTML element attribute accessors"""
 		d = Div('This is text within a',Span('red',className='red'),'div element')
 		handler = 'clickHandler(this)'
 		d['onclick'] = handler
