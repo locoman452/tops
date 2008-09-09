@@ -8,7 +8,7 @@ Classes to allow (X)HTML files to be generated via python declarations.
 # Generates (X)HTML files via python declarations
 #
 # @author David Kirkby, dkirkby@uci.edu
-# @date Created 6-Sep-2008
+# @date Created 28-Jun-2008
 #
 # This project is hosted at http://tops.googlecode.com/
 

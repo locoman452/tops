@@ -7,6 +7,9 @@ directories or files that should not be searched can be added to the
 ignored array. All other .py files will be imported as part of searching
 for tests, so beware of any import side effects or conflicts from
 importing all modules at once.
+
+TODO:
+ - prevent duplicate tests from pkg caused by 'from pkg import *'
 """
 
 ## @package tops.run_tests
@@ -68,7 +71,7 @@ def visit(arg,dirname,names):
 		elif name[-3:] == '.py':
 			dotname = '%s.%s' % (dotpath,name[:-3])
 			tests = unittest.defaultTestLoader.loadTestsFromName(dotname)
-			print '  ',dotname,'...',tests.countTestCases(),'test cases'
+			print '  %-40s ... %3d test cases' % (dotname,tests.countTestCases())
 			suite.addTest(tests)
 
 # print test environment info
@@ -81,7 +84,7 @@ os.path.walk(mypath,visit,None)
 
 # run all tests
 print '\n## Running tests'
-test_runner = unittest.TextTestRunner(descriptions=2,verbosity=2)
+test_runner = unittest.TextTestRunner(descriptions=2,verbosity=1)
 result = test_runner.run(suite)
 if result.failures or result.errors:
 	sys.exit(1)

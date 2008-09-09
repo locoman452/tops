@@ -10,6 +10,6 @@ devices, such as a telescope and its associated instruments.
 # Telesope Operations Software
 #
 # @author David Kirkby, dkirkby@uci.edu
-# @date Created 6-Sep-2008
+# @date Created 24-Jun-2008
 #
 # This project is hosted at http://tops.googlecode.com/

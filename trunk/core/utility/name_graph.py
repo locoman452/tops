@@ -9,7 +9,7 @@ by composition (has-a relationships) and named references.
 # Lightweight object graphs for simple configuration declarations
 #
 # @author David Kirkby, dkirkby@uci.edu
-# @date Created 6-Sep-2008
+# @date Created 6-Jul-2008
 #
 # This project is hosted at http://tops.googlecode.com/
 
