@@ -174,7 +174,7 @@ class DomainModel:
 				target.node = self.objects[target.name.upper()]
 				target.validate()
 	def embedLinks(self,text,baseURL=''):
-		result = div(className='embeddedLinks')
+		result = Div(className='embeddedLinks')
 		isLink = False
 		fragments = iter(re.split(DomainModel.linkScanner,text))
 		for fragment in fragments:
@@ -183,7 +183,7 @@ class DomainModel:
 				name = fragments.next()
 				if url is None:
 					url = baseURL + '#' + self.objects[name.upper()].tag
-				result.append(a(name,href=url))
+				result.append(A(name,href=url))
 			else:
 				result.append(fragment)
 			isLink = not isLink
@@ -191,10 +191,10 @@ class DomainModel:
 	def exportGlossary(self,filename,title='Glossary',stylesheet='glossary.css'):
 		# write an html file containing our glossary
 		doc = HTMLDocument(
-			head(title=title,css=stylesheet),
-			body(
-				div(
-					div(title,className='title'),
+			Head(title=title,css=stylesheet),
+			Body(
+				Div(
+					Div(title,className='title'),
 					id='glossary'
 				)
 			)
@@ -202,25 +202,25 @@ class DomainModel:
 		for name in sorted([node.name for node in self.nodes]):
 			node = self.objects[name.upper()]
 			doc['glossary'].append(
-				div(
-					a(div(name,className='nodename'),name=node.tag),
+				Div(
+					A(Div(name,className='nodename'),name=node.tag),
 					id=node.tag,className='node'
 				)
 			)
 			if len(node.relationships) > 0:
-				content = div(className='relationships')
+				content = Div(className='relationships')
 				lastrel = node.relationships[-1]
 				for rel in node.relationships:
 					content.append(
-						span(rel.type,entity('nbsp'),
-							a(rel.target.name,href='#'+rel.target.node.tag),
+						Span(rel.type,Entity('nbsp'),
+							A(rel.target.name,href='#'+rel.target.node.tag),
 							className='rel'
 						)
 					)
 					if not rel is lastrel:
 						content.append(', ')
 				doc[node.tag].append(content)
-			doc[node.tag].append(div(self.embedLinks(node.description),className='description'))
+			doc[node.tag].append(Div(self.embedLinks(node.description),className='description'))
 		file = open(filename,'w')
 		print >> file,doc
 		file.close()
