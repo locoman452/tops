@@ -144,7 +144,7 @@ class State(node):
 	def exportHTML(self,container):
 		decorator = Span(className='decorator')
 		if not self._node__parent is None and self._node__parent.initial is self:
-			decorator.append(entity('raquo'))
+			decorator.append(Entity('raquo'))
 		content = Div(
 			Div(decorator,self.name,className='title'),
 			className='state',id=self.name

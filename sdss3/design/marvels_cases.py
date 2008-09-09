@@ -260,5 +260,5 @@ cases = UseCases('MARVELS Operations',
 if __name__ == '__main__':
 	import path
 	from tops.sdss3.design.model import model
-	cases.exportHTML(path.filepath('marvels-cases.html'),model=model,
+	cases.exportHTML(path.filepath('marvels_cases.html'),model=model,
 		title='MARVELS Operations Use Cases',stylesheet='cases.css')
