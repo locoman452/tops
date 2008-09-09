@@ -24,8 +24,12 @@ mypath = os.path.dirname(__file__)
 webpath = os.path.join(mypath,'web')
 assert(os.path.isdir(webpath))
 
-print 'Exporting SDSS-3 design web content to',webpath
+export_count = 0
 
 def filepath(filename):
+	global export_count
+	if export_count == 0:
+		print 'Exporting SDSS-3 design web content to',webpath
+	export_count += 1
 	print '  %s' % filename
 	return os.path.join(webpath,filename)
