@@ -1,0 +1,75 @@
+a:link, a:visited {
+	color: #8A8139;
+	text-decoration: none;
+}
+
+a:hover, a:active {
+	border-bottom: 1px dotted #8A8139;
+}
+
+body {
+	color: #54478a;
+	background-color: #C5B7FF;
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: medium;
+	margin: 8px;
+	padding: 0;
+}
+
+#states {
+	margin-right: 480px; /* would be better to have this determined directly from diagram width... */
+}
+
+#diagram {
+	float: right;
+	width: 480px;
+	text-align: center;
+}
+
+div.state {
+	border: 2px solid #54478a;
+	margin: 12px 8px 12px 16px;
+}
+
+div.selected.state {
+	border-left-color: #d96000;
+}
+
+div.title {
+	color: white;
+	background-color: #54478a;
+	font-size: large;
+	padding: 4px 16px;
+	position: relative;
+}
+
+div.selected.title {
+	color: #f06a00;
+}
+
+div.doc {
+	font-style: italic;
+	padding: 8px 16px;
+}
+
+div.triggers {
+	font-family: Verdana, Arial, sans-serif;
+	padding: 4px 16px;
+	line-height: 150%;
+}
+
+span.selected.trigger {
+	cursor: pointer;
+	color: #d96000;
+	border-bottom: 1px dotted #c5b7ff;
+}
+
+span.selected.trigger:hover {
+	border-bottom-color: #d96000;
+}
+
+span.decorator {
+	position: absolute;
+	left: 0;
+	padding-left: 4px;
+}
