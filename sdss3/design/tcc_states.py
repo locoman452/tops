@@ -7,7 +7,7 @@ generate an HTML page documenting the state chart defined here.
 """
 
 ## @package tops.sdss3.design.tcc_states
-# MARVELS operations software state chart specification
+# TCC operations software state chart specification
 #
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 16-Jul-2008
