@@ -145,6 +145,8 @@ class State(node):
 		decorator = Span(className='decorator')
 		if not self._node__parent is None and self._node__parent.initial is self:
 			decorator.append(Entity('raquo'))
+		else:
+			decorator.append(' ')
 		content = Div(
 			Div(decorator,self.name,className='title'),
 			className='state',id=self.name
@@ -238,7 +240,7 @@ class StateChart(State):
 		"""
 		doc = HTMLDocument(
 			Head(title=title,css='statechart.css',js='statechart.js'),
-			Body(onload="State.initialize('%s')" % self.name)
+			Body(onload="State.initialize(states[0].name)")
 		)
 		# prepare a flat javascript declaration of all states
 		js = 'states = ['
