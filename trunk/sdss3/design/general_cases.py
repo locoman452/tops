@@ -1,18 +1,16 @@
 """
-A Domain Model of the SDSS-3 Operations Software Design
+General use cases of the SDSS-3 Operations Software Design
 
-A description of the actors and nouns of the SDSS-3 operations software
-design, and the relationships between them. Running this file will
-generate an HTML glossary and a domain-model graph. This file can also
-be included as a module to provide a glossary for other design
-documents.
+A description of the general use cases of the SDSS-3 operations software
+design. Running this file will generate an HTML page documenting the use
+cases defined here.
 """
 
 ## @package tops.sdss3.design.general_cases
-# A Domain Model of the SDSS-3 Operations Software Design
+# General use cases of the SDSS-3 Operations Software Design
 #
 # @author David Kirkby, dkirkby@uci.edu
-# @date Created 24-Jun-2008
+# @date Created 16-Jul-2008
 #
 # This project is hosted at http://tops.googlecode.com/
 
@@ -194,5 +192,7 @@ cases = UseCases('SDSS3 Operations',
 )
 
 if __name__ == '__main__':
-	cases.exportHTML('web/general-cases.html',model=tops.sdss3.design.model.model,
+	import path
+	from tops.sdss3.design.model import model
+	cases.exportHTML(path.filepath('general-cases.html'),model=model,
 		title='General Operations Use Cases',stylesheet='cases.css')

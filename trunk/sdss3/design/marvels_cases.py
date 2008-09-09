@@ -1,13 +1,20 @@
-#!/usr/bin/env python
-# encoding: utf-8
 """
-Uses Cases for the Design of the SDSS3 Operations Software
+MARVELS use cases of the SDSS-3 Operations Software Design
 
-Created by David Kirkby on 2008-06-26.
-Copyright (c) 2008 University of California, Irvine. All rights reserved.
+A description of the MARVELS use cases of the SDSS-3 operations software
+design. Running this file will generate an HTML page documenting the use
+cases defined here.
 """
 
-from design.use_cases import *
+## @package tops.sdss3.design.marvels_cases
+# MARVELS use cases of the SDSS-3 Operations Software Design
+#
+# @author David Kirkby, dkirkby@uci.edu
+# @date Created 26-Jun-2008
+#
+# This project is hosted at http://tops.googlecode.com/
+
+from tops.core.design.use_cases import *
 
 cases = UseCases('MARVELS Operations',
 	Scenario('MARVELS Observing',
@@ -250,8 +257,8 @@ cases = UseCases('MARVELS Operations',
 	Scenario('Failure of Module in Instrument Control Rack')
 )
 
-from sdss3.model import model
-
 if __name__ == '__main__':
-	cases.exportHTML('sdss3-17Jul08/marvels-cases.html',model=model,
+	import path
+	from tops.sdss3.design.model import model
+	cases.exportHTML(path.filepath('marvels-cases.html'),model=model,
 		title='MARVELS Operations Use Cases',stylesheet='cases.css')

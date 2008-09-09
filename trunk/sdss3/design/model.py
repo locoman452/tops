@@ -8,7 +8,7 @@ be included as a module to provide a glossary for other design
 documents.
 """
 
-## @package tops.sdss3.design
+## @package tops.sdss3.design.model
 # A Domain Model of the SDSS-3 Operations Software Design
 #
 # @author David Kirkby, dkirkby@uci.edu
@@ -16,7 +16,7 @@ documents.
 #
 # This project is hosted at http://tops.googlecode.com/
 
-from design.domain_model import *
+from tops.core.design.domain_model import *
 
 model = DomainModel('SDSS-3 Operations Software',
 	Actor('Operator',
@@ -213,6 +213,8 @@ model = DomainModel('SDSS-3 Operations Software',
 )
 
 if __name__ == '__main__':
-	model.exportGraph('sdss3model.dot')
-	model.exportGlossary('glossary.html',title='SDSS3 Operations Software Glossary',
+	import path
+	model.exportGraph(path.filepath('sdss3model.dot'))
+	model.exportGlossary(path.filepath('glossary.html'),
+		title='SDSS3 Operations Software Glossary',
 		stylesheet='glossary.css')
