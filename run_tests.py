@@ -36,7 +36,7 @@ if __name__ == '__main__':
 mypkg = os.path.basename(mypath)
 
 # directories and files to ignore
-ignored = [myname,'.svn']
+ignored = [myname,'.svn','__init__.py']
 
 suite = unittest.TestSuite()
 
@@ -65,9 +65,9 @@ def visit(arg,dirname,names):
 		return
 	dotpath = path_to_module(dirname)
 	print dotpath
-	for (index,name) in enumerate(names):
+	for name in names[:]:
 		if name in ignored:
-			del names[index]
+			names.remove(name)
 		elif name[-3:] == '.py':
 			dotname = '%s.%s' % (dotpath,name[:-3])
 			tests = unittest.defaultTestLoader.loadTestsFromName(dotname)
