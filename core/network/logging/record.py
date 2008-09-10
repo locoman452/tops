@@ -16,71 +16,8 @@ client-server interaction.
 from time import time
 from datetime import datetime
 import logging
-import re
 
-class LogException(Exception):
-	pass
-
-class LogSourceName(object):
-	"""
-	Represents a valid logging source name.
-	
-	A valid name consists of one or more elements separated by '.' where
-	each element uses only the characters A-Z and a-z. For example,
-	'aaa.bbb.ccc' or 'aaa'. A valid name cannot begin or end with '.'
-	"""
-	element = '[A-Za-z]+'
-	separator = '.'
-	validPath = re.compile(r"%s(\%s%s)*" % (element,separator,element))
-
-	def __init__(self,name):
-		self.name = name
-		valid = self.validPath.match(self.name)
-		if not valid or valid.end() < len(self.name):
-			raise LogException('Illegal source name: "%s"' % self.name)
-
-	def __str__(self):
-		return str(self.name)
-		
-
-class LogSourcePattern(object):
-	"""
-	Represents a valid logging source name pattern list.
-	
-	A valid pattern list consists of one or more patterns separated by
-	',' where each pattern looks like a valid source name but with zero
-	or more elements entirely replaced with the wildcard '*'. For
-	example, 'aaa.*.ccc,aaa' or '*.bbb.*'. A wildcard represents any
-	valid source name so that 'aaa.*' matches 'aaa.bbb' and
-	'aaa.bbb.ccc' but not 'aaa'.
-	"""
-	wildcard = '*'
-	separator = ','
-	element = r"(\%s|%s)" % (wildcard,LogSourceName.element)
-	validPattern = re.compile(r"%s(\%s%s)*" % (element,LogSourceName.separator,element))
-
-	def __init__(self,name=wildcard):
-		"""
-		The default pattern matches all valid source names.
-		"""
-		self.name = name
-		self.patterns = []
-		for pattern in name.split(self.separator):
-			valid = self.validPattern.match(pattern)
-			if not valid or valid.end() < len(pattern):
-				raise LogException('Illegal source pattern: "%s"' % pattern)
-			self.patterns.append(pattern
-				.replace(LogSourceName.separator,r"\%s" % LogSourceName.separator)
-				.replace(self.wildcard,LogSourceName.validPath.pattern))
-		self.pattern = re.compile('(%s)' % ')|('.join(self.patterns))
-
-	def __str__(self):
-		return str(self.name)
-
-	def matches(self,name):
-		match = self.pattern.match(name)
-		return match is not None and match.end() == len(name)
-
+from tops.core.network.naming import ResourceNamePattern,NamingException
 
 class LogRecord(object):
 	"""
@@ -133,10 +70,10 @@ class LogFilter(object):
 	def __init__(self,sourceFilter='*',minLevel='WARNING'):
 		self.last = 0
 		try:
-			self.sourcePattern = LogSourcePattern(sourceFilter)
-		except LogException:
+			self.sourcePattern = ResourceNamePattern(sourceFilter)
+		except NamingException:
 			# quietly accept everything if we are passed an invalid pattern
-			self.sourcePattern = LogSourcePattern()
+			self.sourcePattern = ResourceNamePattern()
 		try:
 			self.minLevel = logging.__dict__[minLevel]
 		except KeyError:

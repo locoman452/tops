@@ -83,6 +83,7 @@ class RecordTests(unittest.TestCase):
 		labels = ('true','false')
 		
 	def test00_Record(self):
+		"""Examine archive header and message packets"""
 		record = ArchiveRecord("test",[
 			("boolean",self.truefalse),
 			("vector.x",self.data.double),
