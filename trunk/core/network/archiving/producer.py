@@ -45,7 +45,7 @@ class ArchiveClient(Client):
 
 	def start(self,name):
 		hdr = self.Header()
-		hdr.name = name
+		hdr.name = ResourceName(name)
 		# set our timestamp origin
 		hdr.timestamp_origin = int(floor(time()))
 		self.timestamp_origin = AstroTime.fromtimestamp(hdr.timestamp_origin,UTC)
