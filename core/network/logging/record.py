@@ -1,12 +1,12 @@
 """
-Defines the message format used for distributed logging
+Manages the message formats used for distributed logging
 
 A record combines a session header and a message resulting from a
 client-server interaction.
 """
 
 ## @package tops.core.network.logging.record
-# Defines the message format used for distributed logging
+# Manages the message formats used for distributed logging
 #
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 10-Aug-2008

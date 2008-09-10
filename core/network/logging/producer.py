@@ -5,19 +5,19 @@ This module serves as a wrapper for the builtin python logging library
 and should normally be invoked with:
 
   import <this-module> as logging ...
-  logging.initialize("my.source.name.prefix")
+  logging.start("my.source.name.prefix")
 
-Without the call to initialize(), logging defaults to the built-in
-implementation. By calling initialize, all messages will be logged via a
+Without the call to start(), logging defaults to the built-in
+implementation. By calling start(), all messages will be logged via a
 TCP handler to the distributed logging server. Messages will be
 identified by a source name that consists of the prefix name provided to
-initialize() followed by the name associated with any custom logger
+start() followed by the name associated with any custom logger
 created by the user.
 
 The source name prefix (and any user-defined logger name) must be a
 valid LogSourceName. See record.py in this package for details.
 
-initialize() also sets the message level filter to DEBUG so that all
+start() also sets the message level filter to DEBUG so that all
 messages are sent to the server by default. Use, for example,
 logging.setLevel(logging.ERROR) to change this.
 """
@@ -31,14 +31,14 @@ logging.setLevel(logging.ERROR) to change this.
 # This project is hosted at http://tops.googlecode.com/
 
 from logging import *
-
 from logging.handlers import SocketHandler
+
 from struct import Struct
 from traceback import format_exception
 
 import socket
 
-from design.logging.logging_pb2 import Message,Header
+from logging_pb2 import Message,Header
 from record import LogSourceName,LogException
 
 class ClientHandler(SocketHandler):
@@ -107,8 +107,15 @@ class ClientHandler(SocketHandler):
 			print 'FAILED'
 
 
-def initialize(name):
-
+def start(name):
+	"""
+	Starts a logging producer registered under the specified name.
+	
+	Overrides the built-in logging.getLogger(name) to check that name is
+	a valid source name. Attempts to connect this producer to the server
+	and raises an exception if this fails. Sets the default logging
+	level to DEBUG so that the server has a chance to see all messages.
+	"""
 	_getLogger = getLogger
 
 	def clientGetLogger(name=None):
@@ -119,10 +126,10 @@ def initialize(name):
 			source = LogSourceName(name)
 		return _getLogger(name)
 	
+	globals()["getLogger"] = clientGetLogger
+
 	source = LogSourceName(name)
 	print '%s: using source name "%s"' % (__name__,source)
-
-	globals()["getLogger"] = clientGetLogger
 
 	clientHandler = ClientHandler(source,'/tmp/logserver','localhost',1966)
 	root.handlers.append(clientHandler)

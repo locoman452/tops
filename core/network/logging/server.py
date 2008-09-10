@@ -1,7 +1,7 @@
 """
 Implements the server side of distributed logging
 
-The logger server simultaneously handles messages arriving from
+The logging server simultaneously handles messages arriving from
 producer clients and serves consumer clients via a web server.
 """
 
