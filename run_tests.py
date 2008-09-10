@@ -72,7 +72,7 @@ def visit(arg,dirname,names):
 		elif name[-3:] == '.py' and not name[-7:] == '_pb2.py':
 			dotname = '%s.%s' % (dotpath,name[:-3])
 			tests = unittest.defaultTestLoader.loadTestsFromName(dotname)
-			print '  %-40s ... %3d test cases' % (dotname,tests.countTestCases())
+			print '  %-40s ... %3d test case(s)' % (dotname,tests.countTestCases())
 			suite.addTest(tests)
 
 # print test environment info
