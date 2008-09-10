@@ -17,4 +17,4 @@ env['BUILDERS']['ProtoBuf'] = Builder(generator=protobuf_action)
 
 # Declare our protocol buffers
 env.ProtoBuf('core/network/logging/logging_pb2.py','core/protobuf/logging.proto')
-env.ProtoBuf('core/network/logging/archiving_pb2.py','core/protobuf/archiving.proto')
+env.ProtoBuf('core/network/archiving/archiving_pb2.py','core/protobuf/archiving.proto')
