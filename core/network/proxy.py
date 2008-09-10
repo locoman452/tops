@@ -68,12 +68,12 @@ class Proxy(StateChart):
 			logging.debug('Entering state %s following %s',self.state.name,action)
 	
 	def start(self):
-		source_name = self.name.lower().replace('_','.')
-		logging.start(source_name)
+		name = ResourceName(self.name.lower().replace('_','.'))
+		logging.start(name)
 		logging.info('Starting proxy')
 		# add a monitor for our state transitions
 		#archiving.addMonitor('state',[('value',data.unsigned)])
-		archiving.start(source_name)
+		archiving.start(name)
 		try:
 			sys.modules['__main__'].configure()
 		except AttributeError:
