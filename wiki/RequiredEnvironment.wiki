@@ -1,0 +1,22 @@
+#labels Featured,Phase-Deploy
+=The Required Computing Environment for Using TOPS=
+
+== Python ==
+
+Python 2.5 is required, although the only thing that breaks 2.4 is a few conditional expressions (x = a if b else c), so this could be relaxed without too much trouble if necessary. Using 2.5.2.
+
+== Python Libraries ==
+
+- zope.interface : Needed for twisted. Using 3.3.0 and 3.4.1, but twisted should also work with older versions.
+- twisted : Provides our low-level networking framework. Using 8.1.0.
+- google.protobuf : Provides our network serialization framework. Using 2.0.0 and 2.0.1.
+
+== Code Management ==
+
+Code is hosted at http://tops.googlecode.com/
+
+Using svn 1.2.3 and 1.4.4. Needs to have the SSL repository access module for write access to the repository.
+
+== Build System ==
+
+Using SConstruct v1.0.1
