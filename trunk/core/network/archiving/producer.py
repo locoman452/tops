@@ -19,7 +19,7 @@ will be handled by python's built-in logging module.
 #
 # This project is hosted at http://tops.googlecode.com/
 
-import core.network.logging.producer as logging
+import tops.core.network.logging.producer as logging
 
 from tops.core.network.client import Client,ClientException
 from record import ArchiveRecord

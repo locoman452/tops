@@ -21,6 +21,8 @@ from tops.core.utility.state_chart import *
 
 import tops.core.utility.data as data
 
+from tops.core.network.naming import ResourceName
+
 import twisted.internet
 
 try:
