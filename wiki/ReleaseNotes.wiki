@@ -1,0 +1,27 @@
+#labels Featured,Phase-Deploy
+= Release Notes for Tagged Versions of TOPS =
+
+Get a list of all the available tagged version with:
+{{{
+% svn list --verbose http://tops.googlecode.com/svn/tags
+}}}
+Check out a read-only copy of a tagged version with, for example (checks out V0.1):
+{{{
+% svn checkout http://tops.googlecode.com/svn/tags/V0.1 tops
+}}}
+Test your installation with:
+{{{
+% python2.5 tops/run_tests.py
+}}}
+
+== V0.1 ==
+
+Created 9-Sep-2008.
+
+Basic install test. Should only require that python 2.5 is installed.
+
+== V0.2 ==
+
+Created 9-Sep-2008.
+
+Test core client-server networking. Requires that the zope.interface and twisted python libraries have been installed.
