@@ -1,24 +1,20 @@
 import os.path
 
 def protobuf_action(target,source,env,for_signature):
-	action = ('protoc --python_out=%s --proto_path=%s %s' %
-		(os.path.dirname(target[0]),os.path.dirname(source[0]),os.path.basename(source[0]))
-	)
-	print '>>%s<<' % action
-	return action
+	"""
+	Returns the action required to build the target from the source
+	using the Google protocol buffer compiler.
+	"""
+	# target and source are lists of Node objects
+	assert(len(target) == 1 and len(source) == 1)
+	source_path = os.path.dirname(str(source[0]))
+	target_path = os.path.dirname(str(target[0]))
+	return 'protoc --python_out=%s --proto_path=%s %s' % (target_path,source_path,source[0])
 
-def test_action(target,source,env,for_signature):
-	return 'echo %s %s' % (os.path.dirname(source[0]),target[0])
-
-# protoc --python_out=design/archiving --proto_path=protobuf protobuf/archiving.proto
-
+# Add a custom builder for python protocol buffers
 env = Environment()
-
 env['BUILDERS']['ProtoBuf'] = Builder(generator=protobuf_action)
 
-#env['BUILDERS']['TestMe'] = Builder(action = 'echo $TARGET $SOURCE')
-env['BUILDERS']['TestMe'] = Builder(generator=test_action)
-
-#env.ProtoBuf('core/network/logging/logging_pb2.py','core/protobuf/logging.proto')
-
-env.TestMe('core/network/logging/logging_pb2.py','core/protobuf/logging.proto')
+# Declare our protocol buffers
+env.ProtoBuf('core/network/logging/logging_pb2.py','core/protobuf/logging.proto')
+env.ProtoBuf('core/network/logging/archiving_pb2.py','core/protobuf/archiving.proto')
