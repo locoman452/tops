@@ -15,7 +15,7 @@ start() followed by the name associated with any custom logger
 created by the user.
 
 The source name prefix (and any user-defined logger name) must be a
-valid LogSourceName. See record.py in this package for details.
+valid ResourceName. See record.py in this package for details.
 
 start() also sets the message level filter to DEBUG so that all
 messages are sent to the server by default. Use, for example,
@@ -39,7 +39,7 @@ from traceback import format_exception
 import socket
 
 from logging_pb2 import Message,Header
-from record import LogSourceName,LogException
+from tops.core.network.naming import ResourceName
 
 class ClientHandler(SocketHandler):
 
@@ -123,12 +123,12 @@ def start(name):
 		Overrides the built-in implementation to check for a valid source name.
 		"""
 		if name:
-			source = LogSourceName(name)
+			source = ResourceName(name)
 		return _getLogger(name)
 	
 	globals()["getLogger"] = clientGetLogger
 
-	source = LogSourceName(name)
+	source = ResourceName(name)
 	print '%s: using source name "%s"' % (__name__,source)
 
 	clientHandler = ClientHandler(source,'/tmp/logserver','localhost',1966)

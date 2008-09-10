@@ -72,6 +72,7 @@ def initialize(serverHost = 'localhost'):
 	function attempts to connect to the archiving server and will
 	raise an exception if this fails.
 	"""
+	global theArchive
 	assert(theArchive is None)
 	theArchive = ArchiveClient('/tmp/archive-server',serverHost,1967)
 
@@ -84,6 +85,7 @@ def addMonitor(name,fields):
 	function does not generate any network traffic itself but, instead,
 	queues up the data that will be sent when the producer is started.
 	"""
+	global theArchive
 	assert(theArchive is not None)
 	assert(not theArchive.started)
 	logging.info('Adding monitor for "%s"',name)
@@ -97,6 +99,7 @@ def start(name):
 	the producer. Updates cannot be send, via update(), until the
 	producer has been started.
 	"""
+	global theArchive
 	assert(theArchive is not None)
 	assert(not theArchive.started)
 	logging.info('Starting archive client')
@@ -114,6 +117,7 @@ def update(utc_timestamp,record_name,fields):
 	efficient than a list of fields, but makes the producer code much
 	easier to read.
 	"""
+	global theArchive
 	assert(theArchive is not None)
 	assert(theArchive.started)
 	theArchive.sendUpdate(utc_timestamp,record_name,fields)
