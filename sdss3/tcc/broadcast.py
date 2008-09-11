@@ -25,9 +25,9 @@ class PacketError(Exception):
 
 class Packet(object):
 	
-	version = (2,1)
-	head = Struct('4i')
-	data = Struct('2d8s9di4x12d8x')
+	version = (2,2)
+	head = Struct('!4I')
+	data = Struct('!2d8s9di4x12d8x')
 	fields = [
 		'timestamp','slewEndTime','coordSys','epoch','objAxis1Pos','objAxis1Vel',
 		'objAxis2Pos','objAxis2Vel','boreXPos','boreXVel','boreYPos',
@@ -72,7 +72,7 @@ class Packet(object):
 		# unpack the data and use it to try and create a new packet
 		return Packet(*Packet.data.unpack(buffer[16:]))
 
-	def write(self,typecode=1234):
+	def write(self,typecode=0xdeadbeef):
 		"""Writes this packet to a buffer."""
 		return (self.head.pack(self.head.size+self.data.size,typecode,*self.version) + 
 			self.data.pack(*self.values))
