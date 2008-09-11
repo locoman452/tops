@@ -53,7 +53,8 @@ class BroadcastListener(DatagramProtocol):
 	
 	def datagramReceived(self, data, (host, port)):
 		packet = broadcast.Packet.read(data)
-		when = AstroTime.fromMJD(packet.timestamp,TAI)
+		mjdtai = packet.timestamp/86400.
+		when = AstroTime.fromMJD(mjdtai,TAI)
 		if host not in self.hosts:
 			logging.info('Received first packet from %s with timestamp %s',host,when)
 			self.hosts.append(host)
@@ -98,7 +99,8 @@ def configure():
 	"""
 	Perform startup configuration of the listener proxy.
 	"""
-	port = broadcast.portMap['simulator']
+#	port = broadcast.portMap['simulator']
+	port = broadcast.portMap['2.5m']
 	logging.info("Will listen for UDP broadcasts on port %d",port)
 	reactor.listenUDP(port,BroadcastListener(timeout=5))
 	
