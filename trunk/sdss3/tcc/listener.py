@@ -78,9 +78,30 @@ class BroadcastListener(DatagramProtocol):
 		# Update the archiver
 		utc = when.astimezone(UTC)
 		archiving.update(utc,'broadcast',{
-			'obj.coordsys': packet.coordSys.rstrip('\x00'), # remove trailing pad bytes
-			'obj.axis1.pos': packet.objNetAxis1Pos,
-			'obj.axis2.pos': packet.objNetAxis2Pos
+			'slewEndTime':		packet.slewEndTime,
+			'obj.coordsys': 	packet.coordSys.rstrip('\x00'), # remove trailing pad bytes
+			'epoch':			packet.epoch,
+			'obj.axis1.pos':	packet.objAxis1Pos,
+			'obj.axis1.vel':	packet.objAxis1Vel,
+			'obj.axis2.pos':	packet.objAxis2Pos,
+			'obj.axis2.vel':	packet.objAxis2Vel,
+			'bore.x.pos':		packet.boreXPos,
+			'bore.x.vel':		packet.boreXVel,
+			'bore.y.pos':		packet.boreYPos,
+			'bore.y.vel':		packet.boreYVel,
+			'rot.type':			packet.rotType,
+			'rot.pos':			packet.rotPos,
+			'rot.vel':			packet.rotVel,
+			'obj.ang.pos':		packet.objAngPos,
+			'obj.ang.vel':		packet.objAngVel,
+			'spider.ang.pos':	packet.spiderAngPos,
+			'spider.ang.vel':	packet.spiderAngVel,
+			'tcc.az.pos':		packet.tccAzPos,
+			'tcc.az.vel':		packet.tccAzVel,
+			'tcc.alt.pos':		packet.tccAltPos,
+			'tcc.alt.vel':		packet.tccAltVel,
+			'tcc.rot.pos':		packet.tccRotPos,
+			'tcc.rot.vel':		packet.tccRotVel
 		})
 
 def configure():
@@ -123,7 +144,7 @@ if __name__ == "__main__":
 				('bore.x.vel',		data.double),
 				('bore.y.pos',		data.double),
 				('bore.y.vel',		data.double),
-				('rot.type',		data.int),
+				('rot.type',		data.int),     # RotationType
 				('rot.pos',			data.double),
 				('rot.vel',			data.double),
 				('obj.ang.pos',		data.double),

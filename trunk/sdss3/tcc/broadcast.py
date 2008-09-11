@@ -29,10 +29,10 @@ class Packet(object):
 	head = Struct('4i')
 	data = Struct('2d8s9di4x12d8x')
 	fields = [
-		'timestamp','slewEndTime','coordSys','epoch','objNetAxis1Pos','objNetAxis1Vel',
-		'objNetAxis2Pos','objNetAxis2Vel','boresightXPos','boresightXVel','boresightYPos',
-		'boresightYVel','rotType','rotPos','rotVel','objAnglePos','objAngleVel','spiderAnglePos',
-		'spiderAngleVel','tccAzPos','tccAzVel','tccAltPos','tccAltVel','tccRotPos','tccRotVel'
+		'timestamp','slewEndTime','coordSys','epoch','objAxis1Pos','objAxis1Vel',
+		'objAxis2Pos','objAxis2Vel','boreXPos','boreXVel','boreYPos',
+		'boreYVel','rotType','rotPos','rotVel','objAngPos','objAngVel','spiderAngPos',
+		'spiderAngVel','tccAzPos','tccAzVel','tccAltPos','tccAltVel','tccRotPos','tccRotVel'
 	]
 	
 	def __init__(self,*values):

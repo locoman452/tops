@@ -99,16 +99,6 @@ def initialize():
 			properties = {"manager":manager}
 		)
 
-		"""
-		webpath = os.path.join(os.path.dirname(__file__),'web')
-		root = static.File(webpath)
-		root.indexNames = ['archiver.html'] # sets default and prevents listing directory
-		root.putChild("query",ArchiveQuery())
-		site = server.Site(root)
-		site.manager = manager
-		reactor.listenTCP(8081,site)
-		"""
-
 		# fire up the reactor
 		print 'Waiting for clients...'
 		reactor.run()
