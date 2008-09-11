@@ -89,7 +89,7 @@ $(document).ready(
 		$("input#pattern").change(
 			function () {
 				$("#intro-help").hide();
-				$.getJSON('query',{'uid':uid,'pattern':$("input#pattern").val()},displayFields);
+				$.getJSON('/query',{'uid':uid,'pattern':$("input#pattern").val()},displayFields);
 			}
 		);
 		// did we get a pattern in the URL?

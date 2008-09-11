@@ -43,7 +43,7 @@ class ArchiveManager(object):
 		return '({"items":[' + items + ']})'
 	
 
-from tops.core.network.webserver import WebQuery
+from tops.core.network.webserver import WebQuery,prepareWebServer
 
 class ArchiveQuery(WebQuery):
 
@@ -81,28 +81,43 @@ def initialize():
 	#log.startLogging(LogFile('logserver','logs'))
 	print 'Executing',__file__,'as PID',os.getpid()
 
-	# create an archive manager to connect our consumers to our producers
-	manager = ArchiveManager()
+	try:
+		# create an archive manager to connect our consumers to our producers
+		manager = ArchiveManager()
 
-	# initialize a TCP server to listen for local or network clients producing log messages
-	factory = Factory()
-	factory.protocol = ArchiveServer
-	factory.manager = manager
-	reactor.listenTCP(1967,factory)
-	reactor.listenUNIX('/tmp/archive-server',factory)
+		# initialize a TCP server to listen for local or network clients producing log messages
+		factory = Factory()
+		factory.protocol = ArchiveServer
+		factory.manager = manager
+		reactor.listenTCP(1967,factory)
+		reactor.listenUNIX('/tmp/archive-server',factory)
 
-	# initialize an HTTP server to handle feed watcher requests via http
-	webpath = os.path.join(os.path.dirname(__file__),'web')
-	root = static.File(webpath)
-	root.indexNames = ['archiver.html'] # sets default and prevents listing directory
-	root.putChild("query",ArchiveQuery())
-	site = server.Site(root)
-	site.manager = manager
-	reactor.listenTCP(8081,site)
+		# initialize an HTTP server to handle archive monitoring queries via http
+		prepareWebServer(
+			portNumber = 8081,
+			handlers = {"query":ArchiveQuery()},
+			properties = {"manager":manager}
+		)
 
-	# fire up the reactor
-	print 'Waiting for clients...'
-	reactor.run()
+		"""
+		webpath = os.path.join(os.path.dirname(__file__),'web')
+		root = static.File(webpath)
+		root.indexNames = ['archiver.html'] # sets default and prevents listing directory
+		root.putChild("query",ArchiveQuery())
+		site = server.Site(root)
+		site.manager = manager
+		reactor.listenTCP(8081,site)
+		"""
+
+		# fire up the reactor
+		print 'Waiting for clients...'
+		reactor.run()
+
+	except Exception:
+		print 'Reactor startup failed'
+		# How do I release my unix socket cleanly here?
+		#reactor.stop()
+		raise
 
 if __name__ == '__main__':
 	initialize()
