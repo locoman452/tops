@@ -100,6 +100,7 @@ class Broadcaster(object):
 	def __init__(self,port):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.connect(("<broadcast>",port))
+#		self.socket.connect(("10.25.1.255",port))
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 	def transmit(self):
