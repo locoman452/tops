@@ -15,7 +15,6 @@ producer clients and serves consumer clients via a web server.
 
 from twisted.internet.protocol import Factory
 from twisted.internet.task import LoopingCall
-from twisted.web import resource,server,static
 from twisted.python import log
 
 from collections import deque
@@ -58,43 +57,27 @@ class FeedBuffer(object):
 		self.add(LogRecord(msg,self.hdr))
 
 
-class FeedUpdate(resource.Resource):
+from tops.core.network.webserver import WebQuery,prepareWebServer
+
+class FeedUpdate(WebQuery):
 	"""
 	Serves filtered updates from the site's FeedBuffer via JSON
 	responses to HTTP GET queries. Listens to POST queries to configure
 	the per-session filter.
 	"""
-	isLeaf = True
+	ServiceName = 'LOGGER'
 
-	def render_GET(self, request):
-		request.sitepath = ['LOGGER']
-		session = request.getSession()
-		try:
-			uid = request.args['uid'][0]
-			#print 'Retrieving session filter for',uid,'in',id(session)
-			filt = session.filter[uid]
-			return session.site.feed.dump(filt)
-		except AttributeError:
-			print 'Cannot determine filter from GET args'
-			log.err()
-			return '{"status":"ERROR"}'
-	
-	def render_POST(self, request):
-		request.sitepath = ['LOGGER']
-		session = request.getSession()
-		try:
-			(uid,sourceFilter,minLevel) = (
-				request.args[name][0] for name in ['uid','sourceFilter','minLevel'])
-			filter = LogFilter(sourceFilter,minLevel)
-			if not hasattr(session,'filter'):
-				session.filter = { }
-			#print 'Storing session filter for',uid,'in',id(session)
-			session.filter[uid] = filter
-			return 'OK'
-		except:
-			print 'Cannot find expected POST args'
-			log.err()
-			return 'ERROR'
+	def GET(self,request,session,state):
+		if not hasattr(state,'filter'):
+			print 'cannot serve GET requests before a filter has been specified'
+			return '({"items":[]})'
+		return session.site.feed.dump(state.filter)
+		
+	def POST(self,request,session,state):
+		sourceFilter = request.args['sourceFilter'][0]
+		minLevel = request.args['minLevel'][0]
+		state.filter = LogFilter(sourceFilter,minLevel)
+		return 'OK'
 
 
 from tops.core.network.server import Server
@@ -126,28 +109,33 @@ def initialize():
 	#log.startLogging(LogFile('logserver','logs'))
 	print 'Executing',__file__,'as PID',os.getpid()
 
-	# create a record buffer to connect our feed watchers to our clients
-	feed = FeedBuffer()
-	
-	# initialize a TCP server to listen for local or network clients producing log messages
-	factory = Factory()
-	factory.protocol = LogServer
-	factory.feed = feed
-	reactor.listenTCP(1966,factory)
-	reactor.listenUNIX('/tmp/log-server',factory)
+	try:
+		# create a record buffer to connect our feed watchers to our clients
+		feed = FeedBuffer()
 
-	# initialize an HTTP server to handle feed watcher requests via http
-	webpath = os.path.join(os.path.dirname(__file__),'web')
-	root = static.File(webpath)
-	root.indexNames = ['logwatch.html'] # sets default and prevents listing directory
-	root.putChild("feed",FeedUpdate())
-	site = server.Site(root)
-	site.feed = feed
-	reactor.listenTCP(8080,site)
+		# initialize socket servers to listen for local and network log message producers
+		factory = Factory()
+		factory.protocol = LogServer
+		factory.feed = feed
+		reactor.listenTCP(1966,factory)
+		reactor.listenUNIX('/tmp/log-server',factory)
 
-	# fire up the reactor
-	print 'Waiting for clients...'
-	reactor.run()
+		# initialize an HTTP server to handle feed watcher requests via http
+		prepareWebServer(
+			portNumber = 8080,
+			handlers = {"feed":FeedUpdate()},
+			properties = {"feed":feed}
+		)
+
+		# fire up the reactor
+		print 'Waiting for clients...'
+		reactor.run()
+		
+	except Exception:
+		print 'Reactor startup failed'
+		# How do I release my unix socket cleanly here?
+		#reactor.stop()
+		raise
 
 if __name__ == '__main__':
 	initialize()

@@ -17,8 +17,6 @@ from twisted.internet.protocol import Factory
 from twisted.web import resource,server,static
 from twisted.python import log
 
-from tops.core.network.server import Server
-
 import archiving_pb2
 
 class ArchiveManager(object):
@@ -45,23 +43,17 @@ class ArchiveManager(object):
 		return '({"items":[' + items + ']})'
 	
 
-class WebQuery(resource.Resource):
+from tops.core.network.webserver import WebQuery
 
-	isLeaf = True
+class ArchiveQuery(WebQuery):
 
-	def render_GET(self, request):
-		request.sitepath = ['ARCHIVER']
-		session = request.getSession()
-		try:
-			#uid = request.args['uid'][0]
-			#print 'Retrieving session state for',uid,'in',id(session)
-			#state = session.state[uid]
-			return session.site.manager.getFields()
-		except AttributeError:
-			print 'Cannot determine state from GET args'
-			log.err()
-			return '{"status":"ERROR"}'
+	ServiceName = 'ARCHIVER'
+	
+	def GET(self,request,session,state):
+		return session.site.manager.getFields()
 
+
+from tops.core.network.server import Server
 
 class ArchiveServer(Server):
 	
@@ -103,7 +95,7 @@ def initialize():
 	webpath = os.path.join(os.path.dirname(__file__),'web')
 	root = static.File(webpath)
 	root.indexNames = ['archiver.html'] # sets default and prevents listing directory
-	root.putChild("query",WebQuery())
+	root.putChild("query",ArchiveQuery())
 	site = server.Site(root)
 	site.manager = manager
 	reactor.listenTCP(8081,site)

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>Log Stream Watcher</title>
+	<link rel="stylesheet" href="/shared/flora.dialog.css" type="text/css" charset="utf-8">
+	<link rel="stylesheet" href="/shared/styles.css" type="text/css" charset="utf-8">
+	<link rel="stylesheet" href="/local/logwatch.css" type="text/css" charset="utf-8">
+	<script src="/shared/jquery-1.2.6.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/shared/jquery-ui-personalized-1.6b.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/shared/library.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/local/logwatch.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+	<div id="warning">Please
+		<a href="http://www.google.com/support/bin/answer.py?answer=23852">enable javascript</a>
+		in your browser to use this page.
+	</div>
+	<div id="jsready">
+		<div id="header">
+			<div id="title" class="indent">SDSS3 Operations Log</div>
+			<div id="optionsButton" class="indent right">OPTIONS</div>
+		</div>
+		<div id="optionsDialog" title="OPTIONS" class="flora">
+			<fieldset id="updateInterval">
+				<legend>Update interval in seconds:</legend>
+				<label><input type="radio" name="ival" value="1"/>1</label>
+				<label><input type="radio" name="ival" value="2"/>2</label>
+				<label><input type="radio" name="ival" value="5"/>5</label>
+				<label><input type="radio" name="ival" value="10"/>10</label>
+				<label><input type="radio" name="ival" value="30"/>30</label>
+			</fieldset>
+			<fieldset id="maxMessages">
+				<legend>Maximum messages to keep:</legend>
+				<label><input type="radio" name="mmsg" value="100">100</label>
+				<label><input type="radio" name="mmsg" value="1000">1,000</label>
+				<label><input type="radio" name="mmsg" value="10000">10,000</label>
+				<label><input type="radio" name="mmsg" value="0">No Limit</label>
+			</fieldset>
+			<fieldset>
+				<legend>Message source filter (e.g., proxy.*,*.tcc.*):</legend>
+				<input type="text" id="sourceFilter">
+			</fieldset>
+			<fieldset id="minLevel">
+				<legend>Minimum message level to display:</legend>
+				<label><input type="radio" name="mlev" value="DEBUG"/>
+					<span class="DEBUG"/>DEBUG</span></label>
+				<label><input type="radio" name="mlev" value="INFO"/>
+					<span class="INFO"/>INFO</span></label>
+				<label><input type="radio" name="mlev" value="WARNING"/>
+					<span class="WARNING"/>WARNING</span></label>
+				<label><input type="radio" name="mlev" value="ERROR"/>
+					<span class="ERROR"/>ERROR</span></label>
+				<label><input type="radio" name="mlev" value="CRITICAL"/>
+					<span class="CRITICAL"/>CRITICAL</span></label>
+			</fieldset>
+		</div>
+		<div id="content">
+			<table>
+				<col id="whenColumn"/><col id="sourceColumn"/><col id="bodyColumn"/>
+				<tr id="template">
+					<td class="when">15:30:32</td>
+					<td class="source">logging.client.test</td>
+					<td class="body">The message body goes here and might be looong.</td>
+				</tr>
+			</table>
+		</div>
+		<div id="footer">
+			<div class="indent">Last Update: <span id="lastUpdate">none</span></div>
+			<div class="indent right">Showing <span id="msgCount">0</span> messages</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+table {
+	width: 100%;
+	table-layout: fixed;
+	border-spacing: 0 0;
+}
+
+#whenColumn { width: 6em; }
+#sourceColumn { width: 15em; }
+.zebra { background-color: #B5A7FF; }
+td { overflow: hidden; }
+
+.LOCAL { color: white; background-color: #54478a; }
+.DEBUG { color: gray; }
+.INFO { color: black; }
+.WARNING { color: #e70; }
+.ERROR { color: #e00; }
+.CRITICAL { background-color: #f00; color: white; }
+.CRITICAL.zebra { background-color: #e00; }
+
+.source { font-style: italic; }
