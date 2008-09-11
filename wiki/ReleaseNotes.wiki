@@ -25,3 +25,7 @@ Basic install test. Should only require that python 2.5 is installed.
 Created 9-Sep-2008.
 
 Test core client-server networking. Requires that the zope.interface and twisted python libraries have been installed.
+
+== V0.3 (still under development) ==
+
+Includes functional logging and archiving services and the TCC listener proxy. Requires that the google.protobuf python library has been installed and provides an scons build script.
