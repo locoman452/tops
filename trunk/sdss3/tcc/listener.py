@@ -26,16 +26,6 @@ from tops.core.network.proxy import *
 
 from tops.core.utility.astro_time import AstroTime,TAI,UTC
 
-class TAIMJD(AstroTime):
-	__metaclass__ = ValueType
-
-	def pack(self,buffer):
-		buffer.double = self
-
-	@classmethod
-	def unpack(cls,buffer):
-		return cls(AstroTime.fromMJD(packet.timestamp,TAI))
-
 class CoordinateSystem(data.enumerated):
 	labels = ('ICRS','FK5','FK4','Gal','Geo','None','Topo','Obs','Phys','Mount','Inst','GImage')
 
@@ -79,7 +69,7 @@ class BroadcastListener(DatagramProtocol):
 		utc = when.astimezone(UTC)
 		archiving.update(utc,'broadcast',{
 			'slewEndTime':		packet.slewEndTime,
-			'obj.coordsys': 	packet.coordSys.rstrip('\x00'), # remove trailing pad bytes
+			'obj.coordSys': 	packet.coordSys.rstrip('\x00'), # remove trailing pad bytes
 			'epoch':			packet.epoch,
 			'obj.axis1.pos':	packet.objAxis1Pos,
 			'obj.axis1.vel':	packet.objAxis1Vel,
@@ -144,7 +134,7 @@ if __name__ == "__main__":
 				('bore.x.vel',		data.double),
 				('bore.y.pos',		data.double),
 				('bore.y.vel',		data.double),
-				('rot.type',		data.int),     # RotationType
+				('rot.type',		data.unsigned),     # RotationType
 				('rot.pos',			data.double),
 				('rot.vel',			data.double),
 				('obj.ang.pos',		data.double),
