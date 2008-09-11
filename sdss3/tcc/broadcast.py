@@ -27,13 +27,12 @@ class Packet(object):
 	
 	version = (2,1)
 	head = Struct('4i')
-	data = Struct('2d8s9di4x12d')
+	data = Struct('2d8s9di4x12d8x')
 	fields = [
-		'timestamp','slewEndTime','coordSys','epoch','objNetPosAxis1','objNetVelAxis1',
-		'objNetPosAxis2','objNetVelAxis2','boresightPosX','boresightVelX','boresightPosY',
-		'boresightVelY','rotType','rotPos','rotVel','objInstPos','objInstVel','spiderInstPos',
-		'spiderInstVel','altMountPos','altMountVel','azMountPos','azMountVel','rotMountPos',
-		'rotMountVel'
+		'timestamp','slewEndTime','coordSys','epoch','objNetAxis1Pos','objNetAxis1Vel',
+		'objNetAxis2Pos','objNetAxis2Vel','boresightXPos','boresightXVel','boresightYPos',
+		'boresightYVel','rotType','rotPos','rotVel','objAnglePos','objAngleVel','spiderAnglePos',
+		'spiderAngleVel','tccAzPos','tccAzVel','tccAltPos','tccAltVel','tccRotPos','tccRotVel'
 	]
 	
 	def __init__(self,*values):
