@@ -4,7 +4,8 @@ Implements the producer client side of distributed logging
 This module serves as a wrapper for the builtin python logging library
 and should normally be invoked with:
 
-  import <this-module> as logging ...
+  import tops.core.network.logging.producer as logging
+  ...
   logging.start("my.source.name.prefix")
 
 Without the call to start(), logging defaults to the built-in
