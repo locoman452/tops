@@ -28,4 +28,4 @@ Test core client-server networking. Requires that the zope.interface and twisted
 
 == V0.3 (still under development) ==
 
-Includes functional logging and archiving services and the TCC listener proxy. Requires that the google.protobuf python library has been installed and provides an scons build script.
+Includes functional logging and archiving services and the TCC listener proxy. Requires that the google.protobuf python library has been installed and provides an scons build script. Tested on the 2.5m subnet at APO.
