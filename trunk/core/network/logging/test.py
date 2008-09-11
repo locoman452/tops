@@ -14,39 +14,41 @@ is running and correctly handles the messages.
 #
 # This project is hosted at http://tops.googlecode.com/
 
-import tops.core.network.logging.producer as logging
+if __name__ == "__main__":
 
-logging.start('log.client.test')
+	import tops.core.network.logging.producer as logging
 
-from time import sleep
+	logging.start('log.client.test')
 
-log = logging.getLogger('proxy.tcc')
-log.setLevel(logging.DEBUG)
+	from time import sleep
 
-extra = { 'SaveContext':True }
+	log = logging.getLogger('proxy.tcc')
+	log.setLevel(logging.DEBUG)
 
-for (level) in (logging.DEBUG,logging.INFO,logging.WARNING,logging.ERROR,logging.CRITICAL):
-	log.log(level,"This message has level %s",logging.getLevelName(level),extra=extra)
-	sleep(0.5)
-	logging.log(level,"This message has level %s",logging.getLevelName(level),extra=extra)
-	sleep(0.5)
+	extra = { 'SaveContext':True }
 
-try:
-	raise Exception("something bad happened")
-except:
-	logging.exception('Uh-oh!')
+	for (level) in (logging.DEBUG,logging.INFO,logging.WARNING,logging.ERROR,logging.CRITICAL):
+		log.log(level,"This message has level %s",logging.getLevelName(level),extra=extra)
+		sleep(0.5)
+		logging.log(level,"This message has level %s",logging.getLevelName(level),extra=extra)
+		sleep(0.5)
+
+	try:
+		raise Exception("something bad happened")
+	except:
+		logging.exception('Uh-oh!')
 	
-# Test a log message with unicode
-sleep(1.0)
-unicode_msg = u'\u00b1\u0394\u03d3 sin(2\u03b2) \u00a9 360\u00b0 \u2207\u221e\u2211\u2202'
-logging.error(unicode_msg)
+	# Test a log message with unicode
+	sleep(1.0)
+	unicode_msg = u'\u00b1\u0394\u03d3 sin(2\u03b2) \u00a9 360\u00b0 \u2207\u221e\u2211\u2202'
+	logging.error(unicode_msg)
 
-# Test a log message with embedded quotes
-sleep(1.0)
-logging.error('He\'s supposed to have said "I didn\'t say that"')
+	# Test a log message with embedded quotes
+	sleep(1.0)
+	logging.error('He\'s supposed to have said "I didn\'t say that"')
 
-# Test a log message with embedded control sequences
-sleep(1.0)
-logging.error('This message contains TWO\t\tTABS and a\nsecond line with \\TWO\\ backslashes')
+	# Test a log message with embedded control sequences
+	sleep(1.0)
+	logging.error('This message contains TWO\t\tTABS and a\nsecond line with \\TWO\\ backslashes')
 
-logging.shutdown()
+	logging.shutdown()
