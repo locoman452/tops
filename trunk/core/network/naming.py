@@ -25,6 +25,7 @@ class ResourceName(str):
 	A valid name consists of one or more elements separated by '.' where
 	each element uses only the characters A-Z and a-z. For example,
 	'aaa.bbb.ccc' or 'aaa'. A valid name cannot begin or end with '.'
+	Names are case-sensitive.
 	"""
 	element = '[A-Za-z]+'
 	separator = '.'

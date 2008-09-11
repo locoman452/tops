@@ -24,14 +24,28 @@ from tops.core.network.proxy import *
 # Define custom data types here
 #########################################################################
 
+from tops.core.utility.astro_time import AstroTime,TAI,UTC
+
+class TAIMJD(AstroTime):
+	__metaclass__ = ValueType
+
+	def pack(self,buffer):
+		buffer.double = self
+
+	@classmethod
+	def unpack(cls,buffer):
+		return cls(AstroTime.fromMJD(packet.timestamp,TAI))
+
 class CoordinateSystem(data.enumerated):
 	labels = ('ICRS','FK5','FK4','Gal','Geo','None','Topo','Obs','Phys','Mount','Inst','GImage')
+
+class RotationType(data.enumerated):
+	labels = ('None','Obj','Horiz','Phys','Mount')
 
 #########################################################################
 # Configure the proxy's main event loop here.
 #########################################################################
 
-from tops.core.utility.astro_time import AstroTime,TAI,UTC
 import broadcast
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
@@ -65,8 +79,8 @@ class BroadcastListener(DatagramProtocol):
 		utc = when.astimezone(UTC)
 		archiving.update(utc,'broadcast',{
 			'obj.coordsys': packet.coordSys.rstrip('\x00'), # remove trailing pad bytes
-			'obj.netpos.axis1': packet.objNetPosAxis1,
-			'obj.netpos.axis2': packet.objNetPosAxis2
+			'obj.axis1.pos': packet.objNetAxis1Pos,
+			'obj.axis2.pos': packet.objNetAxis2Pos
 		})
 
 def configure():
@@ -98,10 +112,30 @@ if __name__ == "__main__":
 			""",
 			On('timeout').goto('WAITING'),
 			Monitor('broadcast',
-				#('slew_end_time',TAIMJD),
-				('obj.coordsys',CoordinateSystem),
-				('obj.netpos.axis1',data.double),
-				('obj.netpos.axis2',data.double)
+				('slewEndTime',		data.double),				
+				('obj.coordSys',	CoordinateSystem),
+				('epoch',			data.double),
+				('obj.axis1.pos',	data.double),
+				('obj.axis1.vel',	data.double),
+				('obj.axis2.pos',	data.double),
+				('obj.axis2.vel',	data.double),
+				('bore.x.pos',		data.double),
+				('bore.x.vel',		data.double),
+				('bore.y.pos',		data.double),
+				('bore.y.vel',		data.double),
+				('rot.type',		data.int),
+				('rot.pos',			data.double),
+				('rot.vel',			data.double),
+				('obj.ang.pos',		data.double),
+				('obj.ang.vel',		data.double),
+				('spider.ang.pos',	data.double),
+				('spider.ang.vel',	data.double),
+				('tcc.az.pos',		data.double),
+				('tcc.az.vel',		data.double),
+				('tcc.alt.pos',		data.double),
+				('tcc.alt.vel',		data.double),
+				('tcc.rot.pos',		data.double),
+				('tcc.rot.vel',		data.double)
 			)
 		)
 	)
