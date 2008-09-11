@@ -24,6 +24,8 @@ import tops.core.network.logging.producer as logging
 from tops.core.network.client import Client,ClientException
 from record import ArchiveRecord
 
+from tops.core.network.naming import ResourceName
+
 from time import time
 from math import floor
 from tops.core.utility.astro_time import AstroTime,UTC

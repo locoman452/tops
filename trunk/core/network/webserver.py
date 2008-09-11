@@ -5,7 +5,7 @@ Defines a twisted web site that serves static files and handles dynamic
 requests.
 """
 
-## @package tops.core.network.archiving.server
+## @package tops.core.network.webserver
 # Implements a generic web server
 #
 # @author David Kirkby, dkirkby@uci.edu

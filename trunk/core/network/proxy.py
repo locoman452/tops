@@ -29,13 +29,13 @@ try:
 	import tops.core.network.logging.producer as logging
 except Exception,e:
 	print 'Unable to load logging service:',e
-	sys.exit(-1)
+	raise
 
 try:
 	import tops.core.network.archiving.producer as archiving
 except Exception,e:
 	print 'Unable to load archiving service:',e
-	sys.exit(-2)
+	raise
 
 
 class Monitor(object):
@@ -85,4 +85,4 @@ class Proxy(StateChart):
 		twisted.internet.reactor.run()
 		
 def initialize():
-	archiving.intialize()
+	archiving.initialize()

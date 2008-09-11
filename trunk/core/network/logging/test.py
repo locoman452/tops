@@ -16,7 +16,7 @@ is running and correctly handles the messages.
 
 import tops.core.network.logging.producer as logging
 
-logging.initialize('log.client.test')
+logging.start('log.client.test')
 
 from time import sleep
 
