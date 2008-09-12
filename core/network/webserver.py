@@ -30,7 +30,14 @@ class WebQuery(resource.Resource):
 	ServiceName = 'UNKNOWN'
 	isLeaf = True
 
+	def get_arg(self,name,default=None):
+		try:
+			return self.args[name][0]
+		except (AttributeError,KeyError):
+			return default
+
 	def prepare(self,request):
+		self.args = request.args
 		request.sitepath = [self.ServiceName]
 		session = request.getSession()
 		if not 'uid' in request.args:

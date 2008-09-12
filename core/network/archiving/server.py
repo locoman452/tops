@@ -23,7 +23,7 @@ class ArchiveManager(object):
 
 	def __init__(self):
 		self.sessions = { }
-		self.fields = { }
+		self.channels = { }
 		
 	def createSession(self,hdr):
 		if hdr.name not in self.sessions:
@@ -31,15 +31,15 @@ class ArchiveManager(object):
 			self.sessions[hdr.name] = [ ]
 		self.sessions[hdr.name].append(hdr)
 		for record in hdr.records:
-			for field in record.fields:
-				if field.field_name not in self.fields:
-					self.fields[field.field_name] = hdr.name
-				elif not self.fields[field.field_name] == hdr.name:
+			for channel in record.channels:
+				if channel.channel_name not in self.channels:
+					self.channels[channel.channel_name] = hdr.name
+				elif not self.channels[channel.channel_name] == hdr.name:
 					# what if source name has changed since last session??
 					pass
 
-	def getFields(self):
-		items = ',\n\t'.join(['{"name":"%s"}' % field for field in sorted(self.fields)])
+	def getChannels(self):
+		items = ',\n\t'.join(['{"name":"%s"}' % channel for channel in sorted(self.channels)])
 		return '({"items":[' + items + ']})'
 	
 
@@ -50,8 +50,16 @@ class ArchiveQuery(WebQuery):
 	ServiceName = 'ARCHIVER'
 	
 	def GET(self,request,session,state):
-		return session.site.manager.getFields()
+		return session.site.manager.getChannels()
 
+	def POST(self,request,session,state):
+		pattern = self.get_arg('pattern')
+		if pattern:
+			print 'subscribing %d with pattern "%s"' % (id(state),pattern)
+			# subscribe this client with this pattern
+			state.subscription = { }
+			return '({"items":[]})'
+		return '({})'
 
 from tops.core.network.server import Server
 
@@ -95,7 +103,7 @@ def initialize():
 		# initialize an HTTP server to handle archive monitoring queries via http
 		prepareWebServer(
 			portNumber = 8081,
-			handlers = {"query":ArchiveQuery()},
+			handlers = {"feed":ArchiveQuery()},
 			properties = {"manager":manager}
 		)
 
