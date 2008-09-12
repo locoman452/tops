@@ -14,20 +14,20 @@ function ajaxError(request, textStatus, errorThrown) {
 	alert(msg);
 }
 
-function displayField(index,field) {
-	// insert a clone of the field template
+function displayChannel(index,channel) {
+	// insert a clone of the channel template
 	$("#content").append(
-		$("#template").clone().removeAttr("id").addClass("field")
-			.find(".name").html(field.name).end()
+		$("#template").clone().removeAttr("id").addClass("channel")
+			.find(".name").html(channel.name).end()
 	);
-	// scroll to the bottom of the fields display area so this new field is visible
+	// scroll to the bottom of the channels display area so this new channel is visible
 	$("#content").each(function() { this.scrollTop = this.scrollHeight; });
 }
 
-function displayFields(data,textStatus) {
+function displayChannels(data,textStatus) {
 	var now = new Date();
 	$("#lastUpdate").html(now.toLocaleString()+' '+textStatus);
-	$.each(data.items,displayField);
+	$.each(data.items,displayChannel);
 }
 
 function resetOptions() {
@@ -89,7 +89,8 @@ $(document).ready(
 		$("input#pattern").change(
 			function () {
 				$("#intro-help").hide();
-				$.getJSON('/query',{'uid':uid,'pattern':$("input#pattern").val()},displayFields);
+				$.post('/feed',{'uid':uid,'pattern':$("input#pattern").val()},
+					displayChannels,"json");
 			}
 		);
 		// did we get a pattern in the URL?

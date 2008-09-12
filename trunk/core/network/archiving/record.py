@@ -23,7 +23,7 @@ class ArchiveRecord(object):
 	# maintain a counter to provide IDs that are unique within one client session
 	id_counter = 0
 	
-	def __init__(self,name,fields):
+	def __init__(self,name,channels):
 		self.name = name
 		# take the next counter ID (starting with one)
 		self.id_counter += 1
@@ -33,9 +33,9 @@ class ArchiveRecord(object):
 		self.names = [ ]
 		self.types = [ ]
 		self.values = [ ]
-		for (field_name,value_type) in fields:
-			self.indexof[field_name] = len(self.names)
-			self.names.append(field_name)
+		for (channel_name,value_type) in channels:
+			self.indexof[channel_name] = len(self.names)
+			self.names.append(channel_name)
 			self.types.append(value_type)
 			self.values.append(None)
 
@@ -44,8 +44,8 @@ class ArchiveRecord(object):
 		r.record_id = self.id
 		r.record_name = self.name
 		for index in xrange(len(self.names)):
-			f = r.fields.add()
-			f.field_name = self.names[index]
+			f = r.channels.add()
+			f.channel_name = self.names[index]
 			vtype = self.types[index]
 			f.value_type = vtype.__module__ + '.' + vtype.__name__
 			# list any labels associated with this type
@@ -55,7 +55,7 @@ class ArchiveRecord(object):
 			except AttributeError:
 				pass
 		
-	def getUpdate(self,elapsed,fields):
+	def getUpdate(self,elapsed,channels):
 		u = Update()
 		u.record_id = self.id
 		if elapsed.days:
@@ -64,9 +64,9 @@ class ArchiveRecord(object):
 		if elapsed.microseconds:
 			# range is 0-999
 			u.elapsed_millisecs = int(floor(1e-3*elapsed.microseconds))
-		for (field_name,field_value) in fields.iteritems():
-			index = self.indexof[field_name]
-			self.values[index] = self.types[index](field_value)			
+		for (channel_name,channel_value) in channels.iteritems():
+			index = self.indexof[channel_name]
+			self.values[index] = self.types[index](channel_value)			
 		for value in self.values:
 			value.pack(u.values.add())
 		return u
@@ -93,10 +93,10 @@ class RecordTests(unittest.TestCase):
 		hdr = self.Header()
 		record.appendToHeader(hdr)
 		self.assertEqual(len(hdr.records),1)
-		self.assertEqual(len(hdr.records[0].fields),4)
-		self.assertEqual(hdr.records[0].fields[0].field_name,'boolean')
-		self.assertEqual(hdr.records[0].fields[0].labels[0],'true')
-		self.assertEqual(hdr.records[0].fields[2].value_type,'tops.core.utility.data.double')
+		self.assertEqual(len(hdr.records[0].channels),4)
+		self.assertEqual(hdr.records[0].channels[0].channel_name,'boolean')
+		self.assertEqual(hdr.records[0].channels[0].labels[0],'true')
+		self.assertEqual(hdr.records[0].channels[2].value_type,'tops.core.utility.data.double')
 		class elapsed(object):
 			days = 0
 			seconds = 123

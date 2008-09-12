@@ -2,8 +2,8 @@
 
 package archiving;
 
-message Field {
-	required string field_name = 1;
+message Channel {
+	required string channel_name = 1;
 	required string value_type = 2;
 	repeated string labels = 3;
 }
@@ -11,7 +11,7 @@ message Field {
 message Record {
 	required uint32 record_id = 1;
 	required string record_name = 2;
-	repeated Field fields = 3;
+	repeated Channel channels = 3;
 }
 
 message Header {

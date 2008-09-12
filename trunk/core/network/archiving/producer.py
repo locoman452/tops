@@ -42,8 +42,8 @@ class ArchiveClient(Client):
 		self.records = { }
 		self.started = False
 		
-	def addMonitor(self,name,fields):
-		self.records[name] = ArchiveRecord(name,fields)
+	def addMonitor(self,name,channels):
+		self.records[name] = ArchiveRecord(name,channels)
 
 	def start(self,name):
 		hdr = self.Header()
@@ -57,9 +57,9 @@ class ArchiveClient(Client):
 			self.sendHeader(hdr)
 		self.started = True
 			
-	def sendUpdate(self,timestamp,record_name,fields):
+	def sendUpdate(self,timestamp,record_name,channels):
 		elapsed = timestamp - self.timestamp_origin
-		msg = self.records[record_name].getUpdate(elapsed,fields)
+		msg = self.records[record_name].getUpdate(elapsed,channels)
 		self.sendMessage(msg)
 		
 
@@ -78,7 +78,7 @@ def initialize(serverHost = 'localhost'):
 	assert(theArchive is None)
 	theArchive = ArchiveClient('/tmp/archive-server',serverHost,1967)
 
-def addMonitor(name,fields):
+def addMonitor(name,channels):
 	"""
 	Adds a monitor for a new record to this producer.
 	
@@ -91,7 +91,7 @@ def addMonitor(name,fields):
 	assert(theArchive is not None)
 	assert(not theArchive.started)
 	logging.info('Adding monitor for "%s"',name)
-	theArchive.addMonitor(name,fields)
+	theArchive.addMonitor(name,channels)
 
 def start(name):
 	"""
@@ -107,7 +107,7 @@ def start(name):
 	logging.info('Starting archive client')
 	theArchive.start(name)
 
-def update(utc_timestamp,record_name,fields):
+def update(utc_timestamp,record_name,channels):
 	"""
 	Sends a timestamped update for the named record.
 	
@@ -115,11 +115,11 @@ def update(utc_timestamp,record_name,fields):
 	this producer was started. The timestamp is a posix timestamp, i.e.,
 	seconds since 00:00 1 Jan 1970 UTC.
 	
-	Note that fields are specified by keyword. This is probaby less
-	efficient than a list of fields, but makes the producer code much
+	Note that channels are specified by keyword. This is probaby less
+	efficient than a list of channels, but makes the producer code much
 	easier to read.
 	"""
 	global theArchive
 	assert(theArchive is not None)
 	assert(theArchive.started)
-	theArchive.sendUpdate(utc_timestamp,record_name,fields)
+	theArchive.sendUpdate(utc_timestamp,record_name,channels)

@@ -74,10 +74,13 @@ class FeedUpdate(WebQuery):
 		return session.site.feed.dump(state.filter)
 		
 	def POST(self,request,session,state):
-		sourceFilter = request.args['sourceFilter'][0]
-		minLevel = request.args['minLevel'][0]
-		state.filter = LogFilter(sourceFilter,minLevel)
-		return 'OK'
+		sourceFilter = self.get_arg('sourceFilter')
+		minLevel = self.get_arg('minLevel')
+		if not sourceFilter or not minLevel:
+			return 'ERROR'
+		else:
+			state.filter = LogFilter(sourceFilter,minLevel)
+			return 'OK'
 
 
 from tops.core.network.server import Server
