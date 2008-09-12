@@ -127,7 +127,8 @@ def initialize():
 		prepareWebServer(
 			portNumber = 8080,
 			handlers = {"feed":FeedUpdate()},
-			properties = {"feed":feed}
+			properties = {"feed":feed},
+			filterLogs = True
 		)
 
 		# fire up the reactor

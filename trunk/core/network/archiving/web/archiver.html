@@ -21,7 +21,7 @@
 	<div id="jsready">
 		<div id="header">
 			<div id="title" class="indent">
-				SDSS3 Archive Monitor:&nbsp;&nbsp;
+				SDSS-3 Archive Monitor:&nbsp;&nbsp;
 				<input type='text' value='you should not see this' id='pattern' />
 			</div>
 			<div id="optionsButton" class="indent right">OPTIONS</div>
@@ -35,42 +35,19 @@
 				<label><input type="radio" name="ival" value="10"/>10</label>
 				<label><input type="radio" name="ival" value="30"/>30</label>
 			</fieldset>
-			<fieldset id="maxMessages">
-				<legend>Maximum messages to keep:</legend>
-				<label><input type="radio" name="mmsg" value="100">100</label>
-				<label><input type="radio" name="mmsg" value="1000">1,000</label>
-				<label><input type="radio" name="mmsg" value="10000">10,000</label>
-				<label><input type="radio" name="mmsg" value="0">No Limit</label>
-			</fieldset>
-			<fieldset>
-				<legend>Message source filter (e.g., proxy.*,*.tcc.*):</legend>
-				<input type="text" id="sourceFilter">
-			</fieldset>
-			<fieldset id="minLevel">
-				<legend>Minimum message level to display:</legend>
-				<label><input type="radio" name="mlev" value="DEBUG"/>
-					<span class="DEBUG"/>DEBUG</span></label>
-				<label><input type="radio" name="mlev" value="INFO"/>
-					<span class="INFO"/>INFO</span></label>
-				<label><input type="radio" name="mlev" value="WARNING"/>
-					<span class="WARNING"/>WARNING</span></label>
-				<label><input type="radio" name="mlev" value="ERROR"/>
-					<span class="ERROR"/>ERROR</span></label>
-				<label><input type="radio" name="mlev" value="CRITICAL"/>
-					<span class="CRITICAL"/>CRITICAL</span></label>
-			</fieldset>
 		</div>
 		<div id="content">
 			<div id="intro-help">
-				Enter an archive field search pattern above to get started...
+				Enter a channel search pattern above to get started...
 			</div>
 			<div id="template">
 				<span class="name">the.name.goes.here</span>
+				<span class="value">unknown</span>
 			</div>
 		</div>
 		<div id="footer">
 			<div class="indent">Last Update: <span id="lastUpdate">none</span></div>
-			<div class="indent right">Showing <span id="msgCount">0</span> messages</div>
+			<div class="indent right">Monitoring <span id="chanCount">0</span> channels</div>
 		</div>
 	</div>
 </body>

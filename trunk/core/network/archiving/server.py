@@ -17,6 +17,8 @@ from twisted.internet.protocol import Factory
 from twisted.web import resource,server,static
 from twisted.python import log
 
+from tops.core.network.naming import ResourceNamePattern,NamingException
+
 import archiving_pb2
 
 class ArchiveManager(object):
@@ -26,22 +28,41 @@ class ArchiveManager(object):
 		self.channels = { }
 		
 	def createSession(self,hdr):
+		"""
+		Creates a new server session for a producer client.
+		"""
 		if hdr.name not in self.sessions:
 			# should generate a log message here...
 			self.sessions[hdr.name] = [ ]
 		self.sessions[hdr.name].append(hdr)
 		for record in hdr.records:
 			for channel in record.channels:
-				if channel.channel_name not in self.channels:
-					self.channels[channel.channel_name] = hdr.name
-				elif not self.channels[channel.channel_name] == hdr.name:
-					# what if source name has changed since last session??
-					pass
+				full_name = "%s.%s" % (hdr.name,channel.channel_name)
+				if full_name not in self.channels:
+					self.channels[full_name] = "???"
 
-	def getChannels(self):
-		items = ',\n\t'.join(['{"name":"%s"}' % channel for channel in sorted(self.channels)])
-		return '({"items":[' + items + ']})'
-	
+	def subscribe(self,pattern):
+		"""
+		Subscribes a consumer client to channels matching the specified pattern.
+		"""
+		try:
+			filter = ResourceNamePattern(pattern)
+		except NamingException:
+			return [ ]
+		return [ channel for channel in sorted(self.channels) if filter.matches(channel) ]
+		
+	def setValues(self,hdr,msg):
+		"""
+		Updates the current values of the channels associated with one record.
+		"""
+		print 'setting values for record id',msg.id,'of',hdr.name
+		
+	def getValues(self,channels):
+		"""
+		Returns a list of channel values formatted as double-quoted strings.
+		"""
+		return [('"%s"' % self.channels[channel]) for channel in channels]
+
 
 from tops.core.network.webserver import WebQuery,prepareWebServer
 
@@ -50,15 +71,22 @@ class ArchiveQuery(WebQuery):
 	ServiceName = 'ARCHIVER'
 	
 	def GET(self,request,session,state):
-		return session.site.manager.getChannels()
+		try:
+			values = session.site.manager.getValues(state.channels)
+		except AttributeError:
+			values = [ ]
+		return '({"values":[%s]})' % ','.join(values)
 
 	def POST(self,request,session,state):
 		pattern = self.get_arg('pattern')
 		if pattern:
 			print 'subscribing %d with pattern "%s"' % (id(state),pattern)
 			# subscribe this client with this pattern
-			state.subscription = { }
-			return '({"items":[]})'
+			state.channels = session.site.manager.subscribe(pattern)
+			json_items = [ ]
+			for channel in state.channels:
+				json_items.append('{"name":"%s"}' % (channel))
+			return '({"channels":[%s]})' % ','.join(json_items)
 		return '({})'
 
 from tops.core.network.server import Server
@@ -69,11 +97,12 @@ class ArchiveServer(Server):
 	Message = archiving_pb2.Update
 	
 	def handleHeader(self,hdr):
-		print hdr
+		self.hdr = hdr
 		self.factory.manager.createSession(hdr)
 
 	def handleMessage(self,msg):
 		print msg
+		self.factory.manager.setValues(self.hdr,msg)
 
 
 def initialize():
@@ -104,7 +133,8 @@ def initialize():
 		prepareWebServer(
 			portNumber = 8081,
 			handlers = {"feed":ArchiveQuery()},
-			properties = {"manager":manager}
+			properties = {"manager":manager},
+			filterLogs = True
 		)
 
 		# fire up the reactor

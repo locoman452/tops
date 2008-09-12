@@ -4,16 +4,9 @@ var maxMessages = 10;
 var timer = null;
 var uid = null;
 
-function stopTimer() {
-	if(timer != null) {
-		window.clearInterval(timer);
-		timer = null;
-	}
-}
-
 function ajaxError(request, textStatus, errorThrown) {
 	// typically only one of textStatus or errorThrown will have info
-	stopTimer();
+	stopTimer(timer);
 	var msg = 'Server communication error [status "' + textStatus + '"';
 	if(errorThrown != undefined) {
 		msg += '; error thrown "' + errorThrown + '"';
@@ -29,6 +22,8 @@ function addLocalRecord(body) {
 		source: '(local)',
 		body: body
 	});
+	// scroll to the bottom of the message area so this new message is visible
+	scrollToBottom("#content");
 }
 
 function addRecord(index,record) {
@@ -54,14 +49,14 @@ function addRecord(index,record) {
 	}
 	// update the message count display
 	$("#msgCount").html(displayedMessages);
-	// scroll to the bottom of the message area so this new message is visible
-	$("#content").each(function() { this.scrollTop = this.scrollHeight; });
 }
 
 function processRecords(data,textStatus) {
 	var now = new Date();
 	$("#lastUpdate").html(now.toLocaleString()+' '+textStatus);
 	$.each(data.items,addRecord);
+	// scroll to the bottom of the message area so this new message is visible
+	scrollToBottom("#content");
 }
 
 function startUpdate() {
@@ -77,7 +72,7 @@ function resetOptions() {
 
 function updateOptions() {
 	// clear any running update timer
-	stopTimer();
+	stopTimer(timer);
 	// extract the new options from the HTML inputs
 	var updateInterval = $("#updateInterval :checked").val();
 	maxMessages = $("#maxMessages :checked").val();

@@ -1,7 +1,14 @@
-.field {
+.channel {
 	border: solid 1px gray;
 	margin: 4px;
 	padding: 4px;
+	position: relative;
+}
+
+.value {
+	position: absolute;
+	right: 4px; bottom: 4px;
+	text-align: right;
 }
 
 input#pattern {

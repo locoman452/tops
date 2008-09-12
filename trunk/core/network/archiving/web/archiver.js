@@ -1,10 +1,9 @@
-var totalMessages = 0;
-var displayedMessages = 0;
-var maxMessages = 10;
+var updateInterval = 1; // seconds
 var timer = null;
 var uid = null;
 
 function ajaxError(request, textStatus, errorThrown) {
+	stopTimer(timer);
 	// typically only one of textStatus or errorThrown will have info
 	var msg = 'Server communication error [status "' + textStatus + '"';
 	if(errorThrown != undefined) {
@@ -17,47 +16,51 @@ function ajaxError(request, textStatus, errorThrown) {
 function displayChannel(index,channel) {
 	// insert a clone of the channel template
 	$("#content").append(
-		$("#template").clone().removeAttr("id").addClass("channel")
+		$("#template").clone().attr("id",channel.name).addClass("channel")
 			.find(".name").html(channel.name).end()
 	);
-	// scroll to the bottom of the channels display area so this new channel is visible
-	$("#content").each(function() { this.scrollTop = this.scrollHeight; });
 }
 
 function displayChannels(data,textStatus) {
+	$(".channel").remove();
+	$.each(data.channels,displayChannel);
+	// scroll to the bottom of the channels display area so this new channel is visible
+	scrollToBottom("#content");
+	// update the channel count display
+	$("#chanCount").html(data.channels.length);
+	// (re)start timed updates, converting seconds to ms
+	stopTimer(timer);
+	timer = window.setInterval('startUpdate()',1000*updateInterval);
+}
+
+function updateChannel(index,value) {
+	$(".channel > .value").eq(index).html(value);
+}
+
+function updateChannels(data,textStatus) {
 	var now = new Date();
 	$("#lastUpdate").html(now.toLocaleString()+' '+textStatus);
-	$.each(data.items,displayChannel);
+	$.each(data.values,updateChannel);
+}
+
+function startUpdate() {
+	$.get('/feed',{'uid':uid},updateChannels,"json");
 }
 
 function resetOptions() {
 	$("#updateInterval").find(":input").val(["1"]);
-	$("#maxMessages").find(":input").val(["1000"]);
-	$("#sourceFilter").val("*");
-	$("#minLevel").find(":input").val(["DEBUG"]);
 }
 
 function updateOptions() {
-	// clear any running update timer
-	stopTimer();
 	// extract the new options from the HTML inputs
-	var updateInterval = $("#updateInterval :checked").val();
-	maxMessages = $("#maxMessages :checked").val();
-	var sourceFilter = $("#sourceFilter").val();
-	var minLevel = $("#minLevel :checked").val();
+	updateInterval = $("#updateInterval :checked").val();
 	// generate a local log message describing the new options
-	var updateMsg = 'Using OPTIONS: update interval = ' + updateInterval +
-		's, max messages = ' + maxMessages + ', source filter is "' + sourceFilter +
-		'", min level = ' + minLevel;
-	alert(updateMsg);
-	// tell the server our new options
-	$.post('feed',{
-		'uid': uid,
-		'sourceFilter': sourceFilter,
-		'minLevel': minLevel
-	});
+	var updateMsg = 'Using OPTIONS: update interval = ' + updateInterval;
 	// (re)start timed updates, converting seconds to ms
-	timer = window.setInterval('startUpdate()',1000*updateInterval);
+	if(timer != null) {
+		stopTimer(timer);
+		timer = window.setInterval('startUpdate()',1000*updateInterval);
+	}
 }
 
 $(document).ready(
@@ -69,7 +72,7 @@ $(document).ready(
 		});
 		$("#warning").hide();
 		resetOptions();
-		//updateOptions();
+		updateOptions();
 		$("#optionsDialog").hide();
 		$("#optionsButton").click(function() {
 			$("#optionsDialog").show().dialog({
@@ -88,6 +91,7 @@ $(document).ready(
 		// install the handler for our pattern text input
 		$("input#pattern").change(
 			function () {
+				stopTimer(timer);
 				$("#intro-help").hide();
 				$.post('/feed',{'uid':uid,'pattern':$("input#pattern").val()},
 					displayChannels,"json");
