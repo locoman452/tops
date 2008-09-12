@@ -52,7 +52,6 @@ class LogRecord(object):
 			.replace('\n', r'\n')
 			.replace('\r', r'\r')
 			.replace('\t', r'\t'))
-		print ">>%s<<" % escaped_body
 		self.cached_json = (
 			'{"tstamp":%d,"level":"%s","source":"%s","body":"%s"}' %
 			(int(1000*self.timestamp),logging.getLevelName(msg.levelno).replace(' ','_'),

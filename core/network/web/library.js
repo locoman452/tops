@@ -26,3 +26,16 @@ function parseQuery() {
 	}
 	return query;
 }
+
+// Scroll to the bottom of the element(s) matching the specified jQuery
+function scrollToBottom(query) {
+	$(query).each(function() { this.scrollTop = this.scrollHeight; });
+}
+
+// Stop the specified window timer routine
+function stopTimer(timer) {
+	if(timer != null) {
+		window.clearInterval(timer);
+		timer = null;
+	}
+}
