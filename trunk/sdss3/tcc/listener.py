@@ -92,7 +92,8 @@ class BroadcastListener(DatagramProtocol):
 			'tcc.alt.pos':		packet.tccAltPos,
 			'tcc.alt.vel':		packet.tccAltVel,
 			'tcc.rot.pos':		packet.tccRotPos,
-			'tcc.rot.vel':		packet.tccRotVel
+			'tcc.rot.vel':		packet.tccRotVel,
+			'tcc.sec.focus':	packet.tccSecFocus
 		})
 
 def configure():
@@ -148,7 +149,8 @@ if __name__ == "__main__":
 				('tcc.alt.pos',		data.double),
 				('tcc.alt.vel',		data.double),
 				('tcc.rot.pos',		data.double),
-				('tcc.rot.vel',		data.double)
+				('tcc.rot.vel',		data.double),
+				('tcc.sec.focus',	data.double)
 			)
 		)
 	)

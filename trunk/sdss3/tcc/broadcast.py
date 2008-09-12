@@ -3,7 +3,7 @@ Defines the Telescope Control Computer UDP broadcast packet format
 
 Provides a wrapper for a TCC UDP packet with support for packing and
 unpacking into a buffer, and generating random packets for testing.
-Running this module will start a TCC UDP simulator on port 1201.
+Running this module will start a TCC UDP simulator on port 1200.
 """
 
 ## @package tops.sdss3.tcc.broadcast
@@ -27,12 +27,12 @@ class Packet(object):
 	
 	version = (2,2)
 	head = Struct('!4I')
-	data = Struct('!2d8s9di4x12d8x')
+	data = Struct('!2d8s9di4x13d')
 	fields = [
-		'timestamp','slewEndTime','coordSys','epoch','objAxis1Pos','objAxis1Vel',
-		'objAxis2Pos','objAxis2Vel','boreXPos','boreXVel','boreYPos',
-		'boreYVel','rotType','rotPos','rotVel','objAngPos','objAngVel','spiderAngPos',
-		'spiderAngVel','tccAzPos','tccAzVel','tccAltPos','tccAltVel','tccRotPos','tccRotVel'
+		'timestamp','slewEndTime','coordSys','epoch','objAxis1Pos','objAxis1Vel','objAxis2Pos',
+		'objAxis2Vel','boreXPos','boreXVel','boreYPos','boreYVel','rotType','rotPos','rotVel',
+		'objAngPos','objAngVel','spiderAngPos','spiderAngVel','tccAzPos','tccAzVel',
+		'tccAltPos','tccAltVel','tccRotPos','tccRotVel','tccSecFocus'
 	]
 	
 	def __init__(self,*values):
@@ -80,13 +80,13 @@ class Packet(object):
 	@staticmethod
 	def generate():
 		"""Returns a randomly generated packet."""
-		timestamp = AstroTime.now(TAI).MJD()
+		timestamp = AstroTime.now(TAI).MJD()*86400.
 		slewEndTime = float('nan')
 		coordSys = 'Mount'
 		random9 = [random() for i in range(9)]
 		rotType = int(1234)
-		random12 = [random() for i in range(12)]
-		values = [timestamp,slewEndTime,coordSys] + random9 + [rotType] + random12
+		random13 = [random() for i in range(13)]
+		values = [timestamp,slewEndTime,coordSys] + random9 + [rotType] + random13
 		return Packet(*values)
 
 
@@ -100,7 +100,6 @@ class Broadcaster(object):
 	def __init__(self,port):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.connect(("<broadcast>",port))
-#		self.socket.connect(("10.25.1.255",port))
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 	def transmit(self):
@@ -117,6 +116,6 @@ class Broadcaster(object):
 			print 'bye'
 
 if __name__ == '__main__':
-	b = Broadcaster(port=portMap['simulator'])
+	b = Broadcaster(port=portMap['2.5m'])
 	b.transmitPeriodically()
 	#b.transmit()
