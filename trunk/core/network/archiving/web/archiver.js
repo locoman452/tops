@@ -24,13 +24,21 @@ function displayChannel(index,channel) {
 }
 
 function displayChannels(data,textStatus) {
+	// remove any currently displayed channels from the page
 	$(".channel").remove();
 	channels = [ ];
+	// display each of the new channels
 	$.each(data.channels,displayChannel);
 	// scroll to the bottom of the channels display area so this new channel is visible
 	scrollToBottom("#content");
 	// update the channel count display
 	$("#chanCount").html(data.channels.length);
+	// make channel displays sortable by drag-and-drop
+	$("#content").sortable({
+	  axis: "y",
+	  containment: "#content",
+	  items: ".channel"
+	});
 	// (re)start timed updates, converting seconds to ms
 	stopTimer(timer);
 	timer = window.setInterval('startUpdate()',1000*updateInterval);
