@@ -19,6 +19,8 @@ from twisted.python import log
 
 from tops.core.network.naming import ResourceNamePattern,NamingException
 
+import tops.core.utility.data as data
+
 import archiving_pb2
 
 class ArchiveManager(object):
@@ -31,15 +33,20 @@ class ArchiveManager(object):
 		"""
 		Creates a new server session for a producer client.
 		"""
-		if hdr.name not in self.sessions:
-			# should generate a log message here...
-			self.sessions[hdr.name] = [ ]
-		self.sessions[hdr.name].append(hdr)
-		for record in hdr.records:
-			for channel in record.channels:
+		print 'creating new session for',hdr.name,'with',len(hdr.records),'records'
+		records = [ ]
+		for (rindex,record) in enumerate(hdr.records):
+			assert(record.record_id == rindex)
+			types = [ ]
+			channels = [ ]
+			for (cindex,channel) in enumerate(record.channels):
 				full_name = "%s.%s" % (hdr.name,channel.channel_name)
 				if full_name not in self.channels:
-					self.channels[full_name] = "???"
+					self.channels[full_name] = (hdr.name,rindex,cindex)
+				channels.append('???')
+				types.append(data.factory(channel.value_type))
+			records.append((types,channels))
+		self.sessions[hdr.name] = records
 
 	def subscribe(self,pattern):
 		"""
@@ -55,13 +62,21 @@ class ArchiveManager(object):
 		"""
 		Updates the current values of the channels associated with one record.
 		"""
-		print 'setting values for record id',msg.id,'of',hdr.name
+		(types,channels) = self.sessions[hdr.name][msg.record_id]
+		for (cindex,value) in enumerate(msg.values):
+			channels[cindex] = types[cindex].unpack(value)
 		
 	def getValues(self,channels):
 		"""
 		Returns a list of channel values formatted as double-quoted strings.
 		"""
-		return [('"%s"' % self.channels[channel]) for channel in channels]
+		values = [ ]
+		for channel in channels:
+			(name,rindex,cindex) = self.channels[channel]
+			(types,channels) = self.sessions[name][rindex]
+			value = channels[cindex]
+			values.append('"%s"' % value)
+		return values
 
 
 from tops.core.network.webserver import WebQuery,prepareWebServer
@@ -101,7 +116,6 @@ class ArchiveServer(Server):
 		self.factory.manager.createSession(hdr)
 
 	def handleMessage(self,msg):
-		print msg
 		self.factory.manager.setValues(self.hdr,msg)
 
 

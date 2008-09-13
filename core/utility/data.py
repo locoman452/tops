@@ -14,21 +14,68 @@ serialized for network transport and database storage.
 #
 # This project is hosted at http://tops.googlecode.com/
 
+import sys
+import os.path
+
 class ValueType(type):
 	"""
 	A metaclass for types that represent an enumerated or numeric value.
 	
 	ValueTypes can serialize themselves for efficient network transport
-	(via pack and unpack methods) or database storage (via ?).
+	(via pack and unpack methods) or database storage (via ?). At the
+	moment, this metaclass does not actually do anything useful but I
+	keep it here as a placeholder for adding future features.
 	"""
-	registry = {}
 	def __init__(cls,name,bases,dct):
 		"""
 		Initializes a new class that is an instance of a ValueType.
 		"""
 		# create the type
 		super(ValueType,cls).__init__(name,bases,dct)
-		ValueType.registry[name] = cls
+
+
+def identify(vtype,top_level='tops'):
+	"""
+	Returns the type name corresponding to a class instance.
+	
+	The returned type name will be fully qualified, e.g., starting with
+	"tops.", and is suitable for using with factory(). In the special
+	case that the type is defined from __main__ rather than an imported
+	module, the main's file path will be mapped to a module name
+	assuming that is under "tops." but this is not otherwise a
+	requirement.
+	"""
+	name = vtype.__name__
+	module = vtype.__module__
+	if module == "__main__":
+		path = os.path.abspath(sys.modules['__main__'].__file__)
+		segments = [ ]
+		while path:
+			(path,next) = os.path.split(path)
+			(next,ext) = os.path.splitext(next)
+			segments.append(next)
+			if next == top_level:
+				break
+		segments.reverse()
+		module = '.'.join(segments)
+	return '%s.%s' % (module,name)
+				
+		
+def factory(type_name):
+	"""
+	Returns a class instance corresponding to a type name.
+	
+	The type name should be fully qualified, e.g., starting with
+	"tops.", such as is returned by identify(). Imports the module where
+	the type is defined if necessary.
+	"""
+	path = type_name.split('.')
+	module_name = '.'.join(path[:-1])
+	local_name = path[-1]
+	if not module_name in sys.modules:
+		__import__(module_name,globals(),locals(),[local_name],-1)
+	return sys.modules[module_name].__dict__[local_name]
+
 
 class double(float):
 	"""
@@ -180,7 +227,18 @@ class DataTests(unittest.TestCase):
 			labels = ('true','false')
 		self.assertRaises(ValueError,lambda: truefalse(123))
 		self.assertRaises(ValueError,lambda: truefalse('neither'))
+	
+	def test07(self):
+		"""Identify a type in the data module"""
+		name = 'tops.core.utility.data.double'
+		vtype = factory(name)
+		self.assertEqual(identify(vtype),name)
 
+	def test08(self):
+		"""Identify a type in another module"""
+		name = 'tops.sdss3.tcc.listener.CoordinateSystem'
+		vtype = factory(name)
+		self.assertEqual(identify(vtype),name)
 		
 if __name__ == '__main__':
 	unittest.main()

@@ -16,6 +16,8 @@ timestamp.
 
 from math import floor
 
+import tops.core.utility.data as data
+
 from archiving_pb2 import Update
 
 class ArchiveRecord(object):
@@ -25,9 +27,9 @@ class ArchiveRecord(object):
 	
 	def __init__(self,name,channels):
 		self.name = name
-		# take the next counter ID (starting with one)
-		self.id_counter += 1
+		# take the next counter ID (starting with zero)
 		self.id = self.id_counter
+		self.id_counter += 1
 		# initialize our arrays and index lookup hash
 		self.indexof = { }
 		self.names = [ ]
@@ -47,7 +49,7 @@ class ArchiveRecord(object):
 			f = r.channels.add()
 			f.channel_name = self.names[index]
 			vtype = self.types[index]
-			f.value_type = vtype.__module__ + '.' + vtype.__name__
+			f.value_type = data.identify(vtype)
 			# list any labels associated with this type
 			try:
 				for label in vtype.labels:
