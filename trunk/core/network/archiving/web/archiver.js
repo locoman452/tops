@@ -1,4 +1,5 @@
 var updateInterval = 1; // seconds
+var channels = [ ];
 var timer = null;
 var uid = null;
 
@@ -15,14 +16,16 @@ function ajaxError(request, textStatus, errorThrown) {
 
 function displayChannel(index,channel) {
 	// insert a clone of the channel template
-	$("#content").append(
+	var channelDisplay =
 		$("#template").clone().attr("id",channel.name).addClass("channel")
-			.find(".name").html(channel.name).end()
-	);
+		.find(".name").html(channel.name).end();
+	channels.push(channelDisplay.find('.value').get(0));
+	$("#content").append(channelDisplay);
 }
 
 function displayChannels(data,textStatus) {
 	$(".channel").remove();
+	channels = [ ];
 	$.each(data.channels,displayChannel);
 	// scroll to the bottom of the channels display area so this new channel is visible
 	scrollToBottom("#content");
@@ -34,7 +37,7 @@ function displayChannels(data,textStatus) {
 }
 
 function updateChannel(index,value) {
-	$(".channel > .value").eq(index).html(value);
+	channels[index].innerHTML = value;
 }
 
 function updateChannels(data,textStatus) {
