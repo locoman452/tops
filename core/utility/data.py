@@ -89,6 +89,9 @@ class double(float):
 	@classmethod
 	def unpack(cls,buffer):
 		return cls(buffer.double)
+		
+	def __str__(self):
+		return "%.3f" % self
 
 class signed(int):
 	"""
