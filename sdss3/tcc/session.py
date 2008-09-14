@@ -33,6 +33,8 @@ class TelnetSession(telnet.TelnetProtocol):
 
 	username = 'tcc'
 	password = ''
+	
+	initial_command = 'show users/full'
 
 	# warning: enabling debug mode will display the password on the console
 	debug = True
@@ -76,6 +78,8 @@ class TelnetSession(telnet.TelnetProtocol):
 			print 'TelnetSession: response from last command'
 			for data in self.command_response:
 				print repr(data.encode('ascii','backslashreplace'))
+		elif self.initial_command:
+			self.send(initial_command + '\n')
 		self.command_response = [ ]
 		pass
 		
@@ -88,7 +92,8 @@ class TelnetSession(telnet.TelnetProtocol):
 	def do(self,command):
 		if self.state == 'COMMAND_LINE_READY':
 			self.state = 'COMMAND_LINE_BUSY'
-			self.send(command)
+			self.send(command + '\n')
+
 
 class TelnetConnection(telnet.TelnetTransport):
 
