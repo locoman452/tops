@@ -23,6 +23,7 @@ requires that the logging and archiving servers are already up.
 from twisted.internet import protocol, reactor
 from twisted.conch import telnet
 
+import sys
 from getpass import getpass
 
 class TelnetSession(telnet.TelnetProtocol):
@@ -59,7 +60,8 @@ class TelnetSession(telnet.TelnetProtocol):
 			
 	def session_AUTHENTICATING(self,data):
 		for c in data:
-			print "%02x(%s)" % (ord(c),c),
+			sys.stdout.write("$%02x(%s) " % (ord(c),c))
+			sys.stdout.flush()
 		"""
 		if data == self.password_prompt:
 			self.send(getpass('Enter TCC password: ') + '\n')
