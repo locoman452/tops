@@ -32,7 +32,9 @@ class TelnetSession(telnet.TelnetProtocol):
 	command_prompt = '$ '
 
 	username = 'tcc'
+	password = ''
 
+	# warning: enabling debug mode will display the password on the console
 	debug = True
 	
 	state = 'CONNECTING'
@@ -60,7 +62,7 @@ class TelnetSession(telnet.TelnetProtocol):
 			
 	def session_AUTHENTICATING(self,data):
 		if data.endswith(self.password_prompt):
-			self.send(getpass('Enter TCC password: ') + '\n')
+			self.send(self.password + '\n')
 		elif data.endswith(self.login_prompt):
 			self.state = 'LOGIN_FAILED'
 		elif data.endswith(self.command_prompt):
@@ -85,6 +87,8 @@ class TelnetConnection(telnet.TelnetTransport):
 
 
 if __name__ == "__main__":
+	
+	TelnetSession.password = getpass('Enter TCC password: ')
 
 	connectionFactory = protocol.ClientFactory()
 	connectionFactory.protocol = TelnetConnection
