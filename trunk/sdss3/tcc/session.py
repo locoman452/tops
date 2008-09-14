@@ -33,15 +33,14 @@ class TelnetSession(telnet.TelnetProtocol):
 
 	username = 'tcc'
 
-	debug = True
+	debug = False
 	
 	state = 'CONNECTING'
 	
 	def send(self,data):
 		"""Writes data through our connection transport"""
 		if self.debug:
-			pass
-			#print 'TelnetSession: sending >>%s<<' % data
+			print 'TelnetSession: sending >>%s<<' % data
 		self.transport.write(data)
 
 	def dataReceived(self,data):
@@ -59,12 +58,15 @@ class TelnetSession(telnet.TelnetProtocol):
 			self.send(self.username+'\n')
 			
 	def session_AUTHENTICATING(self,data):
+		print '}%s{' % data
+		"""
 		if data == self.password_prompt:
 			self.send(getpass('Enter TCC password: ') + '\n')
 		elif data.endswith(self.login_prompt):
 			self.state = 'LOGIN_FAILED'
 		elif data.endswith(self.command_prompt):
 			self.state = 'COMMAND_LINE'
+		"""
 
 	def session_LOGIN_FAILED(self,data):
 		pass
