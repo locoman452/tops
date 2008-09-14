@@ -47,7 +47,8 @@ class TelnetSession(telnet.TelnetProtocol):
 	def dataReceived(self,data):
 		"""Drives a state machine based on the input received"""
 		if self.debug:
-			print 'TelnetSession: got >>%s<< in state "%s"' % (data,self.state)
+			print ('TelnetSession: got >>%s<< in state "%s"'
+				% (data.encode('ascii','backslashreplace'),self.state))
 		oldState = self.state
 		getattr(self, "session_" + self.state)(data)
 		if self.debug and self.state != oldState:
@@ -59,11 +60,7 @@ class TelnetSession(telnet.TelnetProtocol):
 			self.send(self.username+'\n')
 			
 	def session_AUTHENTICATING(self,data):
-		for c in data:
-			sys.stdout.write("$%02x(%s) " % (ord(c),c))
-			sys.stdout.flush()
-		"""
-		if data == self.password_prompt:
+		if data.endswith(self.password_prompt):
 			self.send(getpass('Enter TCC password: ') + '\n')
 		elif data.endswith(self.login_prompt):
 			self.state = 'LOGIN_FAILED'
