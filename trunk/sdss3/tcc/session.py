@@ -27,11 +27,11 @@ from getpass import getpass
 
 class TelnetSession(telnet.TelnetProtocol):
 	
-	login_prompt = 'login: '
+	login_prompt = 'Username: '
 	password_prompt = 'Password:'
-	command_prompt = '~ % '
+	command_prompt = '$ '
 
-	username = 'david'
+	username = 'tcc'
 
 	debug = True
 	
@@ -87,7 +87,6 @@ if __name__ == "__main__":
 
 	connectionFactory = protocol.ClientFactory()
 	connectionFactory.protocol = TelnetConnection
+	reactor.connectTCP('tcc25m.apo.nmsu.edu',23,connectionFactory)
 	
-	reactor.connectTCP('localhost',23,connectionFactory)
-	print 'lets go...'
 	reactor.run()
