@@ -40,7 +40,7 @@ class TelnetSession(telnet.TelnetProtocol):
 	def send(self,data):
 		"""Writes data through our connection transport"""
 		if self.debug:
-			print 'TelnetSession: sending >>%s<<' % data
+			#print 'TelnetSession: sending >>%s<<' % data
 		self.transport.write(data)
 
 	def dataReceived(self,data):
@@ -54,8 +54,8 @@ class TelnetSession(telnet.TelnetProtocol):
 	
 	def session_CONNECTING(self,data):
 		if data.endswith(self.login_prompt):
-			self.send(self.username+'\n')
 			self.state = 'AUTHENTICATING'
+			self.send(self.username+'\n')
 			
 	def session_AUTHENTICATING(self,data):
 		if data == self.password_prompt:
