@@ -69,17 +69,17 @@ class TelnetSession(telnet.TelnetProtocol):
 			self.state = 'LOGIN_FAILED'
 		elif data.endswith(self.command_prompt):
 			self.state = 'COMMAND_LINE_READY'
+			if self.initial_command:
+				self.do(self.initial_command)
 
 	def session_LOGIN_FAILED(self,data):
 		pass
 			
 	def session_COMMAND_LINE_READY(self,data):
-		if self.debug and len(self.command_response):
-			print 'TelnetSession: response from last command'
+		if self.debug:
+			print 'TelnetSession: response from last command:'
 			for data in self.command_response:
 				print repr(data.encode('ascii','backslashreplace'))
-		elif self.initial_command:
-			self.send(initial_command + '\n')
 		self.command_response = [ ]
 		pass
 		
