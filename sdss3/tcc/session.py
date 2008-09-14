@@ -40,6 +40,7 @@ class TelnetSession(telnet.TelnetProtocol):
 	def send(self,data):
 		"""Writes data through our connection transport"""
 		if self.debug:
+			pass
 			#print 'TelnetSession: sending >>%s<<' % data
 		self.transport.write(data)
 
