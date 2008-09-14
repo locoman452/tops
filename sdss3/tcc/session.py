@@ -18,7 +18,7 @@ requires that the logging and archiving servers are already up.
 #
 # This project is hosted at http://tops.googlecode.com/
 
-from tops.core.network.proxy import *
+#from tops.core.network.proxy import *
 
 from twisted.internet import protocol, reactor
 from twisted.conch import telnet
