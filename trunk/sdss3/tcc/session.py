@@ -47,7 +47,7 @@ class TelnetSession(telnet.TelnetProtocol):
 		"""Drives a state machine based on the input received"""
 		if self.debug:
 			print ("TelnetSession: got %r in state '%s'" %
-				(data.encode('ascii','backslashreplace'),self.state)
+				(data.encode('ascii','backslashreplace'),self.state))
 		oldState = self.state
 		getattr(self, "session_" + self.state)(data)
 		if self.debug and self.state != oldState:
