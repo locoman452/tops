@@ -58,7 +58,8 @@ class TelnetSession(telnet.TelnetProtocol):
 			self.send(self.username+'\n')
 			
 	def session_AUTHENTICATING(self,data):
-		print '}%s{' % data
+		for c in data:
+			print "%02x(%s)" % (ord(c),c),
 		"""
 		if data == self.password_prompt:
 			self.send(getpass('Enter TCC password: ') + '\n')
