@@ -23,13 +23,12 @@ requires that the logging and archiving servers are already up.
 from twisted.internet import protocol, reactor
 from twisted.conch import telnet
 
-import sys
 from getpass import getpass
 
 class TelnetSession(telnet.TelnetProtocol):
 	
 	login_prompt = 'Username: '
-	password_prompt = 'Password:'
+	password_prompt = 'Password: '
 	command_prompt = '$ '
 
 	username = 'tcc'
@@ -47,8 +46,8 @@ class TelnetSession(telnet.TelnetProtocol):
 	def dataReceived(self,data):
 		"""Drives a state machine based on the input received"""
 		if self.debug:
-			print ('TelnetSession: got >>%s<< in state "%s"'
-				% (data.encode('ascii','backslashreplace'),self.state))
+			print ("TelnetSession: got %r in state '%s'" %
+				(data.encode('ascii','backslashreplace'),self.state)
 		oldState = self.state
 		getattr(self, "session_" + self.state)(data)
 		if self.debug and self.state != oldState:
