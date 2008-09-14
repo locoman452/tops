@@ -66,7 +66,6 @@ class TelnetSession(telnet.TelnetProtocol):
 			self.state = 'LOGIN_FAILED'
 		elif data.endswith(self.command_prompt):
 			self.state = 'COMMAND_LINE'
-		"""
 
 	def session_LOGIN_FAILED(self,data):
 		pass
