@@ -34,7 +34,7 @@ class TelnetSession(telnet.TelnetProtocol):
 
 	username = 'tcc'
 
-	debug = False
+	debug = True
 	
 	state = 'CONNECTING'
 	
