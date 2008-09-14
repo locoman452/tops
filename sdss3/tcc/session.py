@@ -44,7 +44,7 @@ class TelnetSession(telnet.TelnetProtocol):
 	def send(self,data):
 		"""Writes data through our connection transport"""
 		if self.debug:
-			print 'TelnetSession: sending >>%s<<' % data
+			print 'TelnetSession: sending %r' % data.encode('ascii','backslashreplace')
 		self.transport.write(data)
 
 	def dataReceived(self,data):
@@ -80,8 +80,6 @@ class TelnetSession(telnet.TelnetProtocol):
 			print 'TelnetSession: response from last command:'
 			for data in self.command_response:
 				print repr(data.encode('ascii','backslashreplace'))
-		self.command_response = [ ]
-		pass
 		
 	def session_COMMAND_LINE_BUSY(self,data):
 		if data.endswith(self.command_prompt):
@@ -90,6 +88,7 @@ class TelnetSession(telnet.TelnetProtocol):
 			self.command_response.append(data)
 		
 	def do(self,command):
+		self.command_response = [ ]
 		if self.state == 'COMMAND_LINE_READY':
 			self.state = 'COMMAND_LINE_BUSY'
 			self.send(command + '\n')
