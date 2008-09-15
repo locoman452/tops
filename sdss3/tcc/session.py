@@ -2,8 +2,9 @@
 Implements a read-write proxy for the TCC command interpreter
 
 Defines the custom data types associated with the TCC's command
-interpreter, and implements a proxy that can issue commands via a telnet
-session.
+interpreter, and implements a proxy that can issue commands via a pair
+of telnet sessions: one connected to the VMS DCL command line and the
+other connected to a TCC interpreter session command line.
 
 Refer to the proxy declaration below for details of its operating states
 and archive records. Running this module will start the proxy and so
@@ -28,21 +29,29 @@ class VMSSession(TelnetSession):
 	password_prompt = 'Password: '
 	command_prompt = '$ '
 
+class TCCSession(VMSSession):
+	pass
 
-from getpass import getpass
-from twisted.internet import reactor
-from tops.core.network.telnet import prepareTelnetSession
+
+def got_users(response):
+	print 'got users:\n%s','\n'.join(response)
+
+def show_users():
+	print "Running show_users..."
+	TelnetSession.do('VMS','show users/full').addCallback(got_users)
 
 if __name__ == "__main__":
 	
-	(hostname,port,username) = ('localhost',23,'david')
+	from getpass import getpass
+	from twisted.internet import reactor
+	from tops.core.network.telnet import prepareTelnetSession
+
+	(hostname,port,username) = ('tcc25m.apo.nmsu.edu',23,'tcc')
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
-	prepareTelnetSession(FTPSession('FTP',username,password,debug=False),hostname,port)
-	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
+	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
+#	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
 	
-	reactor.callLater(1.9,ftp_commands)
-	reactor.callLater(2.0,localhost_commands)
-	reactor.callLater(3.0,reactor.stop)
+	reactor.callLater(1.0,show_users)
 	
 	reactor.run()
