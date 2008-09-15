@@ -32,6 +32,7 @@ class VMSSession(TelnetSession):
 class TCCSession(VMSSession):
 	pass
 
+import re
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
@@ -56,7 +57,7 @@ if __name__ == "__main__":
 	(hostname,port,username) = ('tcc25m.apo.nmsu.edu',23,'tcc')
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
-	prepareTelnetSession(VMSSession('VMS',username,password,debug=True),hostname,port)
+	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 #	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
 	
 	looper = task.LoopingCall(show_users)
