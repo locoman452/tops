@@ -34,10 +34,14 @@ class TCCSession(VMSSession):
 
 
 def got_users(response):
-	count = { }
+	users = { 'TCC':0, 'TCCUSER':0 }
+	parser = re.compile('\s*(TCC|TCCUSER)\s+([0-9]+)')
 	for line in response:
-		pass
-	print 'got users:\n%s','\n'.join(response)
+		match = parser.match(line)
+		if match:
+			users[match.group(1)] = match.group(2)
+	for stats in users.iteritems():
+		print '%s is running %d processes' % stats
 
 def show_users():
 	print "Running show_users..."
@@ -46,7 +50,7 @@ def show_users():
 if __name__ == "__main__":
 	
 	from getpass import getpass
-	from twisted.internet import reactor
+	from twisted.internet import reactor,task
 	from tops.core.network.telnet import prepareTelnetSession
 
 	(hostname,port,username) = ('tcc25m.apo.nmsu.edu',23,'tcc')
@@ -55,6 +59,7 @@ if __name__ == "__main__":
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=True),hostname,port)
 #	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
 	
-	reactor.callLater(1.0,show_users)
+	looper = task.loopingCall(show_users)
+	looper.start(1.0)
 	
 	reactor.run()
