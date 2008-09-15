@@ -25,15 +25,16 @@ from tops.core.network.telnet import TelnetSession
 def answer(response,command):
 	print 'the answer to "%s" is:\n%s' % (command,'\n'.join(response))
 
-def delayed1():
-	print "Running delayed1..."
+def ftp_commands():
+	print "Running ftp_commands..."
 	TelnetSession.do('FTP','debug').addCallback(answer,'debug 1')
 	TelnetSession.do('FTP','help set').addCallback(answer,'help set')
 	TelnetSession.do('FTP','debug').addCallback(answer,'debug 2')
 
-def delayed2():
-	print "Running delayed2..."
-	TelnetSession.do('LocalhostSession','pwd').addCallback(answer,'pwd')
+def localhost_commands():
+	print "Running localhost_commands..."
+	TelnetSession.do('localhost','pwd').addCallback(answer,'pwd')
+	TelnetSession.do('localhost','whoami').addCallback(answer,'whoami')
 
 	
 class LocalhostSession(TelnetSession):
@@ -71,13 +72,12 @@ if __name__ == "__main__":
 	
 	(hostname,port,username) = ('localhost',23,'david')
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
-	prepareTelnetSession(FTPSession('FTP',username,password,debug=False),hostname,port)
-
-#	connectionFactory = protocol.ClientFactory()
-#	connectionFactory.protocol = TelnetConnection
-#	reactor.connectTCP('localhost',23,connectionFactory)
-	#reactor.connectTCP('tcc25m.apo.nmsu.edu',23,connectionFactory)
 	
-	reactor.callLater(3.0,delayed1)
+	prepareTelnetSession(FTPSession('FTP',username,password,debug=False),hostname,port)
+	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
+	
+	reactor.callLater(1.9,ftp_commands)
+	reactor.callLater(2.0,localhost_commands)
+	reactor.callLater(3.0,reactor.stop)
 	
 	reactor.run()
