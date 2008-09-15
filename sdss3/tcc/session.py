@@ -41,8 +41,8 @@ def got_users(response):
 		match = parser.match(line)
 		if match:
 			users[match.group(1)] = match.group(2)
-	for stats in users.iteritems():
-		print '%s is running %d processes' % stats
+	for (username,nproc) in users.iteritems():
+		print '%s is running %d processes' % (username,nproc)
 
 def show_users():
 	print "Running show_users..."
