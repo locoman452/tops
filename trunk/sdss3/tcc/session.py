@@ -40,7 +40,8 @@ def got_users(response):
 	for line in response:
 		match = parser.match(line)
 		if match:
-			users[match.group(1)] = match.group(2)
+			print 'got_users:',match.groups()
+			users[match.group(1)] = int(match.group(2))
 	for (username,nproc) in users.iteritems():
 		print '%s is running %d processes' % (username,nproc)
 
