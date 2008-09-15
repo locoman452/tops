@@ -147,8 +147,11 @@ class TelnetSession(telnet.TelnetProtocol):
 		lines = data.split('\n')
 		if lines[-1] == '':
 			del lines[-1]
+		# Ignore a command echo
+		if len(self.command_response) == 0 and lines[0] == self.command_string:
+			del lines[0]
 		# Have we seen all of the command's response now?
-		completed = lines[-1].endswith(self.command_prompt)
+		completed = len(lines) > 0 and lines[-1].endswith(self.command_prompt)
 		if completed:
 			del lines[-1]
 		# Append the new lines to the command response.			
@@ -171,10 +174,11 @@ class TelnetSession(telnet.TelnetProtocol):
 				pass
 		
 	def _submit(self,command,deferred):
-		if True or self.debug:
+		if self.debug:
 			print 'TelnetSession[%s]: submitting command "%s"' % (self.name,command)
 		assert(self.state == 'COMMAND_LINE_READY')
-		# cache the deferred object associated with this command
+		# remember the command we are currently running
+		self.command_string = command
 		self.command_defer = deferred
 		# prepare to collect the command response
 		self.command_response = [ ]
@@ -192,7 +196,7 @@ class TelnetSession(telnet.TelnetProtocol):
 			if len(self.queue) > self.MAX_QUEUED:
 				return defer.fail(TelnetException('%s: command queue overflow' % self.name))
 			self.queue.append((command,deferred))
-			if True or self.debug:
+			if self.debug:
 				print ('TelnetSession[%s]: queued command "%s" (now %d in the queue)'
 					% (self.name,command,len(self.queue)))
 		return deferred
