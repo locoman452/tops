@@ -59,7 +59,7 @@ if __name__ == "__main__":
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=True),hostname,port)
 #	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
 	
-	looper = task.loopingCall(show_users)
+	looper = task.LoopingCall(show_users)
 	looper.start(1.0)
 	
 	reactor.run()
