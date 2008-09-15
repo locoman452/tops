@@ -34,11 +34,14 @@ class TCCSession(VMSSession):
 
 
 def got_users(response):
+	count = { }
+	for line in response:
+		pass
 	print 'got users:\n%s','\n'.join(response)
 
 def show_users():
 	print "Running show_users..."
-	TelnetSession.do('VMS','show users/full').addCallback(got_users)
+	TelnetSession.do('VMS','show users').addCallback(got_users)
 
 if __name__ == "__main__":
 	
@@ -49,7 +52,7 @@ if __name__ == "__main__":
 	(hostname,port,username) = ('tcc25m.apo.nmsu.edu',23,'tcc')
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
-	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
+	prepareTelnetSession(VMSSession('VMS',username,password,debug=True),hostname,port)
 #	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
 	
 	reactor.callLater(1.0,show_users)
