@@ -53,6 +53,7 @@ class TelnetSession(telnet.TelnetProtocol):
 	MAX_QUEUED = 10
 
 	registry = { }
+	end_of_line = '\n'
 	
 	@staticmethod
 	def do(session_name,command):
@@ -102,11 +103,11 @@ class TelnetSession(telnet.TelnetProtocol):
 	def session_CONNECTING(self,data):
 		if data.endswith(self.login_prompt):
 			self.state = 'AUTHENTICATING'
-			self.send(self.username+'\n')
+			self.send(self.username+self.end_of_line)
 
 	def session_AUTHENTICATING(self,data):
 		if data.endswith(self.password_prompt):
-			self.send(self.password + '\n',secret=True)
+			self.send(self.password + self.end_of_line,secret=True)
 		elif data.endswith(self.login_prompt):
 			self.session_login_failed()
 		elif data.endswith(self.command_prompt):
@@ -146,7 +147,7 @@ class TelnetSession(telnet.TelnetProtocol):
 		
 	def session_COMMAND_LINE_BUSY(self,data):
 		# Break the data into lines
-		lines = data.split('\n')
+		lines = data.split(self.end_of_line)
 		if lines[-1] == '':
 			del lines[-1]
 		# Ignore a command echo
@@ -186,7 +187,7 @@ class TelnetSession(telnet.TelnetProtocol):
 		self.command_response = [ ]
 		self.state = 'COMMAND_LINE_BUSY'
 		# send the command
-		self.send(command + '\n')
+		self.send(command + self.end_of_line)
 
 	def _do(self,command):
 		deferred = defer.Deferred()
