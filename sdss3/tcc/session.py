@@ -56,10 +56,11 @@ class TCCSession(VMSSession):
 		if started:
 			self.user_num = int(started.group(1))
 			print 'You are user number %d' % self.user_num
+			self.update_pattern = re.compile('\r0 %d I (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
 
 	def _submit(self,command,deferred):
-		self.command_prompt = '0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
+		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
 		VMSSession._submit(self,command,deferred)
 
 
@@ -77,12 +78,17 @@ def show_users():
 	print "Running show_users..."
 	TelnetSession.do('VMS','show users').addCallback(got_users)
 	
-def tcc_response(response):
+def handle_tcc_command_response(response):
 	print 'tcc response:\n>>%s' % '\n>>'.join(response)
+	for line in response:
+		update_found = self.update_pattern.match(line)
+		if update_found:
+			parameters = update_found.group(1)
+			print 'got update for parameters:',parameters
 
 def show_weather():
 	print 'Running show_weather...'
-	TelnetSession.do('TCC','show weather').addCallback(tcc_response)
+	TelnetSession.do('TCC','show weather').addCallback(handle_tcc_command_response)
 
 if __name__ == "__main__":
 	
