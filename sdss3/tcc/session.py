@@ -121,7 +121,7 @@ if __name__ == "__main__":
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
-	reactor.callLater(2.0,show_weather)
+	reactor.callLater(2.0,show_status)
 	
 #	looper = task.LoopingCall(show_users)
 #	looper.start(1.0)
