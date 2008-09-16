@@ -143,20 +143,11 @@ class TelnetSession(telnet.TelnetProtocol):
 		pass
 			
 	def session_COMMAND_LINE_READY(self,data):
-		pass
+		if self.debug:
+			print 'TelnetSession[%s]: ignoring unsolicited data' % self.name
 		
 	def session_COMMAND_LINE_BUSY(self,data):
-		# Break the data into lines
-		lines = data.split(self.end_of_line)
-		if lines[-1] == '':
-			del lines[-1]
-		# Ignore a command echo
-		if len(self.command_response) == 0 and lines[0] == self.command_string:
-			del lines[0]
-		# Have we seen all of the command's response now?
-		completed = len(lines) > 0 and lines[-1].endswith(self.command_prompt)
-		if completed:
-			del lines[-1]
+		(completed,lines) = self.split_data(data)
 		# Append the new lines to the command response.			
 		self.command_response.extend(lines)
 		# Update our state if necessary
@@ -175,6 +166,29 @@ class TelnetSession(telnet.TelnetProtocol):
 			except IndexError:
 				# idle until we receive a new command
 				pass
+	
+	def split_data(self,data):
+		"""
+		Splits received data into lines of command response.
+		
+		Returns a tuple (completed,lines) where completed is true if the
+		data ends with the expected command prompt and lines is an array
+		of new lines received with any initial command echo and the
+		final command prompt removed.
+		"""
+		# Break the data into lines
+		lines = data.split(self.end_of_line)
+		if lines[-1] == '':
+			del lines[-1]
+		# Ignore a command echo
+		if len(self.command_response) == 0 and lines[0] == self.command_string:
+			del lines[0]
+		# Have we seen all of the command's response now?
+		completed = len(lines) > 0 and lines[-1].endswith(self.command_prompt)
+		if completed:
+			del lines[-1]
+		return (completed,lines)
+		
 		
 	def _submit(self,command,deferred):
 		if self.debug:

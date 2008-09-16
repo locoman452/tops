@@ -33,11 +33,11 @@ class VMSSession(TelnetSession):
 	password_prompt = 'Password: '
 	command_prompt = '$ '
 	
-	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
-	
 	def session_login_failed(self):
 		raise TelnetException('TelnetSession[%s]: VMS login failed' % self.name)
 
+class TCCException(TelnetException):
+	pass
 
 class TCCSession(VMSSession):
 	"""
@@ -48,6 +48,11 @@ class TCCSession(VMSSession):
 	"""
 	tcc_command = 'telrun'
 	tcc_ready = 'UserNum=(\d+); UserAdded'
+	
+	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
+
+	line_pattern = re.compile('\r0 (\d+) ([\:IWF>])\s+')
+	token_pattern = re.compile('\s*([A-Za-z_]+)\s*=?')
 	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
@@ -60,6 +65,30 @@ class TCCSession(VMSSession):
 			print 'You are user number %d' % self.user_num
 			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
+
+	def parse_line(self,line):
+		# try to parse the standard initial fields of the line
+		parsed = self.line_patern.match(line)
+		if not parsed:
+			raise TCCException("%s: cannot parse line '%s'" % (self.name,line))
+		(user_num,status) = parsed.groups()
+		# split the rest of the line into tokens delimited by a semicolon
+		keywords = { }
+		for token in line[parsed.end():].split(';'):
+			# split each token into (keyword,value) where value is None unless
+			# the token	contains an equals sign
+			parsed = self.token_pattern.match(token)
+			if not parsed:
+				raise TCCException("%s: cannot parse token '%s'" % (self.name,token))
+			keyword = parsed.group(1)
+			values = [ ]
+			# split anything following an equals sign into values delimited by a comma
+			for value in token[parsed.end():].split(','):
+				values.append(value.strip())
+			# store the results of parsing this token in a keywords dictionary
+			keywords[keyword] = values
+		# return the results of parsing this line
+		return (user_num,status,keywords)
 
 	def handle_command_response(self,response,command):
 		print 'got response to "%s":' % command
