@@ -33,7 +33,7 @@ class VMSSession(TelnetSession):
 	password_prompt = 'Password: '
 	command_prompt = '$ '
 	
-	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=')
+	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
 	
 	def session_login_failed(self):
 		raise TelnetException('TelnetSession[%s]: VMS login failed' % self.name)
@@ -98,9 +98,9 @@ def show_users():
 	TelnetSession.do('VMS','show users').addCallback(got_users)
 	
 def show_status():
-	print 'Requesting show_status...'
+	print 'Requesting a TCC status update...'
 	TelnetSession.do('TCC','axis status all')
-	TelnetSession.do('TCC','mirror status')
+	#TelnetSession.do('TCC','mirror status')
 
 if __name__ == "__main__":
 	
@@ -115,6 +115,6 @@ if __name__ == "__main__":
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
 #	reactor.callLater(2.0,show_status)	
-	task.LoopingCall(show_status).start(5.0)
+	task.LoopingCall(show_status).start(3.0)
 	
 	reactor.run()
