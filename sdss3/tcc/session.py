@@ -23,6 +23,8 @@ requires that the logging and archiving servers are already up.
 
 from tops.core.network.telnet import TelnetSession,TelnetException
 
+import re
+
 class VMSSession(TelnetSession):
 	"""
 	Manages a telnet client session to an OpenVMS host.
@@ -51,10 +53,15 @@ class TCCSession(VMSSession):
 
 	def session_STARTING_INTERPRETER(self,data):
 		if data.endswith(self.tcc_ready):
-			self.state = 'COMMAND_LINE_READY'
+			# parse this line to extract our user number
+			match = re.search('UserNum=(\d+)',data)
+			if not match:
+				raise TelnetError('TelnetSession[%s]: cannot determine user number' % self.name)
+			else:
+				self.user_num = int(match.group(1))
+				print 'You are user number %d' % self.user_num
+				self.state = 'COMMAND_LINE_READY'
 
-
-import re
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
