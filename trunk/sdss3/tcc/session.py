@@ -52,7 +52,7 @@ class TCCSession(VMSSession):
 #	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
 
 	line_pattern = re.compile('\r0 (\d+) ([\:IWF>])\s+')
-	token_pattern = re.compile('\s*([A-Za-z_]+)\s*=?')
+	token_pattern = re.compile('\s*([A-Za-z_]+)\s*(=\s*)?')
 	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
@@ -70,7 +70,8 @@ class TCCSession(VMSSession):
 		# try to parse the standard initial fields of the line
 		parsed = self.line_pattern.match(line)
 		if not parsed:
-			raise TCCException("%s: cannot parse line '%s'" % (self.name,line))
+			raise TCCException("%s: cannot parse line '%s'"
+				% (self.name,line.encode('ascii','backslashreplace')))
 		(user_num,status) = parsed.groups()
 		# split the rest of the line into tokens delimited by a semicolon
 		keywords = { }
@@ -79,7 +80,11 @@ class TCCSession(VMSSession):
 			# the token	contains an equals sign
 			parsed = self.token_pattern.match(token)
 			if not parsed:
-				raise TCCException("%s: cannot parse token '%s'" % (self.name,token))
+				raise TCCException("%s: cannot parse token '%s'"
+					% (self.name,token.encode('ascii','backslashreplace')))
+			if not parsed.group(2) and parsed.end() < len(token):
+				raise TCCException("%s: bad keyword '%s'"
+					% (self.name,token.encode('ascii','backslashreplace')))
 			keyword = parsed.group(1)
 			values = [ ]
 			# split anything following an equals sign into values delimited by a comma
