@@ -94,19 +94,11 @@ def got_users(response):
 		print '%s is running %d processes' % (username,nproc)
 
 def show_users():
-	print "Running show_users..."
+	print "Requesting show_users..."
 	TelnetSession.do('VMS','show users').addCallback(got_users)
 	
-def handle_tcc_command_response(response):
-	print 'tcc response:\n>>%s' % '\n>>'.join(response)
-	for line in response:
-		update_found = self.update_pattern.match(line)
-		if update_found:
-			parameters = update_found.group(1)
-			print 'got update for parameters:',parameters
-
 def show_status():
-	print 'Running show_status...'
+	print 'Requesting show_status...'
 	TelnetSession.do('TCC','show status')
 
 if __name__ == "__main__":
@@ -121,9 +113,7 @@ if __name__ == "__main__":
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
-	reactor.callLater(2.0,show_status)
-	
-#	looper = task.LoopingCall(show_users)
-#	looper.start(1.0)
+#	reactor.callLater(2.0,show_status)	
+	task.LoopingCall(show_status).start(2.0)
 	
 	reactor.run()
