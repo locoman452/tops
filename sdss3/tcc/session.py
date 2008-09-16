@@ -51,7 +51,7 @@ class TCCSession(VMSSession):
 	
 #	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
 
-	line_pattern = re.compile('\r0 (\d+) ([\:IWF>])\s+')
+	line_pattern = re.compile('\r?0 (\d+) ([\:IWF>])\s+')
 	token_pattern = re.compile('\s*([A-Za-z_]+)\s*(=\s*)?')
 	
 	def session_started(self):
