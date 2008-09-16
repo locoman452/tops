@@ -45,22 +45,18 @@ class TCCSession(VMSSession):
 	host.
 	"""
 	tcc_command = 'telrun'
-	tcc_ready = 'UserAdded'
+	tcc_ready = 'UserNum=(\d+); UserAdded'
 	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
 		self.send(self.tcc_command + '\n')
 
 	def session_STARTING_INTERPRETER(self,data):
-		if data.endswith(self.tcc_ready):
-			# parse this line to extract our user number
-			match = re.search('UserNum=(\d+)',data)
-			if not match:
-				raise TelnetError('TelnetSession[%s]: cannot determine user number' % self.name)
-			else:
-				self.user_num = int(match.group(1))
-				print 'You are user number %d' % self.user_num
-				self.state = 'COMMAND_LINE_READY'
+		started = re.search(self.tcc_ready,data)
+		if started:
+			self.user_num = int(match.group(1))
+			print 'You are user number %d' % self.user_num
+			self.state = 'COMMAND_LINE_READY'
 
 
 def got_users(response):
