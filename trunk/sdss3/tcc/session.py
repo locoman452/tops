@@ -58,7 +58,7 @@ class TCCSession(VMSSession):
 		if started:
 			self.user_num = int(started.group(1))
 			print 'You are user number %d' % self.user_num
-			self.update_pattern = re.compile('\r0 %d I (.+)' % self.user_num)
+			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
 
 	def handle_command_response(self,response,command):
@@ -66,7 +66,8 @@ class TCCSession(VMSSession):
 		for line in response:
 			update_found = self.update_pattern.match(line)
 			if update_found:
-				for parameter_update in update_found.group(1).split(';'):
+				status = update_found.group(1)
+				for parameter_update in update_found.group(2).split(';'):
 					name_parsed = self.parse_parameter_name.match(parameter_update)
 					if not name_parsed:
 						pass # what to do here?
@@ -74,7 +75,7 @@ class TCCSession(VMSSession):
 					values = [
 						val.strip() for val in parameter_update[name_parsed.end():].split(',')
 					]
-					print '"%s" has values %s' % (name,','.join(values))
+					print '"%s" has values %s (status %s)' % (name,','.join(values),status)
 						
 
 	def _submit(self,command,deferred):
