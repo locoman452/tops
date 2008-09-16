@@ -112,7 +112,7 @@ if __name__ == "__main__":
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
-	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
+	prepareTelnetSession(TCCSession('TCC',username,password,debug=True),hostname,port)
 	
 #	reactor.callLater(2.0,show_status)	
 	task.LoopingCall(show_status).start(3.0)
