@@ -21,16 +21,38 @@ requires that the logging and archiving servers are already up.
 
 #from tops.core.network.proxy import *
 
-from tops.core.network.telnet import TelnetSession
+from tops.core.network.telnet import TelnetSession,TelnetException
 
 class VMSSession(TelnetSession):
-
+	"""
+	Manages a telnet client session to an OpenVMS host.
+	"""
 	login_prompt = 'Username: '
 	password_prompt = 'Password: '
 	command_prompt = '$ '
+	
+	def session_login_failed(self):
+		raise TelnetException('TelnetSession[%s]: VMS login failed' % self.name)
+
 
 class TCCSession(VMSSession):
-	pass
+	"""
+	Manages a telnet client session to a TCC interpreter.
+	
+	The TCC interpreter is running via a telnet session to an OpenVMS
+	host.
+	"""
+	tcc_command = 'telrun'
+	tcc_ready = 'UserAdded'
+	
+	def session_started(self):
+		self.state = 'STARTING_INTERPRETER'
+		self.send(self.tcc_command + '\n')
+
+	def session_STARTING_INTERPRETER(self,data):
+		if data.endswith(self.tcc_ready):
+			self.state = 'COMMAND_LINE_READY'
+
 
 import re
 
@@ -40,7 +62,6 @@ def got_users(response):
 	for line in response:
 		match = parser.match(line)
 		if match:
-			print 'got_users:',match.groups()
 			users[match.group(1)] = int(match.group(2))
 	for (username,nproc) in users.iteritems():
 		print '%s is running %d processes' % (username,nproc)
@@ -59,9 +80,9 @@ if __name__ == "__main__":
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
-#	prepareTelnetSession(LocalhostSession('localhost',username,password,debug=False),hostname,port)
+	prepareTelnetSession(TCCSession('TCC',username,password,debug=True),hostname,port)
 	
-	looper = task.LoopingCall(show_users)
-	looper.start(1.0)
+#	looper = task.LoopingCall(show_users)
+#	looper.start(1.0)
 	
 	reactor.run()
