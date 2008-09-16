@@ -54,7 +54,7 @@ class TCCSession(VMSSession):
 	def session_STARTING_INTERPRETER(self,data):
 		started = re.search(self.tcc_ready,data)
 		if started:
-			self.user_num = int(match.group(1))
+			self.user_num = int(started.group(1))
 			print 'You are user number %d' % self.user_num
 			self.state = 'COMMAND_LINE_READY'
 
