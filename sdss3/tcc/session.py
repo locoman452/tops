@@ -101,7 +101,7 @@ def show_users():
 def show_status():
 	print 'Requesting a TCC status update...'
 	TelnetSession.do('TCC','axis status all')
-	#TelnetSession.do('TCC','mirror status')
+	TelnetSession.do('TCC','mirror status')
 
 if __name__ == "__main__":
 	
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
-	prepareTelnetSession(TCCSession('TCC',username,password,debug=True),hostname,port)
+	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
 #	reactor.callLater(2.0,show_status)	
 	task.LoopingCall(show_status).start(3.0)
