@@ -68,7 +68,7 @@ class TCCSession(VMSSession):
 
 	def parse_line(self,line):
 		# try to parse the standard initial fields of the line
-		parsed = self.line_patern.match(line)
+		parsed = self.line_pattern.match(line)
 		if not parsed:
 			raise TCCException("%s: cannot parse line '%s'" % (self.name,line))
 		(user_num,status) = parsed.groups()
