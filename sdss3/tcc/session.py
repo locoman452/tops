@@ -33,6 +33,8 @@ class VMSSession(TelnetSession):
 	password_prompt = 'Password: '
 	command_prompt = '$ '
 	
+	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=')
+	
 	def session_login_failed(self):
 		raise TelnetException('TelnetSession[%s]: VMS login failed' % self.name)
 
@@ -64,8 +66,13 @@ class TCCSession(VMSSession):
 		for line in response:
 			update_found = self.update_pattern.match(line)
 			if update_found:
-				for parameter in update_found.group(1).split(';'):
-					print '>>%s<<' % parameter		
+				for parameter_update in update_found.group(1).split(';'):
+					name_parsed = self.parse_parameter_name.match(parameter_update)
+					if not name_parsed:
+						pass # what to do here?
+					name = name_parsed.group(1)
+					values = parameter_update[name_parsed.end():]
+					print '"%s" has values "%s"' % (name,values)
 
 	def _submit(self,command,deferred):
 		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
@@ -110,7 +117,7 @@ if __name__ == "__main__":
 	password = getpass('Enter password for %s@%s: ' % (username,hostname))
 	
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
-	prepareTelnetSession(TCCSession('TCC',username,password,debug=True),hostname,port)
+	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
 	reactor.callLater(2.0,show_weather)
 	
