@@ -75,7 +75,7 @@ class TCCSession(VMSSession):
 					values = [
 						val.strip() for val in parameter_update[name_parsed.end():].split(',')
 					]
-					print '"%s" has values %s (status %s)' % (name,','.join(values),status)
+					print '"%s" has values (%s) [status %s]' % (name,','.join(values),status)
 						
 
 	def _submit(self,command,deferred):
@@ -117,5 +117,6 @@ if __name__ == "__main__":
 	
 #	reactor.callLater(2.0,show_status)	
 	task.LoopingCall(show_status).start(3.0,now=False)
+	task.LoopingCall(show_users).start(5.0,now=False)
 	
 	reactor.run()
