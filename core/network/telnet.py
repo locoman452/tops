@@ -147,7 +147,7 @@ class TelnetSession(telnet.TelnetProtocol):
 		
 	def session_COMMAND_LINE_BUSY(self,data):
 		# Break the data into lines
-		lines = data.split(self.end_of_line)
+		lines = data.split('\n\r')
 		if lines[-1] == '':
 			del lines[-1]
 		# Ignore a command echo

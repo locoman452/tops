@@ -32,7 +32,6 @@ class VMSSession(TelnetSession):
 	login_prompt = 'Username: '
 	password_prompt = 'Password: '
 	command_prompt = '$ '
-	end_of_line = '\n\r'
 	
 	def session_login_failed(self):
 		raise TelnetException('TelnetSession[%s]: VMS login failed' % self.name)
