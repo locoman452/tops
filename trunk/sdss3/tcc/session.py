@@ -99,7 +99,8 @@ def show_users():
 	
 def show_status():
 	print 'Requesting show_status...'
-	TelnetSession.do('TCC','show status')
+	TelnetSession.do('TCC','axis status all')
+	TelnetSession.do('TCC','mirror status')
 
 if __name__ == "__main__":
 	
@@ -114,6 +115,6 @@ if __name__ == "__main__":
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
 #	reactor.callLater(2.0,show_status)	
-	task.LoopingCall(show_status).start(2.0)
+	task.LoopingCall(show_status).start(5.0)
 	
 	reactor.run()
