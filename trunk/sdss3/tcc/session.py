@@ -71,8 +71,11 @@ class TCCSession(VMSSession):
 					if not name_parsed:
 						pass # what to do here?
 					name = name_parsed.group(1)
-					values = parameter_update[name_parsed.end():]
-					print '"%s" has values "%s"' % (name,values)
+					values = [
+						val.strip() for val in parameter_update[name_parsed.end():].split(',')
+					]
+					print '"%s" has values %s' % (name,','.join(values))
+						
 
 	def _submit(self,command,deferred):
 		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
@@ -102,10 +105,9 @@ def handle_tcc_command_response(response):
 			parameters = update_found.group(1)
 			print 'got update for parameters:',parameters
 
-def show_weather():
-	print 'Running show_weather...'
-	TelnetSession.do('TCC','show weather')
-	#.addCallback(handle_tcc_command_response)
+def show_status():
+	print 'Running show_status...'
+	TelnetSession.do('TCC','show status')
 
 if __name__ == "__main__":
 	
