@@ -93,6 +93,8 @@ class TCCSession(VMSSession):
 	def handle_command_response(self,response,command):
 		print 'got response to "%s":' % command
 		for line in response:
+			if not line.strip():
+				continue
 			(user_num,status,keywords) = self.parse_line(line)
 			print 'user=%s status=%s read %d keywords:' % (user_num,status,len(keywords))
 			for (keyword,values) in keywords.iteritems():
