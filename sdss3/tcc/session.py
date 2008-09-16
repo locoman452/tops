@@ -49,7 +49,7 @@ class TCCSession(VMSSession):
 	tcc_command = 'telrun'
 	tcc_ready = 'UserNum=(\d+); UserAdded'
 	
-	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
+#	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
 
 	line_pattern = re.compile('\r0 (\d+) ([\:IWF>])\s+')
 	token_pattern = re.compile('\s*([A-Za-z_]+)\s*=?')
@@ -93,6 +93,11 @@ class TCCSession(VMSSession):
 	def handle_command_response(self,response,command):
 		print 'got response to "%s":' % command
 		for line in response:
+			(user_num,status,keywords) = self.parse_line(line)
+			print 'user=%s status=%s read %d keywords:' % (user_num,status,len(keywords))
+			for (keyword,values) in keywords.iteritems():
+				print '  %20s = (%s)' % (keyword,','.join(values))
+			"""
 			update_found = self.update_pattern.match(line)
 			if update_found:
 				status = update_found.group(1)
@@ -105,7 +110,7 @@ class TCCSession(VMSSession):
 						val.strip() for val in parameter_update[name_parsed.end():].split(',')
 					]
 					print '"%s" has values (%s) [status %s]' % (name,','.join(values),status)
-						
+			"""
 
 	def _submit(self,command,deferred):
 		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
