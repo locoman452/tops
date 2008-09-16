@@ -58,6 +58,10 @@ class TCCSession(VMSSession):
 			print 'You are user number %d' % self.user_num
 			self.state = 'COMMAND_LINE_READY'
 
+	def _submit(self,command,deferred):
+		self.command_prompt = '0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
+		VMSSession._submit(self,command,deferred)
+
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
@@ -72,6 +76,13 @@ def got_users(response):
 def show_users():
 	print "Running show_users..."
 	TelnetSession.do('VMS','show users').addCallback(got_users)
+	
+def tcc_response(response):
+	print 'tcc response:\n>>%s' % '\n>>'.join(response)
+
+def show_weather():
+	print 'Running show_weather...'
+	TelnetSession.do('TCC','show weather').addCallback(tcc_response)
 
 if __name__ == "__main__":
 	
@@ -84,6 +95,8 @@ if __name__ == "__main__":
 	
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=True),hostname,port)
+	
+	reactor.callLater(2.0,show_weather)
 	
 #	looper = task.LoopingCall(show_users)
 #	looper.start(1.0)
