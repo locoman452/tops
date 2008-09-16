@@ -60,12 +60,12 @@ class TCCSession(VMSSession):
 			self.state = 'COMMAND_LINE_READY'
 
 	def handle_command_response(self,response,command):
-		print 'got response to "%s":\n%s' % (command,'\n'.join(response))
+		print 'got response to "%s":' % command
 		for line in response:
 			update_found = self.update_pattern.match(line)
 			if update_found:
-				parameters = update_found.group(1)
-				print 'got update for parameters:',parameters		
+				for parameter in update_found.group(1).split(';'):
+					print '>>%s<<' % parameter		
 
 	def _submit(self,command,deferred):
 		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
