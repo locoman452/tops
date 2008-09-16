@@ -63,6 +63,8 @@ class TelnetSession(telnet.TelnetProtocol):
 		return session._do(command)
 
 	def __init__(self,myname,username,password,debug=False):
+		if myname in self.registry:
+			raise TelnetException('cannot create second session with name "%s"' % myname)
 		self.name = myname
 		self.debug = debug
 		if self.debug:
