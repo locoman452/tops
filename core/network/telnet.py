@@ -55,13 +55,13 @@ class TelnetSession(telnet.TelnetProtocol,command.CommandQueue):
 	end_of_line = '\n'
 	
 	@staticmethod
-	def do(session_name,command):
+	def do(session_name,command_payload):
 		try:
 			session = TelnetSession.registry[session_name]
 		except KeyError:
 			return defer.fail(TelnetException('No such session registered: "%s"' % session_name))
 		try:
-			return session.add(command)
+			return session.add(command_payload)
 		except command.CommandException:
 			return defer.fail(TelnetException('Command queue overflow for "%s"' % session_name))
 
