@@ -68,10 +68,14 @@ class TCCSession(VMSSession):
 			
 	def session_COMMAND_LINE_READY(self,data):
 		for line in data.split('\n'):
+			if not line.strip():
+				continue
 			print self.parse_line(line)
 	
 	def session_COMMAND_LINE_BUSY(self,data):
 		for line in data.split('\n'):
+			if not line.strip():
+				continue
 			print self.parse_line(line)
 
 	def parse_line(self,line):
