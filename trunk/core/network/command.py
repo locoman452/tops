@@ -86,7 +86,7 @@ class CommandQueue(object):
 			self.queued.append(command)
 		else:
 			self.running = command
-			self.issue(command)
+			self.issue(command.payload)
 		return command.deferred
 	
 	def done(self,response=None):
@@ -124,7 +124,7 @@ class CommandQueue(object):
 		"""
 		try:
 			self.running = self.queued.popleft()
-			self.issue(self.running)
+			self.issue(self.running.payload)
 		except IndexError:
 			self.running = None
 
