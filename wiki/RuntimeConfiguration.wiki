@@ -1,0 +1,20 @@
+#labels Featured
+= Configuration Files =
+
+Runtime configuration is stored in files with the extension ".ini" in the standard and simple [http://en.wikipedia.org/wiki/INI_file INI file format].
+
+Files are searched in the following order:
+  # tops.core: config.ini
+  # tops._project_: config.ini
+  # working directory: tops-config.ini
+_project_ is, for example, sdss3. There is no error if a file is missing.
+
+= Configuration Parameters =
+
+== Core Software ==
+
+== Project Software ==
+
+=== SDSS3 ===
+
+
