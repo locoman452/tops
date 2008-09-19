@@ -49,6 +49,16 @@ class TCCSession(VMSSession):
 	tcc_command = 'telrun'
 	tcc_ready = 'UserNum=(\d+); UserAdded'
 	
+	# TCC status codes from src/subr/msg/format.for
+	status_codes = {
+		':': 'Done',    # also 'Superceded'
+		'>': 'Started',
+		'I': 'Information',
+		'W': 'Warning',
+		'F': 'Error',
+		'!': 'Fatal'
+	}
+	
 #	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
 
 	line_pattern = re.compile('\r?0 (\d+) ([\:IWF>])\s+')
@@ -103,6 +113,9 @@ class TCCSession(VMSSession):
 			raise TCCException("%s: cannot parse line '%s'"
 				% (self.name,line.encode('ascii','backslashreplace')))
 		(user_num,status) = parsed.groups()
+		user_num = int(user_num)
+		if status in self.status_codes:
+			status = self.status_code[status]
 		# split the rest of the line into tokens delimited by a semicolon
 		keywords = { }
 		for token in line[parsed.end():].split(';'):
