@@ -14,7 +14,7 @@ a telnet client session. Based on the classes in twisted.conch.telnet.
 # This project is hosted at http://tops.googlecode.com/
 
 from twisted.conch import telnet
-
+from twisted.internet import defer
 import command
 
 class TelnetException(Exception):
