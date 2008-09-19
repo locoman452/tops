@@ -60,8 +60,10 @@ class TelnetSession(telnet.TelnetProtocol,command.CommandQueue):
 			session = TelnetSession.registry[session_name]
 		except KeyError:
 			return defer.fail(TelnetException('No such session registered: "%s"' % session_name))
-#		return session._do(command)
-		return session.add(command)
+		try:
+			return session.add(command)
+		except command.CommandException:
+			return defer.fail(TelnetException('Command queue overflow for "%s"' % session_name))
 
 	def __init__(self,myname,username,password,debug=False):
 		if myname in self.registry:

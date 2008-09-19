@@ -65,6 +65,14 @@ class TCCSession(VMSSession):
 			print 'You are user number %d' % self.user_num
 			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
+			
+	def session_COMMAND_LINE_READY(self,data):
+		for line in data.split('\n'):
+			print self.parse_line(line)
+	
+	def session_COMMAND_LINE_BUSY(self,data):
+		for line in data.split('\n'):
+			print self.parse_line(line)
 
 	def parse_line(self,line):
 		# try to parse the standard initial fields of the line
@@ -119,11 +127,12 @@ class TCCSession(VMSSession):
 					print '"%s" has values (%s) [status %s]' % (name,','.join(values),status)
 			"""
 
+	"""
 	def _submit(self,command,deferred):
 		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
 		deferred.addCallback(self.handle_command_response,command)
 		VMSSession._submit(self,command,deferred)
-
+	"""
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
