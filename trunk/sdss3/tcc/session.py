@@ -115,7 +115,7 @@ class TCCSession(VMSSession):
 		(user_num,status) = parsed.groups()
 		user_num = int(user_num)
 		if status in self.status_codes:
-			status = self.status_code[status]
+			status = self.status_codes[status]
 		# split the rest of the line into tokens delimited by a semicolon
 		keywords = { }
 		for token in line[parsed.end():].split(';'):
