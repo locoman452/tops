@@ -14,12 +14,13 @@ a telnet client session. Based on the classes in twisted.conch.telnet.
 # This project is hosted at http://tops.googlecode.com/
 
 from twisted.conch import telnet
-from twisted.internet import defer
+
+import command
 
 class TelnetException(Exception):
 	pass
-
-class TelnetSession(telnet.TelnetProtocol):
+	
+class TelnetSession(telnet.TelnetProtocol,command.CommandQueue):
 	"""
 	Manages the application-level protocol for a telnet client session.
 	
@@ -59,7 +60,8 @@ class TelnetSession(telnet.TelnetProtocol):
 			session = TelnetSession.registry[session_name]
 		except KeyError:
 			return defer.fail(TelnetException('No such session registered: "%s"' % session_name))
-		return session._do(command)
+#		return session._do(command)
+		return session.add(command)
 
 	def __init__(self,myname,username,password,debug=False):
 		if myname in self.registry:
@@ -75,11 +77,13 @@ class TelnetSession(telnet.TelnetProtocol):
 		# initialize our state machine
 		self.state = 'CONNECTING'
 		# initialize our command queue
-		self.queue = deque()
+		command.CommandQueue.__init__(self,self.MAX_QUEUED)
 		# telnet.TelnetProtocol has no __init__ method to call
 
 	def send(self,data,secret=False):
-		"""Writes data through our connection transport"""
+		"""
+		Writes data through our connection transport
+		"""
 		if self.debug:
 			if secret:
 				print 'TelnetSession[%s]: sending something secret' % self.name
@@ -89,7 +93,9 @@ class TelnetSession(telnet.TelnetProtocol):
 		self.transport.write(data)
 
 	def dataReceived(self,data):
-		"""Drives a state machine based on the input received"""
+		"""
+		Drives a state machine based on the input received
+		"""
 		if self.debug:
 			print ("TelnetSession[%s]: got %r in state '%s'" %
 				(self.name,data.encode('ascii','backslashreplace'),self.state))
@@ -154,16 +160,8 @@ class TelnetSession(telnet.TelnetProtocol):
 				print 'TelnetSession[%s]: response from last command:' % self.name
 				for data in self.command_response:
 					print repr(data.encode('ascii','backslashreplace'))
-			# Notify any callbacks that the command has completed
-			self.command_defer.callback(self.command_response)
-			# Update our state machine
 			self.state = 'COMMAND_LINE_READY'
-			# Submit the next queued command, if any
-			try:
-				self._submit(*self.queue.popleft())
-			except IndexError:
-				# idle until we receive a new command
-				pass
+			self.done(self.command_response)
 	
 	def split_data(self,data):
 		"""
@@ -179,7 +177,7 @@ class TelnetSession(telnet.TelnetProtocol):
 		if lines[-1] == '':
 			del lines[-1]
 		# Ignore a command echo
-		if len(self.command_response) == 0 and lines[0] == self.command_string:
+		if len(self.command_response) == 0 and lines[0] == self.running:
 			del lines[0]
 		# Have we seen all of the command's response now?
 		completed = len(lines) > 0 and lines[-1].endswith(self.command_prompt)
@@ -187,34 +185,16 @@ class TelnetSession(telnet.TelnetProtocol):
 			del lines[-1]
 		return (completed,lines)
 		
-		
-	def _submit(self,command,deferred):
+	def issue(self,command):
+		"""
+		Implements the CommandQueue interface
+		"""
 		if self.debug:
-			print 'TelnetSession[%s]: submitting command "%s"' % (self.name,command)
+			print 'TelnetSession[%s]: issuing the command "%s"' % (self.name,command)
 		assert(self.state == 'COMMAND_LINE_READY')
-		# remember the command we are currently running
-		self.command_string = command
-		self.command_defer = deferred
-		# prepare to collect the command response
-		self.command_response = [ ]
 		self.state = 'COMMAND_LINE_BUSY'
-		# send the command
-		self.send(command + self.end_of_line)
-
-	def _do(self,command):
-		deferred = defer.Deferred()
-		# can we actually submit this command now?
-		if self.state == 'COMMAND_LINE_READY':		
-			self._submit(command,deferred)
-		else:
-			# queue this one for later
-			if len(self.queue) > self.MAX_QUEUED:
-				return defer.fail(TelnetException('%s: command queue overflow' % self.name))
-			self.queue.append((command,deferred))
-			if self.debug:
-				print ('TelnetSession[%s]: queued command "%s" (now %d in the queue)'
-					% (self.name,command,len(self.queue)))
-		return deferred
+		self.command_response = [ ]
+		self.send(command+self.end_of_line)
 
 
 class TelnetConnection(telnet.TelnetTransport):
