@@ -67,14 +67,25 @@ class TCCSession(VMSSession):
 			self.state = 'COMMAND_LINE_READY'
 			
 	def session_COMMAND_LINE_READY(self,data):
+		"""
+		Processes new incoming data while a command is not running.
+		"""
 		for line in data.split('\n'):
 			if not line.strip():
+				# ignore blank lines
 				continue
 			print self.parse_line(line)
 	
 	def session_COMMAND_LINE_BUSY(self,data):
+		"""
+		Processes new incoming data while a command is running.
+		"""
 		for line in data.split('\n'):
 			if not line.strip():
+				# ignore blank lines
+				continue
+			if line == self.running.payload:
+				# ignore the TCC's echo of a command we just submitted
 				continue
 			print self.parse_line(line)
 
