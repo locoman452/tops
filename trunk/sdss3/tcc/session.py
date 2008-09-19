@@ -90,7 +90,8 @@ class TCCSession(VMSSession):
 			(user_num,status,keywords) = self.parse_line(line)
 			print (user_num,status,keywords.keys())
 			if user_num == self.user_num and 'Cmd' in keywords:
-				assert(keywords['Cmd'] == self.running.payload)
+				print 'got Cmd'
+				assert(keywords['Cmd'] == [self.running.payload])
 				# this line marks the completion of our running command
 				self.state = 'COMMAND_LINE_READY'
 				self.done()
