@@ -16,8 +16,6 @@ a telnet client session. Based on the classes in twisted.conch.telnet.
 from twisted.conch import telnet
 from twisted.internet import defer
 
-from collections import deque
-
 class TelnetException(Exception):
 	pass
 

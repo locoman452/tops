@@ -1,13 +1,12 @@
 """
-Supports data dictionary declarations and provides numeric data
-services.
+Supports data dictionary numeric data services
 
 Defines a metaclass for numeric data types that can be efficiently
 serialized for network transport and database storage.
 """
 
 ## @package tops.core.utility.data
-# Lightweight object graphs for simple configuration declarations
+# Supports data dictionary numeric data services
 #
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 21-Aug-2008
