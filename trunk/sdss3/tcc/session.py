@@ -98,13 +98,16 @@ class TCCSession(VMSSession):
 				# ignore the TCC's echo of a command we just submitted
 				continue
 			(user_num,status,keywords) = self.parse_line(line)
-			print (user_num,status,keywords.keys())
+			print (user_num,status,keywords)
 			if user_num == self.user_num and 'Cmd' in keywords:
-				print 'got Cmd'
-				assert(keywords['Cmd'] == [self.running.payload])
+				print 'got Cmd',keywords['Cmd']
+				#assert(keywords['Cmd'] == [self.running.payload])
 				# this line marks the completion of our running command
 				self.state = 'COMMAND_LINE_READY'
-				self.done()
+				if status == 'Done':
+					self.done()
+				else:
+					self.error(TCCException('Command failed: %s' % self.running.payload()))
 
 	def parse_line(self,line):
 		# try to parse the standard initial fields of the line
