@@ -9,12 +9,14 @@ Files are searched in the following order:
   # working directory: tops-config.ini
 _project_ is, for example, sdss3. There is no error if a file is missing.
 
+An INI file is organized into named sections, and specifies parameters for each section. If a section parameter appears in more than one file, the last value found (according to the search order above) will be used.
+
 = Configuration Parameters =
+
+A named section with a 'service' parameter identifies a process that can be started to provide a TOPS runtime service. The value of the service parameter is the python module path of the service main entry point. The TOPS start program scans through the configuration files to determine the available services and will start them in increasing order of their launch_order parameter. Set the 'enable' parameter to 'False' to prevent a service being started.
 
 == Core Software ==
 
 == Project Software ==
 
 === SDSS3 ===
-
-
