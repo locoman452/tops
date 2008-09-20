@@ -59,10 +59,9 @@ class TCCSession(VMSSession):
 		'!': 'Fatal'
 	}
 	
-#	parse_parameter_name = re.compile('\s*([A-Za-z_]+)\s*=?')
-
+	# regular expressions for parsing message lines and token strings
 	line_pattern = re.compile('\r?0 (\d+) ([\:IWF>])\s+')
-	token_pattern = re.compile('\s*([A-Za-z_]+)\s*(=\s*)?')
+	token_pattern = re.compile('\s*([A-Za-z0-9_]+)\s*(=\s*)?')
 	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
@@ -140,37 +139,6 @@ class TCCSession(VMSSession):
 			keywords[keyword] = values
 		# return the results of parsing this line
 		return (user_num,status,keywords)
-
-	def handle_command_response(self,response,command):
-		print 'got response to "%s":' % command
-		for line in response:
-			if not line.strip():
-				continue
-			(user_num,status,keywords) = self.parse_line(line)
-			print 'user=%s status=%s read %d keywords:' % (user_num,status,len(keywords))
-			for (keyword,values) in keywords.iteritems():
-				print '  %20s = (%s)' % (keyword,','.join(values))
-			"""
-			update_found = self.update_pattern.match(line)
-			if update_found:
-				status = update_found.group(1)
-				for parameter_update in update_found.group(2).split(';'):
-					name_parsed = self.parse_parameter_name.match(parameter_update)
-					if not name_parsed:
-						pass # what to do here?
-					name = name_parsed.group(1)
-					values = [
-						val.strip() for val in parameter_update[name_parsed.end():].split(',')
-					]
-					print '"%s" has values (%s) [status %s]' % (name,','.join(values),status)
-			"""
-
-	"""
-	def _submit(self,command,deferred):
-		self.command_prompt = '\r0 %d : Cmd="%s"' % (self.user_num,command.replace('"',r'\"'))
-		deferred.addCallback(self.handle_command_response,command)
-		VMSSession._submit(self,command,deferred)
-	"""
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }

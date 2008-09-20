@@ -68,26 +68,27 @@ class TestServer(server.Server):
 import unittest
 import subprocess
 import os
+import sys
 import signal
 import time
 
 class ClientServerTests(unittest.TestCase):
 	def test00(self):
 		"""Unix client fails with no server listening"""
-		client_process = subprocess.Popen("python2.5 %s unixclient" % __file__,
+		client_process = subprocess.Popen("%s %s unixclient" % (sys.executable,__file__),
 			shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 		self.assertEqual(client_process.wait(),1)
 	def test01(self):
 		"""TCP client fails with no server listening"""
-		client_process = subprocess.Popen("python2.5 %s tcpclient" % __file__,
+		client_process = subprocess.Popen("%s %s tcpclient" % (sys.executable,__file__),
 			shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 		self.assertEqual(client_process.wait(),1)
 	def test02(self):
 		"Unix client communicates successfully with server"
-		server_process = subprocess.Popen("python2.5 %s server" % __file__,
+		server_process = subprocess.Popen("%s %s server" % (sys.executable,__file__),
 			shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 		time.sleep(1)
-		client_process = subprocess.Popen("python2.5 %s unixclient" % __file__,
+		client_process = subprocess.Popen("%s %s unixclient" % (sys.executable,__file__),
 			shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 		client_process.wait()
 		os.kill(server_process.pid,signal.SIGINT)

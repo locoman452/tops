@@ -13,18 +13,16 @@ files.
 #
 # This project is hosted at http://tops.googlecode.com/
 
-from ConfigParser import SafeConfigParser
+from ConfigParser import SafeConfigParser,NoOptionError
 
 import sys,os,os.path
 
 theParser = None
 
-
 class ConfigError(Exception):
 	pass
 
-
-def initialize(projectModulePath=None):
+def initialize(projectModulePath=None,verbose=False):
 	"""
 	Initializes the configuration module so that options can be read.
 	
@@ -36,7 +34,7 @@ def initialize(projectModulePath=None):
 	  <project>: config.ini
 	  $CWD: tops-config.ini
 	
-	where <project> is the optional pythonModulPath provided, e.g.
+	where <project> is the optional projectModulPath provided, e.g.
 	"tops.sdss3". The project module path can be anywhere on PYTHONPATH
 	and does not need to be under tops. The $CWD is obtained with
 	os.getcwd().
@@ -57,9 +55,10 @@ def initialize(projectModulePath=None):
 			raise ConfigError('Cannot import from project path: %s' % projectModulePath)
 	# finally, look in the current working dir
 	files.append(os.path.join(os.getcwd(),'tops-config.ini'))
-	print 'Will try:',', '.join(files)
 	found = theParser.read(files)
-	print 'Read configuration files:',', '.join(found)	
+	if verbose:
+		print 'config: looked for\n ','\n  '.join(files)
+		print 'config: found\n ','\n  '.join(found)	
 
 
 def get(section,option):
@@ -67,9 +66,14 @@ def get(section,option):
 	Looks up an option from the specified section.
 	
 	The initialize() function must be called be options can be read.
-	Raises an exception if this is not the case.
+	Raises an exception if this is not the case. Returns the last value
+	of the option read from the configuration files, or None if no value
+	was read.
 	"""
 	global theParser
 	if theParser is None:
 		raise ConfigError('Must initialize() the configuration module before getting options')
-	return theParser.get(section,option)
+	try:
+		return theParser.get(section,option)
+	except NoOptionError:
+		return None
