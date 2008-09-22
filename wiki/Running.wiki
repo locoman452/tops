@@ -19,7 +19,7 @@ Options:
   -h, --help         show this help message and exit
   --verbose          generate verbose output
   --project=PROJECT  python module path of project to start, e.g., tops.sdss3
-  --config=CONFIG    path of an INI containing run-time configuration
+  --config=CONFIG    path of an INI file containing run-time configuration
                      parameters
 
 }}}
