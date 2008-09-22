@@ -2,4 +2,20 @@
 
 TOPS consists of a number of processes that provide core and project-specific services. Processes can be distributed across multiple hosts but, for the best performance and easiest management, should all be run on a single multi-core host. The only exceptions are any services that need direct access to resources on a remote host, such as a particular serial port.
 
-The top-level start program launches all the services specified in the [RuntimeConfiguration run-time configuration] files on a single host.
+The top-level start program launches all the services specified in the [RuntimeConfiguration run-time configuration] files on a single host. The start program is a simple shell wrapper around the start.py python program. The start program can be run from any directory and a file called tops-config.ini in your working directory can be used to modify the [RuntimeConfiguration run-time configuration]. For example, the following are equivalent but would search for their tops-config.ini in different directories:
+{{{
+% ./start
+% ./tops/start
+% /usr/local/lib/tops/start
+}}}
+You should generally not set the PYTHONPATH environment variable before running the start program. In case you do, its value will override the default setting.
+
+For help on the available command-line options, use:
+{{{
+% start --help
+}}}
+Most run-time configuration is obtained from the [RuntimeConfiguration INI files], so you will normally only specify the project to start, e.g.
+{{{
+% start --project tops.sdss3
+}}}
+The project is specified as a fully-qualified python module path. The corresponding filesystem path will be searched for any project-specific run-time initialization. As long as your project is under the top-level tops module, you do not need to set PYTHONPATH before running the start program.
