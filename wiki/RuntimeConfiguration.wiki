@@ -15,6 +15,13 @@ The order of sections within an INI file is not important and neither is the ord
 
 = Configuration Parameters =
 
+The following values are considered _True_ / _False_ for boolean parameters (case is ignored):
+  * 1 / 0
+  * yes / no
+  * true / false
+  * on / off
+All other values will generate a run-time error.
+
 A named section with a _service_ parameter identifies a process that can be started to provide a runtime service. The value of the _service_ parameter is the python module path of the service main entry point. The [Running start program] scans through the configuration files to determine the available services and will start them in increasing order of their _launch_order_ parameter. Set the _enable_ parameter to something other than _True_ to prevent a service being started.
 
 == Core Software ==
