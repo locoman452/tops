@@ -95,16 +95,15 @@ import time
 
 class Broadcaster(object):
 	"""
-	Broadcasts UDP packets to simulate the TCC.
+	Broadcasts UDP packets to simulate the TCC
 	"""
-	def __init__(self,port):
+	def __init__(self,port,verbose=False):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.connect(("<broadcast>",port))
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 	def transmit(self):
 		p = Packet.generate()
-		print 'Transmitting',len(p.write()),'bytes'
 		self.socket.send(p.write())
 		
 	def transmitPeriodically(self,interval=1.0):
@@ -115,7 +114,11 @@ class Broadcaster(object):
 		except KeyboardInterrupt:
 			print 'bye'
 
+
 if __name__ == '__main__':
-	b = Broadcaster(port=portMap['2.5m'])
+
+	import tops.core.utility.config as config
+	verbose = config.initialize()
+	
+	b = Broadcaster(config.getint('broadcast','udpport'),verbose)
 	b.transmitPeriodically()
-	#b.transmit()
