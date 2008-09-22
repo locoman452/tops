@@ -77,13 +77,14 @@ if __name__ == '__main__':
 		try:
 			process = subprocess.Popen(args,shell=False)
 			print 'start: service %s is pid %d' % (service,process.pid)
-			pidlist.append(str(process.pid))
 			# give the service's initialization code a chance to complete
 			time.sleep(delay)
 			# check that the process is still running before continuing
 			if process.poll() is not None:
 				print 'start: service did not start successfully'
-				sys.exit(-3)
+				break
+			else:
+				pidlist.append(str(process.pid))
 		except OSError:
 			print 'start: unable to execute "%s"' % command
 	

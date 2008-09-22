@@ -38,7 +38,42 @@ class RotationType(data.enumerated):
 
 import broadcast
 from twisted.internet.protocol import DatagramProtocol
-from twisted.internet import reactor
+from twisted.internet import reactor,udp
+import socket
+
+from twisted.python import log
+
+def bindUDPSocket(self):
+	"""
+	Creates and binds a UDP socket using the SO_REUSEPORT option.
+	
+	This is a replacement for twisted.internet.udp.Port._bindSocket()
+	that sets the SO_REUSEPORT socket option before binding the port.
+	I wish twisted provided a more elegant way to do this.
+	"""
+	print 'bindUDPSocket: binding a socket using the SO_REUSEPORT option'
+	try:
+		skt = self.createInternetSocket()
+		# =====================================================================
+		# the following line is the only addition to the default implementation
+		skt.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEPORT,True)
+		# =====================================================================
+		skt.bind((self.interface, self.port))
+	except socket.error, le:
+		raise error.CannotListenError, (self.interface, self.port, le)
+
+	# Make sure that if we listened on port 0, we update that to
+	# reflect what the OS actually assigned us.
+	self._realPortNumber = skt.getsockname()[1]
+
+	log.msg("%s starting on %s"%(self.protocol.__class__, self._realPortNumber))
+
+	self.connected = 1
+	self.socket = skt
+	self.fileno = self.socket.fileno
+	
+udp.Port._bindSocket = bindUDPSocket
+
 
 class BroadcastListener(DatagramProtocol):
 	
@@ -46,6 +81,11 @@ class BroadcastListener(DatagramProtocol):
 		self.hosts = []
 		self.timeout = timeout
 		self.pending = None
+		
+	def startProtocol(self):
+		print 'setting socket options in startProtocol()'
+		DatagramProtocol.startProtocol(self)
+		self.transport.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEPORT,1)
 	
 	def doTimeout(self):
 		self.pending = None
