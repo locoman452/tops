@@ -20,7 +20,7 @@ Options:
   --verbose          generate verbose output
   --project=PROJECT  python module path of project to start, e.g., tops.sdss3
   --config=CONFIG    path of an INI file containing run-time configuration
-                     parameters
+                     parameters that will override the defaults
 
 }}}
 Most run-time configuration is obtained from the [RuntimeConfiguration INI files], so you will normally only need to specify the project you wish to start, e.g.
@@ -29,4 +29,4 @@ Most run-time configuration is obtained from the [RuntimeConfiguration INI files
 }}}
 The project is specified as a fully-qualified python module path. The corresponding filesystem path will be searched for any project-specific run-time initialization. As long as your project is under the top-level tops module, you do not need to set PYTHONPATH before running the start program.
 
-In case you need to override any of the default [RuntimeConfiguration run-time parameter], use the --config option to specify an INI file that is added to the end of the configuration parameter search path.
+In case you need to override any of the default [RuntimeConfiguration run-time parameters], use the --config option to specify an INI file that is added to the end of the configuration parameter search path.
