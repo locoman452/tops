@@ -30,12 +30,16 @@ def initialize(prog_name=None):
 	theParser = OptionParser("usage: %s [options]" % (prog_name or '%prog'))
 	# define standard options
 	theParser.add_option(
+		"--verbose", action="store_true", dest="verbose",
+		help="generate verbose output"
+	)
+	theParser.add_option(
 		"--project", action="store", type="string", dest="project",
 		help="python module path of project to start, e.g., tops.sdss3"
 	)
 	theParser.add_option(
-		"--verbose", action="store_true", dest="verbose",
-		help="generate verbose output"
+		"--config", action="store", type="string", dest="config",
+		help="path of an INI file containing run-time configuration parameters that will override the defaults"
 	)
 	theParser.set_defaults(verbose=False)
 	global theOptions,theArgs

@@ -19,6 +19,7 @@ Note that this program is normally invoked via the start shell script.
 import sys
 import os.path
 import subprocess
+import time
 
 if __name__ == '__main__':
 	
@@ -31,7 +32,6 @@ if __name__ == '__main__':
 		sys.path.insert(1,tops_path)
 		os.putenv('PYTHONPATH',tops_path)
 	try:
-		import tops.core.utility.options as options
 		import tops.core.utility.config as config
 	except ImportError:
 		if env_path:
@@ -42,16 +42,14 @@ if __name__ == '__main__':
 			sys.exit(2)
 		
 	# load our run-time configuration
-	options.initialize('start')
-	verbose = options.get('verbose')
-	config.initialize(options.get('project'),verbose)
+	verbose = config.initialize('start')
 	
 	# collect a list of services to start and perform some checks
 	services = { }
 	for section in config.theParser.sections():
 		service_name = config.get(section,'service')
-		launch_order = config.get(section,'launch_order')
-		if service_name and launch_order and config.get(section,'enable') == 'True':
+		launch_order = config.getint(section,'launch_order')
+		if service_name and launch_order and config.getboolean(section,'enable'):
 			# convert this service name to a filesystem path
 			try:
 				__import__(service_name,globals(),locals(),['__file__'],-1)
@@ -63,11 +61,16 @@ if __name__ == '__main__':
 			if not os.path.isfile(path):
 				print 'start: no such file %s' % path
 				sys.exit(-2)
+			if verbose:
+				print 'start: located %s at %s' % (service_name,path)
 			services[launch_order] = (service_name,path)
 
 	# start the services
-	ordered = [services[order] for order in sorted(services,key=int)]
+	if verbose:
+		print 'start: running python as %s' % sys.executable
+	ordered = [services[order] for order in sorted(services)]
 	pidlist = [ ]
+	delay = config.getfloat('start','delay')
 	for (service,path) in ordered:
 		args = [sys.executable,path]
 		args.extend(sys.argv[1:])
@@ -75,6 +78,12 @@ if __name__ == '__main__':
 			process = subprocess.Popen(args,shell=False)
 			print 'start: service %s is pid %d' % (service,process.pid)
 			pidlist.append(str(process.pid))
+			# give the service's initialization code a chance to complete
+			time.sleep(delay)
+			# check that the process is still running before continuing
+			if process.poll() is not None:
+				print 'start: service did not start successfully'
+				sys.exit(-3)
 		except OSError:
 			print 'start: unable to execute "%s"' % command
 	
@@ -87,4 +96,4 @@ if __name__ == '__main__':
 	pidfile = file(pidfile,'w')
 	print >> pidfile, ' '.join(pidlist)
 	pidfile.close()
-	print 'start: services can be killed with: kill `cat %s`' % pidfile.name
+	print 'start: services can be killed with: kill -INT `cat %s`' % pidfile.name
