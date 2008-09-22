@@ -65,15 +65,26 @@ if __name__ == '__main__':
 				sys.exit(-2)
 			services[launch_order] = (service_name,path)
 
-	sys.exit(0)
-
 	# start the services
 	ordered = [services[order] for order in sorted(services,key=int)]
+	pidlist = [ ]
 	for (service,path) in ordered:
 		args = [sys.executable,path]
 		args.extend(sys.argv[1:])
 		try:
 			process = subprocess.Popen(args,shell=False)
 			print 'start: service %s is pid %d' % (service,process.pid)
+			pidlist.append(str(process.pid))
 		except OSError:
 			print 'start: unable to execute "%s"' % command
+	
+	# Save the list of process IDs we have just started
+	pidlist.reverse()
+	pidfile = config.get('start','pidfile') or 'pidlist'
+	pidpath = os.path.dirname(pidfile)
+	if not os.path.exists(pidpath):
+		os.makedirs(pidpath)
+	pidfile = file(pidfile,'w')
+	print >> pidfile, ' '.join(pidlist)
+	pidfile.close()
+	print 'start: services can be killed with: kill `cat %s`' % pidfile.name
