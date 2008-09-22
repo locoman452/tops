@@ -1,5 +1,11 @@
 """
 Starts the telescope operations software
+
+Starts the processes specified in the run-time configuration files for
+the specified project. See http://code.google.com/p/tops/wiki/Running
+for details.
+
+Note that this program is normally invoked via the start shell script.
 """
 
 ## @package tops.start
@@ -14,15 +20,32 @@ import sys
 import os.path
 import subprocess
 
-import tops.core.utility.options as options
-import tops.core.utility.config as config
-
 if __name__ == '__main__':
 	
-	options.initialize()
+	# bootstrap our module path
+	tops_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+	env_path = os.getenv('PYTHONPATH')
+	if env_path:
+		print 'PYTHONPATH is already set...will try that.'
+	else:
+		sys.path.insert(1,tops_path)
+		os.putenv('PYTHONPATH',tops_path)
+	try:
+		import tops.core.utility.options as options
+		import tops.core.utility.config as config
+	except ImportError:
+		if env_path:
+			print 'Unable to import TOPS modules with current value of PYTHONPATH:\n',env_path
+			sys.exit(1)
+		else:
+			print 'Unable to bootstrap TOPS module path. Please check your installation.'
+			sys.exit(2)
+		
+	# load our run-time configuration
+	options.initialize('start')
 	verbose = options.get('verbose')
 	config.initialize(options.get('project'),verbose)
-
+	
 	# collect a list of services to start and perform some checks
 	services = { }
 	for section in config.theParser.sections():
@@ -41,6 +64,8 @@ if __name__ == '__main__':
 				print 'start: no such file %s' % path
 				sys.exit(-2)
 			services[launch_order] = (service_name,path)
+
+	sys.exit(0)
 
 	# start the services
 	ordered = [services[order] for order in sorted(services,key=int)]

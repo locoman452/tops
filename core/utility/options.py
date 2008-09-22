@@ -1,5 +1,12 @@
 """
 Parses command line options
+
+Provides standardized command-line options processing for TOPS services.
+Most run-time configuration is specified by INI files and accessed via
+the tops.core.utility.config module, so the main purpose of command-line
+options is to bootstrap the file-based configuration. In particular, the
+"project" option determines which project-specific INI file is read and
+so must be obtained via the command line.
 """
 
 ## @package tops.core.utility.options
@@ -15,12 +22,12 @@ from optparse import OptionParser
 theOptions = None
 theArgs = None
 
-def initialize():
+def initialize(prog_name=None):
 	"""
 	Initializes standard command line options processing
 	"""
 	# create a new parser
-	theParser = OptionParser("usage: %prog [options]")
+	theParser = OptionParser("usage: %s [options]" % (prog_name or '%prog'))
 	# define standard options
 	theParser.add_option(
 		"--project", action="store", type="string", dest="project",
