@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	tops_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 	env_path = os.getenv('PYTHONPATH')
 	if env_path:
-		print 'PYTHONPATH is already set...will try that.'
+		print 'start: PYTHONPATH is already set...will try that.'
 	else:
 		sys.path.insert(1,tops_path)
 		os.putenv('PYTHONPATH',tops_path)
@@ -35,10 +35,10 @@ if __name__ == '__main__':
 		import tops.core.utility.config as config
 	except ImportError:
 		if env_path:
-			print 'Unable to import TOPS modules with current value of PYTHONPATH:\n',env_path
+			print 'start: Import failed with PYTHONPATH = \n',env_path
 			sys.exit(1)
 		else:
-			print 'Unable to bootstrap TOPS module path. Please check your installation.'
+			print 'start: Unable to bootstrap module path. Please check your installation.'
 			sys.exit(2)
 		
 	# load our run-time configuration
@@ -54,20 +54,20 @@ if __name__ == '__main__':
 			try:
 				__import__(service_name,globals(),locals(),['__file__'],-1)
 			except ImportError:
-				print 'start: unable to import service %s' % service_name
+				print 'start: Unable to import service %s' % service_name
 				sys.exit(-1)
 			path = sys.modules[service_name].__file__
 			# check that a readable file exists at this path
 			if not os.path.isfile(path):
-				print 'start: no such file %s' % path
+				print 'start: Mo such file %s' % path
 				sys.exit(-2)
 			if verbose:
-				print 'start: located %s at %s' % (service_name,path)
+				print 'start: Located %s at %s' % (service_name,path)
 			services[launch_order] = (service_name,path)
 
 	# start the services
 	if verbose:
-		print 'start: running python as %s' % sys.executable
+		print 'start: Running python as %s' % sys.executable
 	ordered = [services[order] for order in sorted(services)]
 	pidlist = [ ]
 	delay = config.getfloat('start','delay')
@@ -81,20 +81,21 @@ if __name__ == '__main__':
 			time.sleep(delay)
 			# check that the process is still running before continuing
 			if process.poll() is not None:
-				print 'start: service did not start successfully'
+				print 'start: Service did not start successfully'
 				break
 			else:
 				pidlist.append(str(process.pid))
 		except OSError:
-			print 'start: unable to execute "%s"' % command
+			print 'start: Unable to execute "%s"' % command
 	
 	# Save the list of process IDs we have just started
-	pidlist.reverse()
-	pidfile = config.get('start','pidfile') or 'pidlist'
-	pidpath = os.path.dirname(pidfile)
-	if not os.path.exists(pidpath):
-		os.makedirs(pidpath)
-	pidfile = file(pidfile,'w')
-	print >> pidfile, ' '.join(pidlist)
-	pidfile.close()
-	print 'start: services can be killed with: kill -INT `cat %s`' % pidfile.name
+	if len(pidlist) > 0:
+		pidlist.reverse()
+		pidfile = config.get('start','pidfile') or 'pidlist'
+		pidpath = os.path.dirname(pidfile)
+		if not os.path.exists(pidpath):
+			os.makedirs(pidpath)
+		pidfile = file(pidfile,'w')
+		print >> pidfile, ' '.join(pidlist)
+		pidfile.close()
+		print 'start: Services can be killed with: kill -INT `cat %s`' % pidfile.name

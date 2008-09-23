@@ -97,7 +97,7 @@ class LogServer(Server):
 		self.factory.feed.add(record)
 		print record
 
-		
+
 def initialize():
 	"""
 	Starts the server main loop.
@@ -106,12 +106,22 @@ def initialize():
 	from twisted.python.logfile import LogFile
 	import sys
 	import os,os.path
+	
+	# load our run-time configuration
+	import tops.core.utility.config as config
+	verbose = config.initialize()
 
 	# use file-based logging for ourself (print statements are automatically redirected)
-	log.startLogging(sys.stdout)
-	#log.startLogging(LogFile('logserver','logs'))
-	print 'Executing',__file__,'as PID',os.getpid()
+	logpath = config.get('logger','logfile')
+	if not logpath or logpath == 'stdout':
+		log.startLogging(sys.stdout)
+	else:
+		(logpath,logfile) = os.path.split(logpath)
+		if not os.path.exists(logpath):
+			os.makedirs(logpath)
+		log.startLogging(LogFile(logfile,logpath))
 
+	print 'Executing',__file__,'as PID',os.getpid()
 	try:
 		# create a record buffer to connect our feed watchers to our clients
 		feed = FeedBuffer()
