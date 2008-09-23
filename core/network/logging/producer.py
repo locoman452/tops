@@ -6,23 +6,23 @@ and should normally be invoked with:
 
   import tops.core.network.logging.producer as logging
   ...
-  logging.start("my.source.name.prefix")
+  logging.initialize("my.source.name.prefix")
 
-Without the call to start(), logging defaults to the built-in
-implementation. By calling start(), all messages will be logged via a
-TCP handler to the distributed logging server. Messages will be
-identified by a source name that consists of the prefix name provided to
-start() followed by the name associated with any custom logger
+Without the call to initialize(), logging defaults to the built-in
+implementation. By calling initialize(), all messages will be logged
+via a TCP handler to the distributed logging server. Messages will be
+identified by a source name that consists of the prefix name provided
+to initialize() followed by the name associated with any custom logger
 created by the user.
 
 The logging module uses the tops.core.utility.config module to obtain
 its network connection parameters so config.initialize() must be called
-somewhere in the main program before logging.start().
+somewhere in the main program before logging.initialize().
 
 The source name prefix (and any user-defined logger name) must be a
 valid ResourceName. See record.py in this package for details.
 
-start() also sets the message level filter to DEBUG so that all
+initialize() also sets the message level filter to DEBUG so that all
 messages are sent to the server by default. Use, for example,
 logging.setLevel(logging.ERROR) to change this.
 """
@@ -103,20 +103,16 @@ class ClientHandler(SocketHandler):
 		return s
 
 	def createSocket(self):
-		print '%s: trying to connect to the logging server...' % __name__
 		SocketHandler.createSocket(self)
 		if self.sock:
-			print 'Success!'
 			self.send(self.hdr)
-		else:
-			print 'FAILED'
 
 
 import tops.core.utility.config as config
 
-def start(name):
+def initialize(name):
 	"""
-	Starts a logging producer registered under the specified name.
+	Initializes a logging producer registered under the specified name.
 	
 	Overrides the built-in logging.getLogger(name) to check that name is
 	a valid source name. Attempts to connect this producer to the server
@@ -135,9 +131,7 @@ def start(name):
 	
 	globals()["getLogger"] = clientGetLogger
 
-	source = ResourceName(name)
-	print '%s: using source name "%s"' % (__name__,source)
-
+	source = ResourceName(name)	
 	clientHandler = ClientHandler(source,
 		config.get('logger','unix_addr'),
 		config.get('logger','tcp_host'),

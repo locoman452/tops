@@ -41,40 +41,6 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor,udp
 import socket
 
-from twisted.python import log
-
-def bindUDPSocket(self):
-	"""
-	Creates and binds a UDP socket using the SO_REUSEPORT option.
-	
-	This is a replacement for twisted.internet.udp.Port._bindSocket()
-	that sets the SO_REUSEPORT socket option before binding the port.
-	I wish twisted provided a more elegant way to do this.
-	"""
-	print 'bindUDPSocket: binding a socket using the SO_REUSEPORT option'
-	try:
-		skt = self.createInternetSocket()
-		# =====================================================================
-		# the following line is the only addition to the default implementation
-		skt.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEPORT,True)
-		# =====================================================================
-		skt.bind((self.interface, self.port))
-	except socket.error, le:
-		raise error.CannotListenError, (self.interface, self.port, le)
-
-	# Make sure that if we listened on port 0, we update that to
-	# reflect what the OS actually assigned us.
-	self._realPortNumber = skt.getsockname()[1]
-
-	log.msg("%s starting on %s"%(self.protocol.__class__, self._realPortNumber))
-
-	self.connected = 1
-	self.socket = skt
-	self.fileno = self.socket.fileno
-	
-udp.Port._bindSocket = bindUDPSocket
-
-
 class BroadcastListener(DatagramProtocol):
 	
 	def __init__(self,timeout):
@@ -82,11 +48,6 @@ class BroadcastListener(DatagramProtocol):
 		self.timeout = timeout
 		self.pending = None
 		
-	def startProtocol(self):
-		print 'setting socket options in startProtocol()'
-		DatagramProtocol.startProtocol(self)
-		self.transport.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEPORT,1)
-	
 	def doTimeout(self):
 		self.pending = None
 		listener.do("timeout")
@@ -140,11 +101,51 @@ def configure():
 	"""
 	Perform startup configuration of the listener proxy.
 	"""
-#	port = broadcast.portMap['simulator']
-	port = broadcast.portMap['2.5m']
-	logging.info("Will listen for UDP broadcasts on port %d",port)
-	reactor.listenUDP(port,BroadcastListener(timeout=5))
+	port = config.getint('tcc.listener','udp_port')
+	timeout = config.getfloat('tcc.listener','timeout')
+	logging.info("Will listen for UDP broadcasts on port %d (timeout = %.1f seconds)",
+		port,timeout)
+	reactor.listenUDP(port,BroadcastListener(timeout))
 	
+'''
+# The following allows multiple processes to listen to the TCC
+# UDP broadcasts on the same host. Unfortunately, this does not work on
+# sdsshost2.apo.nmsu.edu since the necessary socket option (SO_REUSEPORT)
+# is not implemented in Solaris.
+
+from twisted.python import log
+
+def bindUDPSocket(self):
+	"""
+	Creates and binds a UDP socket using the SO_REUSEPORT option.
+
+	This is a replacement for twisted.internet.udp.Port._bindSocket()
+	that sets the SO_REUSEPORT socket option before binding the port.
+	I wish twisted provided a more elegant way to do this.
+	"""
+	try:
+		skt = self.createInternetSocket()
+		# =====================================================================
+		# the following line is the only addition to the default implementation
+		skt.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEPORT,True)
+		# =====================================================================
+		skt.bind((self.interface, self.port))
+	except socket.error, le:
+		raise error.CannotListenError, (self.interface, self.port, le)
+
+	# Make sure that if we listened on port 0, we update that to
+	# reflect what the OS actually assigned us.
+	self._realPortNumber = skt.getsockname()[1]
+
+	log.msg("%s starting on %s"%(self.protocol.__class__, self._realPortNumber))
+
+	self.connected = 1
+	self.socket = skt
+	self.fileno = self.socket.fileno
+
+udp.Port._bindSocket = bindUDPSocket
+'''
+
 #########################################################################
 # Define the proxy's states and data here. The top-level name
 # determines this proxy's name for logging and archiving via
@@ -152,7 +153,9 @@ def configure():
 #########################################################################
 
 if __name__ == "__main__":
-	verbose = initialize()
+
+	initialize('tcc.listener')
+	
 	listener = Proxy('TCC_LISTENER -> WAITING',
 		ProxyState('WAITING',
 			"""
@@ -194,4 +197,5 @@ if __name__ == "__main__":
 			)
 		)
 	)
+	
 	listener.start()
