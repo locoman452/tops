@@ -50,7 +50,7 @@ class BroadcastListener(DatagramProtocol):
 		
 	def doTimeout(self):
 		self.pending = None
-		listener.do("timeout")
+		listener.do('timeout')
 	
 	def datagramReceived(self, data, (host, port)):
 		packet = broadcast.Packet.read(data)
@@ -146,16 +146,14 @@ def bindUDPSocket(self):
 udp.Port._bindSocket = bindUDPSocket
 '''
 
-#########################################################################
-# Define the proxy's states and data here. The top-level name
-# determines this proxy's name for logging and archiving via
-# name.lower().replace('_",'.'), i.e., "AAA_BBB" -> "aaa.bbb"
-#########################################################################
-
 if __name__ == "__main__":
 
 	initialize('tcc.listener')
 	
+	#########################################################################
+	# Define the proxy's states and data
+	#########################################################################
+
 	listener = Proxy('TCC_LISTENER -> WAITING',
 		ProxyState('WAITING',
 			"""
