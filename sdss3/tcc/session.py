@@ -171,12 +171,11 @@ def configure():
 	"""
 	Perform startup configuration of the session proxy.
 	"""
-	from getpass import getpass
 	from twisted.internet import reactor,task
 	from tops.core.network.telnet import prepareTelnetSession
 
 	(hostname,port,username) = ('tcc25m.apo.nmsu.edu',23,'tcc')
-	password = getpass('Enter password for %s@%s: ' % (username,hostname))
+	password = config.getsecret('tcc.session','password')
 	
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)

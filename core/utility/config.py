@@ -25,8 +25,10 @@ getboolean() functions, e.g.
 import sys,os,os.path
 from ConfigParser import SafeConfigParser,NoOptionError
 import tops.core.utility.options as options
+import tops.core.utility.secret as secret
 
 theParser = None
+theEngine = None
 
 class ConfigError(Exception):
 	pass
@@ -61,6 +63,14 @@ def initialize(prog_name=None):
 	projectModulePath = options.get('project')
 	configOverrides = options.get('config')
 	verbose = options.get('verbose')
+	key = options.get('key')
+	# create our encryption engine if we have a key
+	global theEngine
+	if key:
+		theEngine = secret.SecretEngine(key)
+		# throw away the key to protect it from prying eyes
+		theEngine.key = None
+		key = None
 	# create our options parser	
 	global theParser
 	theParser = SafeConfigParser()
@@ -137,3 +147,13 @@ def getfilename(section,option,makedirs=True):
 		if not os.path.exists(path):
 			os.makedirs(path)
 	return filename
+	
+def getsecret(section,option):
+	"""
+	Returns a decrypted string.
+	"""
+	global theEngine
+	if not theEngine:
+		raise ConfigError('cannot decrypt secret data')
+	encrypted = secret.hex2bin(get(section,option))
+	return theEngine.decrypt(encrypted)
