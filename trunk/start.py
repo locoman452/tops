@@ -22,8 +22,6 @@ import subprocess
 import time
 import getpass
 
-from tops.core.utility import secret
-
 if __name__ == '__main__':
 	
 	# bootstrap our module path
@@ -35,7 +33,7 @@ if __name__ == '__main__':
 		sys.path.insert(1,tops_path)
 		os.putenv('PYTHONPATH',tops_path)
 	try:
-		import tops.core.utility.config as config
+		from tops.core.utility import config,secret
 	except ImportError:
 		if env_path:
 			print 'start: Import failed with PYTHONPATH = \n',env_path
