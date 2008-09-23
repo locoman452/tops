@@ -9,6 +9,10 @@ will produce logging messages. If the logging producer has already been
 started by someone else (this module does not start the logging
 producer), these will be sent to the logging server. Otherwise, they
 will be handled by python's built-in logging module.
+
+The archiving module uses the tops.core.utility.config module to obtain
+its network connection parameters so config.initialize() must be called
+somewhere in the main program before this module's initialize() method.
 """
 
 ## @package tops.core.network.archiving.producer
