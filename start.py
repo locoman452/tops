@@ -91,10 +91,7 @@ if __name__ == '__main__':
 	# Save the list of process IDs we have just started
 	if len(pidlist) > 0:
 		pidlist.reverse()
-		pidfile = config.get('start','pidfile') or 'pidlist'
-		pidpath = os.path.dirname(pidfile)
-		if not os.path.exists(pidpath):
-			os.makedirs(pidpath)
+		pidfile = config.getfilename('start','pidfile') or 'pidlist'
 		pidfile = file(pidfile,'w')
 		print >> pidfile, ' '.join(pidlist)
 		pidfile.close()

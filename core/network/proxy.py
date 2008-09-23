@@ -85,4 +85,9 @@ class Proxy(StateChart):
 		twisted.internet.reactor.run()
 		
 def initialize():
+	# load our run-time configuration
+	import tops.core.utility.config as config
+	verbose = config.initialize()
+	# initialize the archiver
 	archiving.initialize()
+	return verbose

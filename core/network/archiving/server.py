@@ -132,13 +132,11 @@ def initialize():
 	verbose = config.initialize()
 
 	# use file-based logging for ourself (print statements are automatically redirected)
-	logpath = config.get('archiver','logfile')
+	logpath = config.getfilename('archiver','logfile')
 	if not logpath or logpath == 'stdout':
 		log.startLogging(sys.stdout)
 	else:
 		(logpath,logfile) = os.path.split(logpath)
-		if not os.path.exists(logpath):
-			os.makedirs(logpath)
 		log.startLogging(LogFile(logfile,logpath))
 
 	print 'Executing',__file__,'as PID',os.getpid()
@@ -150,12 +148,12 @@ def initialize():
 		factory = Factory()
 		factory.protocol = ArchiveServer
 		factory.manager = manager
-		reactor.listenTCP(1967,factory)
-		reactor.listenUNIX('/tmp/archive-server',factory)
+		reactor.listenTCP(config.getint('archiver','tcp_port'),factory)
+		reactor.listenUNIX(config.getfilename('archiver','unix_addr'),factory)
 
 		# initialize an HTTP server to handle archive monitoring queries via http
 		prepareWebServer(
-			portNumber = 8081,
+			portNumber = config.getint('archiver','http_port'),
 			handlers = {"feed":ArchiveQuery()},
 			properties = {"manager":manager},
 			filterLogs = True

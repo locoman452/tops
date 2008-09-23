@@ -120,5 +120,5 @@ if __name__ == '__main__':
 	import tops.core.utility.config as config
 	verbose = config.initialize()
 	
-	b = Broadcaster(config.getint('broadcast','udpport'),verbose)
+	b = Broadcaster(config.getint('tcc.broadcast','udp_port'),verbose)
 	b.transmitPeriodically()

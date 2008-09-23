@@ -112,13 +112,11 @@ def initialize():
 	verbose = config.initialize()
 
 	# use file-based logging for ourself (print statements are automatically redirected)
-	logpath = config.get('logger','logfile')
+	logpath = config.getfilename('logger','logfile')
 	if not logpath or logpath == 'stdout':
 		log.startLogging(sys.stdout)
 	else:
 		(logpath,logfile) = os.path.split(logpath)
-		if not os.path.exists(logpath):
-			os.makedirs(logpath)
 		log.startLogging(LogFile(logfile,logpath))
 
 	print 'Executing',__file__,'as PID',os.getpid()
@@ -130,12 +128,12 @@ def initialize():
 		factory = Factory()
 		factory.protocol = LogServer
 		factory.feed = feed
-		reactor.listenTCP(1966,factory)
-		reactor.listenUNIX('/tmp/log-server',factory)
+		reactor.listenTCP(config.getint('logger','tcp_port'),factory)
+		reactor.listenUNIX(config.getfilename('logger','unix_addr'),factory)
 
 		# initialize an HTTP server to handle feed watcher requests via http
 		prepareWebServer(
-			portNumber = 8080,
+			portNumber = config.getint('logger','http_port'),
 			handlers = {"feed":FeedUpdate()},
 			properties = {"feed":feed},
 			filterLogs = True

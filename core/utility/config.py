@@ -123,3 +123,17 @@ def getboolean(section,option):
 	Coerces the result of a get() call to a boolean value.
 	"""
 	return _get(section,option,"getboolean")
+	
+def getfilename(section,option,makedirs=True):
+	"""
+	Returns a string filename.
+	
+	Optionally attempts to creates the path to the file if it does not
+	already exist, unless the filename is 'stdout'.
+	"""
+	filename = get(section,option)
+	if filename and makedirs:
+		path = os.path.dirname(filename)
+		if not os.path.exists(path):
+			os.makedirs(path)
+	return filename
