@@ -20,22 +20,11 @@ import sys
 from tops.core.utility.state_chart import *
 
 import tops.core.utility.data as data
-
-from tops.core.network.naming import ResourceName
+import tops.core.utility.config as config
+import tops.core.network.logging.producer as logging
+import tops.core.network.archiving.producer as archiving
 
 import twisted.internet
-
-try:
-	import tops.core.network.logging.producer as logging
-except Exception,e:
-	print 'Unable to load logging service:',e
-	raise
-
-try:
-	import tops.core.network.archiving.producer as archiving
-except Exception,e:
-	print 'Unable to load archiving service:',e
-	raise
 
 
 class Monitor(object):
@@ -50,7 +39,6 @@ class ProxyState(State):
 			archiving.addMonitor(item.name,item.fields)
 		else:
 			State.processItem(self,item)
-
 
 class Proxy(StateChart):
 	
@@ -70,24 +58,40 @@ class Proxy(StateChart):
 			logging.debug('Entering state %s following %s',self.state.name,action)
 	
 	def start(self):
-		name = ResourceName(self.name.lower().replace('_','.'))
-		logging.start(name)
-		logging.info('Starting proxy')
-		# add a monitor for our state transitions
+		# Our service name should already have been set in the global initialize() function.
+		assert(self.service_name is not None)
+		# Let the world know we are starting
+		logging.info('Starting proxy as %s' % self.service_name)
+		# TODO: add a monitor for our state transitions
 		#archiving.addMonitor('state',[('value',data.unsigned)])
-		archiving.start(name)
+		# Tell the archiver about the data we provide
+		archiving.start()
+		# Perform any optional startup configuration
 		try:
 			sys.modules['__main__'].configure()
 		except AttributeError:
 			logging.debug('Proxy does not perform any startup configuration')
+		# Initialize our state machine
 		self.state = self.setState(self)
-		logging.debug('Started in state "%s"',self.state.name)
+		logging.msg('Started in state %s',self.state.name)
+		# Start the main loop (this call never returns)
 		twisted.internet.reactor.run()
 		
-def initialize():
-	# load our run-time configuration
-	import tops.core.utility.config as config
-	verbose = config.initialize()
+def initialize(name):
+	"""
+	Initializes the proxy environment before a new proxy is declared.
+	
+	The name provided must be a valid and unique network service name.
+	See tops.core.network.naming for details.
+	"""
+	# check the name format (does not check uniqueness)
+	from tops.core.network.naming import ResourceName
+	name = ResourceName(name)
+	# remember our service name
+	Proxy.service_name = name
+	# initialize our run-time configuration
+	config.initialize()
+	# initialize the logger
+	logging.initialize(name)
 	# initialize the archiver
-	archiving.initialize()
-	return verbose
+	archiving.initialize(name)

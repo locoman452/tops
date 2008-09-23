@@ -56,7 +56,7 @@ function processRecords(data,textStatus) {
 	$("#lastUpdate").html(now.toLocaleString()+' '+textStatus);
 	$.each(data.items,addRecord);
 	// scroll to the bottom of the message area so this new message is visible
-	scrollToBottom("#content");
+	if(data.items.length > 0) scrollToBottom("#content");
 }
 
 function startUpdate() {

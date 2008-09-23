@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
 	import tops.core.network.logging.producer as logging
 	
-	logging.start('log.client.test')
+	logging.initialize('log.client.test')
 
 	from time import sleep
 

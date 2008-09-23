@@ -41,17 +41,18 @@ class ArchiveClient(Client):
 	Header = archiving_pb2.Header
 	Message = archiving_pb2.Update
 
-	def __init__(self,unix_path,tcp_host,tcp_port):
+	def __init__(self,name,unix_path,tcp_host,tcp_port):
 		Client.__init__(self,unix_path,tcp_host,tcp_port)
+		self.name = name
 		self.records = { }
 		self.started = False
 		
 	def addMonitor(self,name,channels):
 		self.records[name] = ArchiveRecord(name,channels)
 
-	def start(self,name):
+	def start(self):
 		hdr = self.Header()
-		hdr.name = ResourceName(name)
+		hdr.name = ResourceName(self.name)
 		# set our timestamp origin
 		hdr.timestamp_origin = int(floor(time()))
 		self.timestamp_origin = AstroTime.fromtimestamp(hdr.timestamp_origin,UTC)
@@ -71,18 +72,21 @@ theArchive = None
 
 import tops.core.utility.config as config
 
-def initialize():
+def initialize(name):
 	"""
 	Initializes the producer side of distributed archiving.
 	
 	Should usually be called right after importing this module. Must be
 	called before archiving is started or any records are defined. This
-	function attempts to connect to the archiving server and will
-	raise an exception if this fails.
+	function attempts to connect to the archiving server and will raise
+	an exception if this fails.
+	
+	The name provided must be a valid and unique network service name.
+	See tops.core.network.naming for details.
 	"""
 	global theArchive
 	assert(theArchive is None)
-	theArchive = ArchiveClient(
+	theArchive = ArchiveClient(name,
 		config.get('archiver','unix_addr'),
 		config.get('archiver','tcp_host'),
 		config.get('archiver','tcp_port')
@@ -100,10 +104,10 @@ def addMonitor(name,channels):
 	global theArchive
 	assert(theArchive is not None)
 	assert(not theArchive.started)
-	logging.info('Adding monitor for "%s"',name)
+	logging.info('Will monitor "%s" record with %d channels',name,len(channels))
 	theArchive.addMonitor(name,channels)
 
-def start(name):
+def start():
 	"""
 	Starts an archiving producer registered under the specified name.
 	
@@ -115,7 +119,7 @@ def start(name):
 	assert(theArchive is not None)
 	assert(not theArchive.started)
 	logging.info('Starting archive client')
-	theArchive.start(name)
+	theArchive.start()
 
 def update(utc_timestamp,record_name,channels):
 	"""
