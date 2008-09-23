@@ -16,8 +16,12 @@ is running and correctly handles the messages.
 
 if __name__ == "__main__":
 
-	import tops.core.network.logging.producer as logging
+	# load our run-time configuration
+	import tops.core.utility.config as config
+	verbose = config.initialize()
 
+	import tops.core.network.logging.producer as logging
+	
 	logging.start('log.client.test')
 
 	from time import sleep

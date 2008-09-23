@@ -15,6 +15,10 @@ identified by a source name that consists of the prefix name provided to
 start() followed by the name associated with any custom logger
 created by the user.
 
+The logging module uses the tops.core.utility.config module to obtain
+its network connection parameters so config.initialize() must be called
+somewhere in the main program before logging.start().
+
 The source name prefix (and any user-defined logger name) must be a
 valid ResourceName. See record.py in this package for details.
 
@@ -108,6 +112,8 @@ class ClientHandler(SocketHandler):
 			print 'FAILED'
 
 
+import tops.core.utility.config as config
+
 def start(name):
 	"""
 	Starts a logging producer registered under the specified name.
@@ -132,6 +138,10 @@ def start(name):
 	source = ResourceName(name)
 	print '%s: using source name "%s"' % (__name__,source)
 
-	clientHandler = ClientHandler(source,'/tmp/logserver','localhost',1966)
+	clientHandler = ClientHandler(source,
+		config.get('logger','unix_addr'),
+		config.get('logger','tcp_host'),
+		config.get('logger','tcp_port')
+	)
 	root.handlers.append(clientHandler)
 	root.setLevel(DEBUG)
