@@ -55,7 +55,7 @@ class Proxy(StateChart):
 			logging.warning('Ignoring illegal action %s from %s',action,self.state.name)
 		else:
 			self.state = self.setState(allowed[action])
-			logging.debug('Entering state %s following %s',self.state.name,action)
+			logging.debug('Action "%s" enters the state %s',action,self.state.name)
 	
 	def start(self):
 		# Our service name should already have been set in the global initialize() function.

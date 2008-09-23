@@ -19,9 +19,10 @@ requires that the logging and archiving servers are already up.
 #
 # This project is hosted at http://tops.googlecode.com/
 
-#from tops.core.network.proxy import *
+from tops.core.network.proxy import *
 
 from tops.core.network.telnet import TelnetSession,TelnetException
+from tops.core.utility.astro_time import AstroTime,UTC
 
 import re
 
@@ -35,6 +36,7 @@ class VMSSession(TelnetSession):
 	
 	def session_login_failed(self):
 		raise TelnetException('TelnetSession[%s]: VMS login failed' % self.name)
+		session.do('login_failed')
 
 class TCCException(TelnetException):
 	pass
@@ -74,6 +76,7 @@ class TCCSession(VMSSession):
 			print 'You are user number %d' % self.user_num
 			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
+			session.do('interpreter_started')
 			
 	def session_COMMAND_LINE_READY(self,data):
 		"""
@@ -149,6 +152,11 @@ def got_users(response):
 			users[match.group(1)] = int(match.group(2))
 	for (username,nproc) in users.iteritems():
 		print '%s is running %d processes' % (username,nproc)
+	utc = AstroTime.now(UTC)
+	archiving.update(utc,'vms',{
+		'nproc.tcc':		users['TCC'],
+		'nproc.tccuser':	users['TCCUSER']
+	})
 
 def show_users():
 	print "Requesting show_users..."
@@ -159,8 +167,10 @@ def show_status():
 	TelnetSession.do('TCC','axis status all')
 	TelnetSession.do('TCC','mirror status')
 
-if __name__ == "__main__":
-	
+def configure():
+	"""
+	Perform startup configuration of the session proxy.
+	"""
 	from getpass import getpass
 	from twisted.internet import reactor,task
 	from tops.core.network.telnet import prepareTelnetSession
@@ -171,8 +181,42 @@ if __name__ == "__main__":
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
-#	reactor.callLater(2.0,show_status)	
 	#task.LoopingCall(show_status).start(3.0,now=False)
 	#task.LoopingCall(show_users).start(5.0,now=False)
+
 	
-	reactor.run()
+if __name__ == '__main__':
+
+	initialize('tcc.session')
+	
+	#########################################################################
+	# Define the proxy's states and data
+	#########################################################################
+
+	session = Proxy('TCC_SESSION -> CONNECTING',
+		ProxyState('CONNECTING',
+			"""
+			Establishing telnet session with the TCC.
+			""",
+			On('interpreter_started').goto('READY'),
+			On('login_failed').goto('FAULT')
+		),
+		ProxyState('READY',
+			"""
+			TCC interpreter session has been established. TCC status keywords
+			are being periodically read and fed to the archiver.
+			""",
+			#On('timeout').goto('FAULT'),
+			Monitor('vms',
+				('nproc.tcc',		data.unsigned),
+				('nproc.tccuser',	data.unsigned)
+			)
+		),
+		ProxyState('FAULT',
+			"""
+			A fault condition has been signalled.
+			"""
+		)
+	)
+	
+	session.start()
