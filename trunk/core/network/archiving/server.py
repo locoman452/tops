@@ -127,11 +127,21 @@ def initialize():
 	from twisted.python.logfile import LogFile
 	import os,os.path,sys
 
-	# use file-based logging for ourself (print statements are automatically redirected)
-	log.startLogging(sys.stdout)
-	#log.startLogging(LogFile('logserver','logs'))
-	print 'Executing',__file__,'as PID',os.getpid()
+	# load our run-time configuration
+	import tops.core.utility.config as config
+	verbose = config.initialize()
 
+	# use file-based logging for ourself (print statements are automatically redirected)
+	logpath = config.get('archiver','logfile')
+	if not logpath or logpath == 'stdout':
+		log.startLogging(sys.stdout)
+	else:
+		(logpath,logfile) = os.path.split(logpath)
+		if not os.path.exists(logpath):
+			os.makedirs(logpath)
+		log.startLogging(LogFile(logfile,logpath))
+
+	print 'Executing',__file__,'as PID',os.getpid()
 	try:
 		# create an archive manager to connect our consumers to our producers
 		manager = ArchiveManager()
