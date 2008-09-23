@@ -30,6 +30,7 @@ if __name__ == '__main__':
 	if env_path:
 		print 'start: PYTHONPATH is already set...will try that.'
 	else:
+		print 'start: using PYTHONPATH = %s' % tops_path
 		sys.path.insert(1,tops_path)
 		os.putenv('PYTHONPATH',tops_path)
 	try:
