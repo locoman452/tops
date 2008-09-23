@@ -10,6 +10,7 @@ Python 2.5 is required, although the only thing that breaks 2.4 is a few conditi
 - zope.interface : Needed for twisted. Using 3.3.0 and 3.4.1, but twisted should also work with older versions.
 - twisted : Provides our low-level networking framework. Using 8.1.0.
 - google.protobuf : Provides our network serialization framework. Using 2.0.0 and 2.0.1.
+- pycrypto: Provides encryption of private data. Using 2.0.1.
 
 == Code Management ==
 
