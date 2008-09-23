@@ -65,7 +65,9 @@ class ArchiveClient(Client):
 
 theArchive = None
 
-def initialize(serverHost = 'localhost'):
+import tops.core.utility.config as config
+
+def initialize():
 	"""
 	Initializes the producer side of distributed archiving.
 	
@@ -76,7 +78,11 @@ def initialize(serverHost = 'localhost'):
 	"""
 	global theArchive
 	assert(theArchive is None)
-	theArchive = ArchiveClient('/tmp/archive-server',serverHost,1967)
+	theArchive = ArchiveClient(
+		config.get('archiver','unix_addr'),
+		config.get('archiver','tcp_host'),
+		config.get('archiver','tcp_port')
+	)
 
 def addMonitor(name,channels):
 	"""

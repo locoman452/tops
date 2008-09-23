@@ -152,7 +152,7 @@ def configure():
 #########################################################################
 
 if __name__ == "__main__":
-	initialize()
+	verbose = initialize()
 	listener = Proxy('TCC_LISTENER -> WAITING',
 		ProxyState('WAITING',
 			"""
