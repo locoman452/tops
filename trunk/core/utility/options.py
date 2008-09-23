@@ -17,6 +17,7 @@ so must be obtained via the command line.
 #
 # This project is hosted at http://tops.googlecode.com/
 
+import sys
 from optparse import OptionParser
 
 theOptions = None
@@ -41,9 +42,16 @@ def initialize(prog_name=None):
 		"--config", action="store", type="string", dest="config",
 		help="path of an INI file containing run-time configuration parameters that will override the defaults"
 	)
-	theParser.set_defaults(verbose=False)
+	theParser.add_option(
+		"--readkey", action="store_true", dest="readkey",
+		help="read private data key from stdin"
+	)
+	theParser.set_defaults(verbose=False,readkey=False)
 	global theOptions,theArgs
 	(theOptions,theArgs) = theParser.parse_args()
+	# read the private data key now if requested
+	if theOptions.readkey:
+		theOptions.key = sys.stdin.readline().strip()
 
 def get(option):
 	global theOptions

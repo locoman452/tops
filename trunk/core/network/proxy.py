@@ -73,7 +73,7 @@ class Proxy(StateChart):
 			logging.debug('Proxy does not perform any startup configuration')
 		# Initialize our state machine
 		self.state = self.setState(self)
-		logging.msg('Started in state %s',self.state.name)
+		logging.info('Started in state %s',self.state.name)
 		# Start the main loop (this call never returns)
 		twisted.internet.reactor.run()
 		

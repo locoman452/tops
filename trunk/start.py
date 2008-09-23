@@ -20,6 +20,9 @@ import sys
 import os.path
 import subprocess
 import time
+import getpass
+
+from tops.core.utility import secret
 
 if __name__ == '__main__':
 	
@@ -43,6 +46,14 @@ if __name__ == '__main__':
 		
 	# load our run-time configuration
 	verbose = config.initialize('start')
+	
+	# prompt for the decryption passphrase used for private data if requested
+	private_key = None
+	if config.getboolean('start','get_passphrase'):
+		passphrase = getpass.getpass('Enter the pass phrase: ')
+		engine = secret.SecretEngine(passphrase=passphrase)
+		private_key = engine.key
+		del engine
 	
 	# collect a list of services to start and perform some checks
 	services = { }
@@ -71,12 +82,20 @@ if __name__ == '__main__':
 	ordered = [services[order] for order in sorted(services)]
 	pidlist = [ ]
 	delay = config.getfloat('start','delay')
+	if private_key:
+		stdin = subprocess.PIPE
+		sys.argv.append('--readkey')
+	else:
+		stdin = None
 	for (service,path) in ordered:
 		args = [sys.executable,path]
 		args.extend(sys.argv[1:])
 		try:
-			process = subprocess.Popen(args,shell=False)
+			process = subprocess.Popen(args,shell=False,stdin=stdin)
 			print 'start: service %s is pid %d' % (service,process.pid)
+			# write the private key via stdout if necessary
+			if private_key:
+				process.stdin.write(private_key+'\n')
 			# give the service's initialization code a chance to complete
 			time.sleep(delay)
 			# check that the process is still running before continuing
