@@ -12,8 +12,9 @@ This page collects together useful links for a user of the operations software. 
 
 == Using TOPS ==
 
-  * Running the software
-  * Monitoring operations
+  * [RuntimeConfiguration Configuring the software]
+  * [Running Running the software]
+  * Monitoring telescope operations
   * When things go wrong
 
 == SDSS-3 Devices ==
