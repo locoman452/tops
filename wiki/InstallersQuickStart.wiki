@@ -5,7 +5,7 @@ This page collects together useful links for installing the operations software.
 
 == Preparing to Install ==
 
-This software is written purely in python and so should be widely portable. It has been tested on various flavors of linux and Apple's OS-X.
+This software is written purely in python and so should be widely portable. It has been tested on the [Platforms following platforms].
 
   # Check if your platform has the [RequiredEnvironment required software environment] and upgrade or install packages if necessary.
   # Decide which [ReleaseNotes software release] you will install.
