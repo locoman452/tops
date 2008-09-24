@@ -1,24 +1,19 @@
 #labels Featured,Phase-Deploy
 = Release Notes for Tagged Versions of TOPS =
 
-Get a list of all the available tagged version with:
-{{{
-% svn list --verbose http://tops.googlecode.com/svn/tags
-}}}
-Check out a read-only copy of a tagged version with, for example (checks out V0.1):
-{{{
-% svn checkout http://tops.googlecode.com/svn/tags/V0.1 tops
-}}}
-Test your installation with:
-{{{
-% python2.5 tops/run_tests.py
-}}}
+In reverse chronological order...
 
-== V0.1 ==
+== V0.4 ==
 
-Created 9-Sep-2008.
+Created 24-Sep-2008.
 
-Basic install test. Should only require that python 2.5 is installed.
+Provides the basic infrastructure (logging, archiving, process startup, and run-time configuration) and working read-only examples of the proxies that interface with the TCC via its UDP broadcasts (tcc.listener) and interactive interpreter (tcc.session).
+
+== V0.3 ==
+
+Created 11-Sep-2008.
+
+Includes functional logging and archiving services and the TCC listener proxy. Requires that the google.protobuf python library has been installed and provides an scons build script. Tested on the 2.5m subnet at APO.
 
 == V0.2 ==
 
@@ -26,8 +21,8 @@ Created 9-Sep-2008.
 
 Test core client-server networking. Requires that the zope.interface and twisted python libraries have been installed.
 
-== V0.3 ==
+== V0.1 ==
 
-Created 11-Sep-2008.
+Created 9-Sep-2008.
 
-Includes functional logging and archiving services and the TCC listener proxy. Requires that the google.protobuf python library has been installed and provides an scons build script. Tested on the 2.5m subnet at APO.
+Basic install test. Should only require that python 2.5 is installed.
