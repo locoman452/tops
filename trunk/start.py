@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	try:
 		env_path = os.environ['PYTHONPATH']
 		print 'start: PYTHONPATH is already set...will try that.'
-	except AttributeError:
+	except KeyError:
 		print 'start: using PYTHONPATH = %s' % tops_path
 		sys.path.insert(1,tops_path)
 		os.environ['PYTHONPATH'] = tops_path
