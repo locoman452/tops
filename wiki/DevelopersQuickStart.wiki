@@ -13,7 +13,8 @@ This page collects together useful links for developers of the operations softwa
 
 == Getting Started ==
 
-  * Wiki documentation
+  * Code organization: [Projects projects] and [Packages packages].
+  * Wiki documentation: you are reading it. The home page is [http://code.google.com/p/tops/ here] and there is also a [http://code.google.com/p/tops/w/list searchable index].
   * Release notes
   * Browsing the code
   * Browsing the code documentation
