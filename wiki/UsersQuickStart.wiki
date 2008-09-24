@@ -6,22 +6,22 @@ This page collects together useful links for a user of the operations software. 
 == Background Information ==
 
   * [DesignOverview An overview of the software design]
-  * What is a _proxy_?
-  * Understanding dataflow
-  * Development status
+  * [ReleaseNotes Development status]
 
 == Using TOPS ==
 
-  * [RuntimeConfiguration Configuring the software]
+  * [RuntimeConfig Configuring the software]
   * [Running Running the software]
   * Monitoring telescope operations
-  * When things go wrong
+    * [LoggingClient logging client]
+    * [ArchivingClient archiving client]
+  * What to do when things go wrong
 
 == SDSS-3 Devices ==
 
-  * The Telescope Control Computer (TCC)
+  * [TCC The Telescope Control Computer] (TCC)
   * The instruments:
     * BOSS
     * SEGUE-2
     * APOGEE
-    * MARVELS
+    * [MARVELS]
