@@ -20,4 +20,5 @@ This page collects together useful links for developers of the operations softwa
   * Issue tracking
   * Running automatic unit tests
   * Running non-automated tests
-  * Running the operations software
+  * [RuntimeConfiguration Runtime configuration] of the operations software
+  * [Running Running the operations software]
