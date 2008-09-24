@@ -15,6 +15,6 @@ The following wiki pages provide a quick overview of the project and its current
     * [ArchivingClient Using the archiving client].
     * [MARVELS Plans for MARVELS].
 For more details, select one of the following guides aimed at different audiences:
-  * [UsersQuickStart] User's quick-start guide.
-  * [InstallersQuickStart] Installer's quick-start guide.
-  * [DevelopersQuickStart] Developer's quick-start guide.
+  * [UsersQuickStart User's quick-start guide].
+  * [InstallersQuickStart Installer's quick-start guide].
+  * [DevelopersQuickStart Developer's quick-start guide].
