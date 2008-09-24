@@ -1,5 +1,16 @@
 = Overview of the Operations Software Design =
 
+The operations software is designed as three horizontal layers that interface the system's users to its hardware devices:
+  * Sessions: the interface between users and applications.
+  * Applications: the GUI and scripting environment that users interact with.
+  * [Proxies]: the interface between applications and hardware devices.
+These layers are vertically integrated with the following operations infrastructure:
+  * [Logging]: the destination for all text-based data.
+  * [Archiving]: the destination for all numeric data.
+  * [ProcessControl]: monitoring and control of the co-operating processes that provide operations services.
+  * [Configuration]: management of the run-time configuration for operations services.
+The following block diagram illustrates the relationships between these components:
+
 == Background Material ==
 
 Links to some SDSS-3 presentations on the new software design:
