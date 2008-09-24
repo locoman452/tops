@@ -9,6 +9,10 @@ Created 24-Sep-2008.
 
 Provides the basic infrastructure (logging, archiving, process startup, and run-time configuration) and working read-only examples of the proxies that interface with the TCC via its UDP broadcasts (tcc.listener) and interactive interpreter (tcc.session).
 
+Solid outlines in the block diagram below show exactly which components are implemented in this version:
+
+[http://tops.googlecode.com/svn/wiki/images/BlockDiagV04.png]
+
 == V0.3 ==
 
 Created 11-Sep-2008.
