@@ -10,6 +10,8 @@ The following wiki pages provide a quick overview of the project and its current
     * [Dataflow The difference between logging and archiving].
   * [TechnologyChoices TUI, TRON and all that].
   * [ReleaseNotes What is the current status]?
+    * [RuntimeConfig Configuring the operations software].
+    * [Running Starting the operations software].
     * [TCC Interface to the TCC].
     * [LoggingClient Using the logging client].
     * [ArchivingClient Using the archiving client].
