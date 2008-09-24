@@ -65,7 +65,7 @@ The implementation plan for the new operations software is not to use TRON. Inst
 
 == Twisted ==
 
-[http://twistedmatrix.com/trac/ Twisted] is an event-driven network engine written in Python. It is an extensive and mature software project with a [http://twistedmatrix.com/trac/wiki/ProjectsUsingTwisted large user base]. Applications using Twisted include BitTorrent, Zope3 and Justin.tv.
+[http://twistedmatrix.com/trac/ Twisted] is an event-driven network engine written in Python. It is an extensive and mature software project with a [http://twistedmatrix.com/trac/wiki/ProjectsUsingTwisted large user base]. Applications using Twisted include !BitTorrent, Zope3 and Justin.tv.
 
 The implementation plan for twisted is to use its transport and protocol layers to manage the asynchronous communications between the process providing operations services. Some services will also use its web layer to serve static and dynamic content.
 
