@@ -64,6 +64,8 @@ class TCCSession(VMSSession):
 	# regular expressions for parsing message lines and token strings
 	line_pattern = re.compile('\r?0 (\d+) ([\:IWF>])\s+')
 	token_pattern = re.compile('\s*([A-Za-z0-9_]+)\s*(=\s*)?')
+
+	string_literal = re.compile(r'"([^"\\]|\\.)*"')
 	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
