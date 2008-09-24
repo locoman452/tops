@@ -2,7 +2,7 @@
 
 TOPS consists of a number of processes that provide core and project-specific services. Processes can be distributed across multiple hosts but, for the best performance and easiest management, should all be run on a single multi-core host. The only exceptions are any services that need direct access to resources on a remote host, such as a particular serial port.
 
-The top-level start program launches all the services specified in the [RuntimeConfiguration run-time configuration] files on a single host. The start program is a simple shell wrapper around the start.py python program. The start program can be run from any working directory, so the following are all equivalent (assuming that the given path to the start program is valid in each case):
+The top-level start program launches all the services specified in the [RuntimeConfig run-time configuration] files on a single host. The start program is a simple shell wrapper around the start.py python program. The start program can be run from any working directory, so the following are all equivalent (assuming that the given path to the start program is valid in each case):
 {{{
 % ./start
 % ./tops/start
@@ -23,7 +23,7 @@ Options:
                      parameters that will override the defaults
   --readkey          read private data key from stdin
 }}}
-Most run-time configuration is obtained from [RuntimeConfiguration text files], so you will normally only need to specify the project you wish to start, e.g.
+Most [RuntimeConfig run-time configuration] is read from text files, so you will normally only need to specify the project you wish to start, e.g.
 {{{
 % start --project tops.sdss3
 }}}
