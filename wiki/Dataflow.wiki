@@ -12,3 +12,5 @@ Archiving data is organized into named records, where each record has a UTC time
 All operations data is eventually stored permanently in a time-index database. Archiving data can be optionally filtered before it is written, to reduce the storage requirements and minimize noise.
 
 All operations data is tagged with a name describing its origin and these names are organized into a coherent global name space. For example, log messages from the TCC interpreter session proxy are tagged with _tcc.session_ and the archiving channels associated with the TCC UDP broadcasts have names like _tcc.listener.broadcast.bore.x.pos_ and _tcc.listener.broadcast.bore.x.vel_.
+
+One asymmetry in the operations data flow is that the archiving service generates logging data but not vice versa.
