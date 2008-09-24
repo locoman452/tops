@@ -7,9 +7,16 @@ The operations software is designed as three horizontal layers that interface th
 These layers are vertically integrated with the following operations infrastructure:
   * [Logging]: the destination for all text-based data.
   * [Archiving]: the destination for all numeric data.
-  * [ProcessControl]: monitoring and control of the co-operating processes that provide operations services.
   * [Configuration]: management of the run-time configuration for operations services.
+  * [ProcessControl]: monitoring and control of the co-operating processes that provide operations services.
+  * [FileHandling File Handling]: assembling and transporting the potentially large files produced during operations.
 The following block diagram illustrates the relationships between these components:
+
+[http://tops.googlecode.com/svn/wiki/images/BlockDiagDesign.png]
+
+For more detailed information about the overall design, refer to the links above and the background material below.
+
+For information about what is actually implemented today, refer to the [ReleaseNotes release notes].
 
 == Background Material ==
 
