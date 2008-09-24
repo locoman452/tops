@@ -13,4 +13,4 @@ To add a python platform, paste the output of 'svn update' and 'uname -a' into a
 The client web pages, consisting of HTML and CSS files, and javascript code, have been tested in the following browser environments:
   * At revision 168 Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.0.1) Gecko/2008070206 Firefox/3.0.1
   * At revision 168 Safari Version 3.1.2 (5525.20.1) on Intel Mac OS X 10.5
-To add a browser environment, paste something appropriate from the browsers 'About...' dialog into a new item above or a comment below.
+To add a browser environment, paste something appropriate from the browser's *About...* dialog into a new item above or a comment below.
