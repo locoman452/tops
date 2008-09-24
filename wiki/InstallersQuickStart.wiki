@@ -1,2 +1,25 @@
 #labels Featured
-Welcome installers...
+= Quick Start Guide for Software Installers =
+
+This page collects together useful links for installing the operations software. There are similar guides for software [IUsersQuickStart users] and [DevelopersQuickStart developers].
+
+== Preparing to Install ==
+
+This software is written purely in python and so should be widely portable. It has been tested on various flavors of linux and Apple's OS-X.
+
+  # Check if your platform has the [RequiredEnvironment required software environment] and upgrade or install packages if necessary.
+  # Decide which [ReleaseNotes software release] you will install.
+  # Obtain a [Downloading copy of the software].
+
+== Building the Software ==
+
+There is nothing that requires compiling or linking in the software but some files are deliberately not stored in the code repository since they can be generated from other files already in the repository. The steps required to reconstruct these files are coordinated by the [RequiredEnvironment required] SConstruct build program.
+
+  # Build the python descriptions of the [ProtocolBuffers protocol buffers] (this step is *required*).
+  # Build the web pages that document the design (this step is optional).
+  # Build the source code documentation web pages (this step is optional).
+
+== Testing your Installation ==
+
+  # Running automatic [UnitTests unit tests].
+  # Running non-automated tests.
