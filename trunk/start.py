@@ -26,13 +26,13 @@ if __name__ == '__main__':
 	
 	# bootstrap our module path
 	tops_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-	env_path = os.getenv('PYTHONPATH')
+	env_path = getattr(os.environ,'PYTHONPATH',None)
 	if env_path:
 		print 'start: PYTHONPATH is already set...will try that.'
 	else:
 		print 'start: using PYTHONPATH = %s' % tops_path
 		sys.path.insert(1,tops_path)
-		os.putenv('PYTHONPATH',tops_path)
+		os.environ['PYTHONPATH'] = tops_path
 	try:
 		from tops.core.utility import config,secret
 	except ImportError:
