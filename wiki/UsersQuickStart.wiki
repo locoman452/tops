@@ -1,2 +1,14 @@
 #labels Featured
-Welcome users...
+= Quick Start Guide for Users =
+
+== Background Information ==
+
+  * [DesignOverview An overview of the software design]
+  * What is a _proxy_?
+  * Understanding dataflow
+
+== Using TOPS ==
+
+  * Running the software
+  * Monitoring operations
+  * When things go wrong
