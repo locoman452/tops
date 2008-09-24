@@ -10,8 +10,8 @@ The only requirement for running the logging client is a reasonably modern brows
 
 The number 8080 is required since the software uses a non-standard port for http, which avoids any conflicts with a production web server running on the standard port 80 and also allows other operations software services to run their own servers on different ports.
 
+The screenshots below show the logging client in action. In the first, log messages are being displayed. Color codes indicate the message severity and the message source appears on the left. The second screenshot shows the configuration dialog for source and severity filtering, etc.
+
 [http://tops.googlecode.com/svn/wiki/images/LoggingClient1.png]
 
 [http://tops.googlecode.com/svn/wiki/images/LoggingClient2.png]
-
-The screenshots below show the logging client in action. In the first, log messages are being displayed. Color codes indicate the message severity and the message source appears on the left. The second screenshot shows the configuration dialog for source and severity filtering, etc.
