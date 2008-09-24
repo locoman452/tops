@@ -15,12 +15,12 @@ This software is written mostly in python (there is also some javascript that on
 
 There is nothing that requires compiling or linking in the software but some files are deliberately not stored in the code repository since they can be generated from other files already in the repository. The steps required to reconstruct these files are coordinated by the [RequiredEnvironment required] SConstruct build program.
 
-  # Build the python descriptions of the [ProtocolBuffers protocol buffers] (this step is *required*).
+  # Build the python descriptions of the [TechnologyChoices protocol buffers] (this step is *required*).
   # Build the web pages that document the design (this step is optional).
   # Build the source code documentation web pages (this step is optional).
 
 == Testing your Installation ==
 
-  # Running automatic [UnitTests unit tests].
+  # Running automatic unit tests.
   # Running non-automated tests.
   # Running the operations software.
