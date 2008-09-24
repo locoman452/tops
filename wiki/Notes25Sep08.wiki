@@ -1,0 +1,20 @@
+= Notes for the 25 Sep 2008 SDSS-3 Infrastructure Meeting =
+
+After a productive week of commissioning at APO, a first release of the new operations software is now available. The software now also has a name, TOPS, for Telescope OPerations Software.
+
+The software is being developed as an open source project hosted at [http://tops.googlecode.com], which includes a public code repository, a documentation wiki (which you are reading now), and issue tracker.
+
+The following wiki pages provide a quick overview of the project and its current status as input for today's discussion:
+  * [DesignOverview An overview of the design].
+    * [Proxies What is a proxy]?
+    * [Dataflow The difference between logging and archiving].
+  * [TechnologyChoices TUI, TRON and all that].
+  * [ReleaseNotes What is the current status]?
+    * [TCC Interface to the TCC].
+    * [LoggingClient Using the logging client].
+    * [ArchivingClient Using the archiving client].
+    * [MARVELS Plans for MARVELS].
+For more details, select one of the following guides aimed at different audiences:
+  * [UsersQuickStart] User's quick-start guide.
+  * [InstallersQuickStart] Installer's quick-start guide.
+  * [DevelopersQuickStart] Developer's quick-start guide.
