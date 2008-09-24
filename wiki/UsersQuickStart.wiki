@@ -1,14 +1,26 @@
 #labels Featured
 = Quick Start Guide for Users =
 
+This page collects together useful links for a user of the operations software. There are similar guides for software [InstallersQuickStart installers] and [DevelopersQuickStart developers].
+
 == Background Information ==
 
   * [DesignOverview An overview of the software design]
   * What is a _proxy_?
   * Understanding dataflow
+  * Development status
 
 == Using TOPS ==
 
   * Running the software
   * Monitoring operations
   * When things go wrong
+
+== SDSS-3 Devices ==
+
+  * The Telescope Control Computer (TCC)
+  * The instruments:
+    * BOSS
+    * SEGUE-2
+    * APOGEE
+    * MARVELS
