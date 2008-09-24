@@ -1,0 +1,6 @@
+= Configuring the Operations Software =
+
+The operations software obtains the configuration data it needs at run time by reading text files in the standard [http://en.wikipedia.org/wiki/INI_file INI format]. A more 'modern' approach would be to use XML files but we do not need an arbitrary hierarchy here and prefer a format that is easier for humans to edit directly. The INI format is actually not very well standardized so, for the definitive reference of what works here, refer to the documentation of the [http://docs.python.org/lib/module-ConfigParser.html ConfigParser library] that this software uses.
+
+The operations software makes a distinction between _core_ software and _project_ software, and this is evident in the organization of the configuration files. See [Projects this page] for more information about the core/project distinction.
+
