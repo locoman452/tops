@@ -16,7 +16,9 @@ Python 2.5 is required, although the only thing that breaks 2.4 is a few conditi
 
 Code is hosted at http://tops.googlecode.com/
 
-Using svn 1.2.3 and 1.4.4. Needs to have the SSL repository access module for write access to the repository.
+Using svn 1.2.3 and 1.4.4.
+
+SVN needs to be configured with the SSL repository access module for write access to the repository (developers must also be registered with the TOPS google code project), but the basic SVN installation works fine for read-only checkout and installation.
 
 == Build System ==
 
