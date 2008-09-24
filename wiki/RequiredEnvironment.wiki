@@ -1,4 +1,3 @@
-#labels Featured,Phase-Deploy
 =The Required Operations Software Environment=
 
 The operations software depends on other software that is listed below. Examples of platforms where the software is known to work are [Platforms listed here].
