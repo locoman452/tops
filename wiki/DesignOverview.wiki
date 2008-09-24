@@ -10,6 +10,8 @@ These layers are vertically integrated with the following operations infrastruct
   * [Configuration]: management of the run-time configuration for operations services.
   * [ProcessControl]: monitoring and control of the co-operating processes that provide operations services.
   * [FileHandling File Handling]: assembling and transporting the potentially large files produced during operations.
+The distinction between logging and archiving is [Dataflow explained here].
+
 The following block diagram illustrates the relationships between these components:
 
 [http://tops.googlecode.com/svn/wiki/images/BlockDiagDesign.png]
