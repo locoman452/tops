@@ -6,19 +6,17 @@ This page collects together useful links for developers of the operations softwa
 == Background Material ==
 
   * [DesignOverview An overview of the software design]
-  * Twisted matrix
-  * Protocol buffers
-  * Google code hosting
-  * Open source license
+  * [TechnologyChoices Technology choices]
+  * [License Open source license]
 
 == Getting Started ==
 
   * Code organization: [Projects projects] and [Packages packages].
   * Wiki documentation: you are reading it. The home page is [http://code.google.com/p/tops/ here] and there is also a [http://code.google.com/p/tops/w/list searchable index].
-  * Release notes
-  * Browsing the code
+  * [ReleaseNotes Release notes]
+  * [http://code.google.com/p/tops/source/browse/ Browsing the code]
   * Browsing the code documentation
-  * Issue tracking
+  * [http://code.google.com/p/tops/issues/list Issue tracking]
   * Running automatic unit tests
   * Running non-automated tests
   * [RuntimeConfig Runtime configuration] of the operations software
