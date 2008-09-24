@@ -5,7 +5,7 @@ In reverse chronological order...
 
 == V0.4 ==
 
-Created 24-Sep-2008.
+Created 25-Sep-2008.
 
 Provides the basic infrastructure (logging, archiving, process startup, and run-time configuration) and working read-only examples of the proxies that interface with the TCC via its UDP broadcasts (tcc.listener) and interactive interpreter (tcc.session).
 
