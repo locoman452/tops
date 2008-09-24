@@ -26,10 +26,10 @@ if __name__ == '__main__':
 	
 	# bootstrap our module path
 	tops_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-	env_path = getattr(os.environ,'PYTHONPATH',None)
-	if env_path:
+	try:
+		env_path = os.environ['PYTHONPATH']
 		print 'start: PYTHONPATH is already set...will try that.'
-	else:
+	except AttributeError:
 		print 'start: using PYTHONPATH = %s' % tops_path
 		sys.path.insert(1,tops_path)
 		os.environ['PYTHONPATH'] = tops_path
