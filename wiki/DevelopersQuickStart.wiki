@@ -1,2 +1,23 @@
 #labels Featured
-Welcome developers...
+= Quick Start Guide for Software Developers =
+
+This page collects together useful links for developers of the operations software. There are similar guides for software [UsersQuickStart users] and [InstallpersQuickStart installers].
+
+== Background Material ==
+
+  * [DesignOverview An overview of the software design]
+  * Twisted matrix
+  * Protocol buffers
+  * Google code hosting
+  * Open source license
+
+== Getting Started ==
+
+  * Wiki documentation
+  * Release notes
+  * Browsing the code
+  * Browsing the code documentation
+  * Issue tracking
+  * Running automatic unit tests
+  * Running non-automated tests
+  * Running the operations software
