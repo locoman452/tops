@@ -1,0 +1,11 @@
+= Overview of the Operations Software Design =
+
+== Background Material ==
+
+Links to some SDSS-3 presentations on the new software design:
+
+  * [http://positron.ps.uci.edu/~dkirkby/sdss3-17Jul08/ Design documents] (state diagrams, use cases) from 17 Jul 2008.
+  * [http://positron.ps.uci.edu/~dkirkby/marvels-27Jun08/ MARVELS proxy design notes] from 27 Jun 2008.
+  * [http://positron.ps.uci.edu/~dkirkby/home/docs/SDSS3-Ops-ConceptualDesign.pdf Conceptual design overview] (pdf) from 5 Jun 2008.
+
+Documentation for the [http://www.apo.nmsu.edu/35m_operations/TUI/ Telescope User Interface (TUI) software] used on the Apache Point Observatory 3.5m telescope.
