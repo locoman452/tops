@@ -1,6 +1,6 @@
 == Logging Client ==
 
-The [Logging logging service] provides a central hub that all the [DataFlow text-based data] produced by the operations software flows through and is then stored permanently.
+The [Logging logging service] provides a central hub that all the [Dataflow text-based data] produced by the operations software flows through and is then stored permanently.
 
 The logging client provides a web interface to the transient logging data flowing the system right now (or recently). A similar client will eventually provide access to historical logging data from the persistent database.
 
