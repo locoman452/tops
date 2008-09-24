@@ -20,7 +20,7 @@ Using svn 1.2.3 and 1.4.4. Needs to have the SSL repository access module for wr
 
 == Build System ==
 
-Using SConstruct v1.0.1
+Using SConstruct v1.0.1. It would be relatively easy to install the software without SConstruct by copying the protocol buffer python files from another installation. See the [InstallersQuickStart installer's guide] for details.
 
 == Browser ==
 
