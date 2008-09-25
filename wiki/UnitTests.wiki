@@ -1,5 +1,7 @@
 = Automatic Unit Tests =
 
+Non-automated tests are [OtherTests described here].
+
 The operations software makes extensive use of unit tests embedded within python modules that can be automatically extracted and run. The top-level program run_tests.py finds the available tests and runs them:
 {{{
 % python tops/run_tests.py
