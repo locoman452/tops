@@ -24,6 +24,7 @@ from tops.core.network.proxy import *
 from tops.core.network.telnet import TelnetSession,TelnetException
 from tops.core.utility.astro_time import AstroTime,UTC
 
+import message
 import re
 
 class VMSSession(TelnetSession):
@@ -88,7 +89,12 @@ class TCCSession(VMSSession):
 			if not line.strip():
 				# ignore blank lines
 				continue
-			print self.parse_line(line)
+			#print self.parse_line(line)
+			try:
+				(mystery_num,user_num,status,keywords) = message.parse(line)
+				print (user_num,status,keywords)
+			except message.MessageError,e:
+				print str(e)
 	
 	def session_COMMAND_LINE_BUSY(self,data):
 		"""
@@ -101,8 +107,13 @@ class TCCSession(VMSSession):
 			if line == self.running.payload:
 				# ignore the TCC's echo of a command we just submitted
 				continue
-			(user_num,status,keywords) = self.parse_line(line)
-			print (user_num,status,keywords)
+			#(user_num,status,keywords) = self.parse_line(line)
+			try:
+				(mystery_num,user_num,status,keywords) = message.parse(line)
+				print (user_num,status,keywords)
+			except message.MessageError,e:
+				print str(e)
+			'''
 			if user_num == self.user_num and 'Cmd' in keywords:
 				print 'got Cmd',keywords['Cmd']
 				#assert(keywords['Cmd'] == [self.running.payload])
@@ -112,6 +123,7 @@ class TCCSession(VMSSession):
 					self.done()
 				else:
 					self.error(TCCException('Command failed: %s' % self.running.payload()))
+			'''
 
 	def parse_line(self,line):
 		# try to parse the standard initial fields of the line
