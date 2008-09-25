@@ -65,6 +65,7 @@ import re
 msgScanner = re.compile('%(msg)s$' % patterns)
 declSplitter = re.compile('(%(passign)s)' % patterns)
 declScanner = re.compile('(%(pname)s)(?:\s*=\s*(%(array)s))?' % patterns)
+valSplitter = re.compile('(%(pvalue)s)' % patterns)
 
 def parse(line):
 	"""
@@ -93,7 +94,9 @@ def parse(line):
 		if parsed.end() < len(declaration):
 			raise MessageError('unexpected trailing characters on decl: %r' % declaration)
 		(keyword,val_string) = parsed.groups()
-		keywords[keyword] = val_string
+		# split up the values array
+		values = valSplitter.split(val_string)
+		keywords[keyword] = values[1::2]
 	return (mystery_num,user_num,status,keywords)
 
 import unittest
