@@ -67,3 +67,5 @@ Ran 222 tests in 2.184s
 OK
 }}}
 This script currently requires that PYTHONPATH be set and include the parent of your top-level tops/ directory. In the future, automated testing will be performed by the SConstruct build tool.
+
+One module, tops/core/network/client_server_test, exists only to provide unit tests and is one of the most complex tests since it invokes multiple processes to test the basic client-server handshake over a socket.
