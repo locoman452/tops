@@ -89,10 +89,9 @@ class TCCSession(VMSSession):
 			if not line.strip():
 				# ignore blank lines
 				continue
-			#print self.parse_line(line)
 			try:
 				(mystery_num,user_num,status,keywords) = message.parse(line)
-				print 'READY:',(user_num,status,keywords)
+				self.process_message(user_num,status,keywords)
 			except message.MessageError,e:
 				print 'unable to parse line (READY) >>%r<<' % line
 	
@@ -109,15 +108,23 @@ class TCCSession(VMSSession):
 				continue
 			try:
 				(mystery_num,user_num,status,keywords) = message.parse(line)
-				print 'BUSY:',(user_num,status,keywords)
+				self.process_message(user_num,status,keywords)
 				if user_num == self.user_num and 'Cmd' in keywords:
 					self.state = 'COMMAND_LINE_READY'
 					if status == 'Done':
 						self.done()
 					else:
-						self.error(TCCException('Command failed: %s' % self.running.payload))					
+						self.error(TCCException('Command failed: %s' % self.running.payload))
 			except message.MessageError,e:
 				print 'unable to parse line (BUSY) >>%r<<' % line
+
+	def process_message(self,user_num,status,keywords):
+		"""
+		Processes a new TCC message
+		"""
+		print '%2d %10s %s' % (user_num,status,keywords)
+		if status == 'Done' and 'Cmd' in keywords:
+			log.info('user %d issued %s',user_num,keywords['Cmd'])
 
 
 def got_users(response):
