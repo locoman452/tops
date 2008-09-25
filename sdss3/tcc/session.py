@@ -57,6 +57,18 @@ class TCCSession(VMSSession):
 		self.send(self.tcc_command + '\n')
 
 	def session_STARTING_INTERPRETER(self,data):
+		"""
+		Processes incoming data while the interpreter is adding us
+		"""
+		for line in data.split('\n'):
+			(user_num,status,keywords) = self.process_line(line)
+			# we assume that the next user added is us...is there a better way?
+			if status and 'UserAdded' in keywords:
+				self.user_num = user_num
+				logging.info('connected as user number %d',self.user_num)
+				self.state = 'COMMAND_LINE_READY'
+				session.do('interpreter_started')
+		'''			
 		started = re.search(self.tcc_ready,data)
 		if started:
 			self.user_num = int(started.group(1))
@@ -64,51 +76,45 @@ class TCCSession(VMSSession):
 			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
 			session.do('interpreter_started')
-			
+		'''
+
 	def session_COMMAND_LINE_READY(self,data):
 		"""
-		Processes new incoming data while a command is not running.
+		Processes incoming data while a command is not running.
 		"""
 		for line in data.split('\n'):
-			if not line.strip():
-				# ignore blank lines
-				continue
-			try:
-				(mystery_num,user_num,status,keywords) = message.parse(line)
-				self.process_message(user_num,status,keywords)
-			except message.MessageError,e:
-				logging.warn('unable to parse line (READY) >>%r<<',line)
+			(user_num,status,keywords) = self.process_line(line)
 	
 	def session_COMMAND_LINE_BUSY(self,data):
 		"""
-		Processes new incoming data while a command is running.
+		Processes incoming data while a command is running.
 		"""
 		for line in data.split('\n'):
-			if not line.strip():
-				# ignore blank lines
-				continue
-			if line == self.running.payload:
-				# ignore the TCC's echo of a command we just submitted
-				continue
-			try:
-				(mystery_num,user_num,status,keywords) = message.parse(line)
-				self.process_message(user_num,status,keywords)
-				if user_num == self.user_num and 'Cmd' in keywords:
-					self.state = 'COMMAND_LINE_READY'
-					if status == 'Done':
-						self.done()
-					else:
-						self.error(TCCException('Command failed: %s' % self.running.payload))
-			except message.MessageError,e:
-				logging.warn('unable to parse line (BUSY) >>%r<<',line)
+			(user_num,status,keywords) = self.process_line(line)
+			if status and user_num == self.user_num and 'Cmd' in keywords:
+				self.state = 'COMMAND_LINE_READY'
+				if status == 'Done':
+					self.done()
+				else:
+					self.error(TCCException('Command failed: %s' % self.running.payload))
 
-	def process_message(self,user_num,status,keywords):
+	def process_line(self,line):
 		"""
-		Processes a new TCC message
+		Processes a new line of data received from the TCC
 		"""
-		print '%2d %10s %s' % (user_num,status,keywords)
-		if status == 'Done' and 'Cmd' in keywords:
-			logging.info('user %d issued %s',user_num,keywords['Cmd'][0])
+		if not line.strip(): # ignore blank lines
+			continue
+		try:
+			(mystery_num,user_num,status,keywords) = message.parse(line)
+			print '%2d %10s %s' % (user_num,status,keywords)
+			if status == 'Done' and 'Cmd' in keywords:
+				logging.info('user %d issued %s',user_num,keywords['Cmd'][0])
+			elif 'UserAdded' in keywords:
+				logging.warn('connected new user number %d' % user_num)
+			return (user_num,status,keywords)
+		except message.MessageError,e:
+			logging.warn('unable to parse line >>%r<<',line)
+			return (None,None,None)
 
 
 def got_users(response):
