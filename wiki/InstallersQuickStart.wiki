@@ -22,5 +22,5 @@ There is nothing that requires compiling or linking in the software but some fil
 == Testing your Installation ==
 
   # Running [UnitTests automatic unit tests].
-  # Running non-automated tests.
-  # Running the operations software.
+  # Running [OtherTests non-automated tests].
+  # [Running Running the operations software].
