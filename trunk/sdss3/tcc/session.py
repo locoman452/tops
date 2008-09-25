@@ -108,7 +108,7 @@ class TCCSession(VMSSession):
 		"""
 		print '%2d %10s %s' % (user_num,status,keywords)
 		if status == 'Done' and 'Cmd' in keywords:
-			logging.info('user %d issued %s',user_num,keywords['Cmd'])
+			logging.info('user %d issued %s',user_num,keywords['Cmd'][0])
 
 
 def got_users(response):
@@ -131,25 +131,30 @@ def show_users():
 	TelnetSession.do('VMS','show users').addCallback(got_users)
 	
 def show_status():
-	print 'Requesting a TCC status update...'
 	TelnetSession.do('TCC','axis status all')
 	#TelnetSession.do('TCC','mirror status')
+
 
 def configure():
 	"""
 	Perform startup configuration of the session proxy.
 	"""
-	from twisted.internet import reactor,task
+	from twisted.internet import task
 	from tops.core.network.telnet import prepareTelnetSession
 
-	(hostname,port,username) = ('tcc25m.apo.nmsu.edu',23,'tcc')
-	password = config.getsecret('tcc.session','password')
+	# lookup our connection parameters
+	hostname = config.get('tcc.session','telnet_host')
+	port= config.getint('tcc.session','telnet_port')
+	username = config.get('tcc.session','telnet_user')
+	password = config.getsecret('tcc.session','telnet_pw')
 	
+	# initialize our telnet sessions
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
+	# initialize periodic commands
 	task.LoopingCall(show_status).start(5.0,now=False)
-	#task.LoopingCall(show_users).start(5.0,now=False)
+	task.LoopingCall(show_users).start(5.0,now=False)
 
 	
 if __name__ == '__main__':
