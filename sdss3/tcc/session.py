@@ -179,7 +179,7 @@ def show_users():
 def show_status():
 	print 'Requesting a TCC status update...'
 	TelnetSession.do('TCC','axis status all')
-	TelnetSession.do('TCC','mirror status')
+	#TelnetSession.do('TCC','mirror status')
 
 def configure():
 	"""
@@ -194,7 +194,7 @@ def configure():
 	prepareTelnetSession(VMSSession('VMS',username,password,debug=False),hostname,port)
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
-	#task.LoopingCall(show_status).start(3.0,now=False)
+	task.LoopingCall(show_status).start(5.0,now=False)
 	#task.LoopingCall(show_users).start(5.0,now=False)
 
 	
