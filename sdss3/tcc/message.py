@@ -63,7 +63,7 @@ status_codes = {
 # compiled regular expressions used by the parser
 import re
 msgScanner = re.compile('%(msg)s$' % patterns)
-declSplitter = re.compile('%(passign)s')
+declSplitter = re.compile('%(passign)s' % patterns)
 
 def parse(line):
 	"""
