@@ -94,7 +94,7 @@ class TCCSession(VMSSession):
 				(mystery_num,user_num,status,keywords) = message.parse(line)
 				print (user_num,status,keywords)
 			except message.MessageError,e:
-				print 'unable to parse line (READY) >>%s<<' % line
+				print 'unable to parse line (READY) >>%r<<' % line
 	
 	def session_COMMAND_LINE_BUSY(self,data):
 		"""
@@ -112,7 +112,7 @@ class TCCSession(VMSSession):
 				(mystery_num,user_num,status,keywords) = message.parse(line)
 				print (user_num,status,keywords)
 			except message.MessageError,e:
-				print 'unable to parse line (BUSY) >>%s<<' % line
+				print 'unable to parse line (BUSY) >>%r<<' % line
 			'''
 			if user_num == self.user_num and 'Cmd' in keywords:
 				print 'got Cmd',keywords['Cmd']
