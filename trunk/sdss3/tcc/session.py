@@ -107,55 +107,18 @@ class TCCSession(VMSSession):
 			if line == self.running.payload:
 				# ignore the TCC's echo of a command we just submitted
 				continue
-			#(user_num,status,keywords) = self.parse_line(line)
 			try:
 				(mystery_num,user_num,status,keywords) = message.parse(line)
 				print (user_num,status,keywords)
+				if user_num == self.user_num and 'Cmd' in keywords:
+					self.state = 'COMMAND_LINE_READY'
+					if status == 'Done':
+						self.done()
+					else:
+						self.error(TCCException('Command failed: %s' % self.running.payload))					
 			except message.MessageError,e:
 				print 'unable to parse line (BUSY) >>%r<<' % line
-			'''
-			if user_num == self.user_num and 'Cmd' in keywords:
-				print 'got Cmd',keywords['Cmd']
-				#assert(keywords['Cmd'] == [self.running.payload])
-				# this line marks the completion of our running command
-				self.state = 'COMMAND_LINE_READY'
-				if status == 'Done':
-					self.done()
-				else:
-					self.error(TCCException('Command failed: %s' % self.running.payload()))
-			'''
 
-	def parse_line(self,line):
-		# try to parse the standard initial fields of the line
-		parsed = self.line_pattern.match(line)
-		if not parsed:
-			raise TCCException("%s: cannot parse line '%s'"
-				% (self.name,line.encode('ascii','backslashreplace')))
-		(user_num,status) = parsed.groups()
-		user_num = int(user_num)
-		if status in self.status_codes:
-			status = self.status_codes[status]
-		# split the rest of the line into tokens delimited by a semicolon
-		keywords = { }
-		for token in line[parsed.end():].split(';'):
-			# split each token into (keyword,value) where value is None unless
-			# the token	contains an equals sign
-			parsed = self.token_pattern.match(token)
-			if not parsed:
-				raise TCCException("%s: cannot parse token '%s'"
-					% (self.name,token.encode('ascii','backslashreplace')))
-			if not parsed.group(2) and parsed.end() < len(token):
-				raise TCCException("%s: bad keyword '%s'"
-					% (self.name,token.encode('ascii','backslashreplace')))
-			keyword = parsed.group(1)
-			values = [ ]
-			# split anything following an equals sign into values delimited by a comma
-			for value in token[parsed.end():].split(','):
-				values.append(value.strip())
-			# store the results of parsing this token in a keywords dictionary
-			keywords[keyword] = values
-		# return the results of parsing this line
-		return (user_num,status,keywords)
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
@@ -178,11 +141,8 @@ def show_users():
 	
 def show_status():
 	print 'Requesting a TCC status update...'
-	try:
-		TelnetSession.do('TCC','axis status all')
-		#TelnetSession.do('TCC','mirror status')
-	except TelnetException:
-		session.do('command_overflow')
+	TelnetSession.do('TCC','axis status all')
+	#TelnetSession.do('TCC','mirror status')
 
 def configure():
 	"""
