@@ -64,6 +64,7 @@ status_codes = {
 import re
 msgScanner = re.compile('%(msg)s$' % patterns)
 declSplitter = re.compile('(%(passign)s)' % patterns)
+declScanner = re.compile('(%(pname)s)(?:\s*=\s*(%(array)s))?' % patterns)
 
 def parse(line):
 	"""
@@ -71,9 +72,9 @@ def parse(line):
 	"""
 	parsed = msgScanner.match(line)
 	if not parsed:
-		raise MessageError('badly formed line: %s' % line)
+		raise MessageError('badly formed line: %r' % line)
 	if parsed.end() < len(line):
-		raise MessageError('unexpected trailing characters: %s' % line)
+		raise MessageError('unexpected trailing characters on line: %r' % line)
 	(mystery_num,user_num,status,pseq) = parsed.groups()
 	if status in status_codes:
 		status = status_codes[status]
@@ -83,7 +84,17 @@ def parse(line):
 		return (mystery_num,user_num,status,pseq)
 	# split up the parameter declaration sequence
 	declarations = declSplitter.split(pseq)
-	return (mystery_num,user_num,status,declarations)
+	keywords = { }
+	for declaration in declarations[1::2]:
+		# parse a parameter declaration
+		parsed = declScanner.match(declaration)
+		if not parsed:
+			raise MessageError('badly formed declaration: %r' % declaration)
+		if parsed.end() < len(declaration):
+			raise MessageError('unexpected trailing characters on decl: %r' % declaration)
+		(keyword,val_string) = parsed.groups()
+		keywords[keyword] = val_string
+	return (mystery_num,user_num,status,keywords)
 
 import unittest
 
