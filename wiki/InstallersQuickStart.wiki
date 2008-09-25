@@ -17,7 +17,7 @@ There is nothing that requires compiling or linking in the software but some fil
 
   # Build the python descriptions of the [TechnologyChoices protocol buffers] (this step is *required*).
   # Build the web pages that document the design (this step is optional).
-  # Build the source code documentation web pages (this step is optional).
+  # Build the [CodeDocs source code documentation] web pages (this step is optional).
 
 == Testing your Installation ==
 
