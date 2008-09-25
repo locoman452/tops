@@ -110,12 +110,15 @@ class TCCSession(VMSSession):
 			# update records based on this message
 			if 'AzStat' in keywords:
 				try:
-					(pos,vel,tai,status) = keywords['AzStat']
+					(pos,vel,tai,stat) = keywords['AzStat']
+					print (pos,vel,tai,stat)
+					'''
 					archiving.update(self.timestamp(tai),'AzStat',{
 						'pos': float(pos),
 						'vel': float(vel),
-						'status': int(status,16)
+						'stat': int(stat,16)
 					})
+					'''
 				except ValueError:
 					logging.warn('unable to parse AzStat values: %r',keywords['AzStat'])
 
