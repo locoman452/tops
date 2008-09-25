@@ -1,6 +1,6 @@
 = Notes for the 25 Sep 2008 SDSS-3 Infrastructure Meeting =
 
-After a productive week of commissioning at APO, a first release of the new operations software is now available. The software now also has a name, TOPS, for Telescope OPerations Software.
+After a productive week of commissioning at APO, an initial [ReleaseNotes infrastructure release] of the new operations software is now available. The software now also has a name, TOPS, for Telescope OPerations Software.
 
 The software is being developed as an [License open source project] hosted at [http://tops.googlecode.com], which includes a public code repository, a documentation wiki (which you are reading now), and issue tracker.
 
