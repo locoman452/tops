@@ -50,7 +50,6 @@ class TCCSession(VMSSession):
 	host.
 	"""
 	tcc_command = 'telrun'
-	tcc_ready = 'UserNum=(\d+); UserAdded'
 	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
@@ -61,6 +60,8 @@ class TCCSession(VMSSession):
 		Processes incoming data while the interpreter is adding us
 		"""
 		for line in data.split('\n'):
+			if line == self.tcc_command: # ignore our command echo
+				continue
 			(user_num,status,keywords) = self.process_line(line)
 			# we assume that the next user added is us...is there a better way?
 			if status and 'UserAdded' in keywords:
@@ -68,15 +69,6 @@ class TCCSession(VMSSession):
 				logging.info('connected as user number %d',self.user_num)
 				self.state = 'COMMAND_LINE_READY'
 				session.do('interpreter_started')
-		'''			
-		started = re.search(self.tcc_ready,data)
-		if started:
-			self.user_num = int(started.group(1))
-			logging.info('connected as user number %d',self.user_num)
-			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
-			self.state = 'COMMAND_LINE_READY'
-			session.do('interpreter_started')
-		'''
 
 	def session_COMMAND_LINE_READY(self,data):
 		"""
@@ -90,6 +82,8 @@ class TCCSession(VMSSession):
 		Processes incoming data while a command is running.
 		"""
 		for line in data.split('\n'):
+			if line == self.running.payload: # ignore our command echo
+				continue
 			(user_num,status,keywords) = self.process_line(line)
 			if status and user_num == self.user_num and 'Cmd' in keywords:
 				self.state = 'COMMAND_LINE_READY'
