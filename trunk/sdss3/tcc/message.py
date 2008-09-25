@@ -94,8 +94,11 @@ def parse(line):
 		if parsed.end() < len(declaration):
 			raise MessageError('unexpected trailing characters on decl: %r' % declaration)
 		(keyword,val_string) = parsed.groups()
-		# split up the values array
-		values = valSplitter.split(val_string)
+		if val_string:
+			# split up the values array
+			values = valSplitter.split(val_string)
+		else:
+			values = [ ]
 		keywords[keyword] = values[1::2]
 	return (mystery_num,user_num,status,keywords)
 
