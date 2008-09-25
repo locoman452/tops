@@ -11,7 +11,7 @@ Configuration files are read in the following order, with parameter values in la
   # tops/sdss3/config.ini: modifies some _core_ configuration parameters and configures the SDSS-3 proxies, and
   # an optional configuration file provided by the user and [Running specified on the command line].
 
-Here is an excerpt from the SDSS-3 configuration file:
+Here is an excerpt from the SDSS-3 configuration file, /tops/sdss3/config.ini:
 {{{
 [tcc.listener]
 service = tops.sdss3.tcc.listener
@@ -24,9 +24,12 @@ timeout = 5 ; seconds
 service = tops.sdss3.tcc.session
 launch_order = 130
 enable = True
-password = 5d45993fb679c37d25e4753104ff16c7 ; encrypted
+telnet_host = tcc25m.apo.nmsu.edu ; will only work on the 2.5m subnet at APO
+telnet_port = 23
+telnet_user = tcc
+telnet_pw = 5d45993fb679c37d25e4753104ff16c7 ; encrypted
 }}}
-Note that the file is divided into named sections (tcc.listener and tcc.session) and each section specifies the values of named parameters. Comments begin with a semicolon. The order of sections within an INI file is not important and neither is the order of parameters within a section (unless a parameter is repeated within the same file and section which should not be the case).
+Note that the file is divided into named sections (tcc.listener and tcc.session in this example) and each section specifies the values of named parameters. Comments begin with a semicolon. The order of sections within an INI file is not important and neither is the order of parameters within a section (unless a parameter is repeated within the same file and section which should not be the case).
 
 == Configuration Parameter Reference ==
 
