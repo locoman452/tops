@@ -44,7 +44,7 @@ patterns['passign'] = '(?:%(pname)s)(?:\s*=\s*(?:%(array)s))?' % patterns
 patterns['pseq'] = '(?:%(passign)s)(?:\s*;\s*(?:%(passign)s))*' % patterns
 
 # A complete interpreter message line with capturing groups
-patterns['msg'] = '(%(unsigned)s) (%(unsigned)s) (%(status)s) (%(pseq)s)?(?:\s*%(from)s)?' % patterns
+patterns['msg'] = '\r?(%(unsigned)s) (%(unsigned)s) (%(status)s) (%(pseq)s)?(?:\s*%(from)s)?' % patterns
 
 
 class MessageError(Exception):
