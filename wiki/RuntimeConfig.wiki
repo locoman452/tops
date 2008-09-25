@@ -11,7 +11,7 @@ Configuration files are read in the following order, with parameter values in la
   # tops/sdss3/config.ini: modifies some _core_ configuration parameters and configures the SDSS-3 proxies, and
   # an optional configuration file provided by the user and [Running specified on the command line].
 
-Here is an excerpt from the SDSS-3 configuration file, /tops/sdss3/config.ini:
+Here is an excerpt from the SDSS-3 configuration file, tops/sdss3/config.ini:
 {{{
 [tcc.listener]
 service = tops.sdss3.tcc.listener
