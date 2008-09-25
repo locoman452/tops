@@ -15,7 +15,7 @@ This page collects together useful links for developers of the operations softwa
   * Wiki documentation: you are reading it. The home page is [http://code.google.com/p/tops/ here] and there is also a [http://code.google.com/p/tops/w/list searchable index].
   * [ReleaseNotes Release notes]
   * [http://code.google.com/p/tops/source/browse/ Browsing the code]
-  * Browsing the code documentation
+  * Browsing the [CodeDocs code documentation]
   * [http://code.google.com/p/tops/issues/list Issue tracking]
   * Running [UnitTests automatic unit tests]
   * Running non-automated tests
