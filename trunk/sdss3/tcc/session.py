@@ -212,12 +212,15 @@ if __name__ == '__main__':
 			Monitor('vms',
 				('nproc.tcc',		data.unsigned),
 				('nproc.tccuser',	data.unsigned)
-			),
+			)
+			'''
+			,
 			Monitor('AzStat',
 				('pos',				data.double),
 				('vel',				data.double),
 				('status',			data.unsigned)
 			)
+			'''
 		),
 		ProxyState('FAULT',
 			"""
