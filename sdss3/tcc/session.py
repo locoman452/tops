@@ -108,19 +108,19 @@ class TCCSession(VMSSession):
 				logging.warn('connected new user number %d' % user_num)
 
 			# update records based on this message
+			'''
 			if 'AzStat' in keywords:
 				try:
 					(pos,vel,tai,stat) = keywords['AzStat']
 					print (pos,vel,tai,stat)
-					'''
 					archiving.update(self.timestamp(tai),'AzStat',{
 						'pos': float(pos),
 						'vel': float(vel),
 						'stat': int(stat,16)
 					})
-					'''
 				except ValueError:
 					logging.warn('unable to parse AzStat values: %r',keywords['AzStat'])
+			'''
 
 			return (user_num,status,keywords)
 		except message.MessageError,e:
@@ -156,21 +156,6 @@ def got_users(response):
 				'nproc.tccuser':		users['TCCUSER']
 		})
 
-'''
-def got_users(response):
-	users = { 'TCC':0, 'TCCUSER':0 }
-	parser = re.compile('\s*(TCC|TCCUSER)\s+([0-9]+)')
-	for line in response:
-		match = parser.match(line)
-		if match:
-			users[match.group(1)] = int(match.group(2))
-	utc = AstroTime.now(UTC)
-	archiving.update(utc,'vms',{
-		'nproc.tcc':		users['TCC'],
-		'nproc.tccuser':	users['TCCUSER']
-	})
-'''
-
 def show_users():
 	TelnetSession.do('VMS','show users').addCallback(got_users)
 	
@@ -198,7 +183,7 @@ def configure():
 	
 	# initialize periodic commands
 	#task.LoopingCall(show_status).start(5.0,now=False)
-	#task.LoopingCall(show_users).start(5.0,now=False)
+	task.LoopingCall(show_users).start(5.0,now=False)
 
 	
 if __name__ == '__main__':
@@ -231,7 +216,7 @@ if __name__ == '__main__':
 			Monitor('AzStat',
 				('pos',				data.double),
 				('vel',				data.double),
-				('status',			data.double)
+				('status',			data.unsigned)
 			)
 		),
 		ProxyState('FAULT',
