@@ -77,6 +77,11 @@ def parse(line):
 	if parsed.end() < len(line):
 		raise MessageError('unexpected trailing characters on line: %r' % line)
 	(mystery_num,user_num,status,pseq) = parsed.groups()
+	try:
+		mystery_num = int(mystery_num)
+		user_num = int(mystery_num)
+	except ValueError:
+		raise MessageError('internal error parsing integer on line: %r' % line)
 	if status in status_codes:
 		status = status_codes[status]
 	# The line might not have any parameter values, e.g.
