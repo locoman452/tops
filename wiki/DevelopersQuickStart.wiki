@@ -1,7 +1,7 @@
 #labels Featured
 = Quick Start Guide for Software Developers =
 
-This page collects together useful links for developers of the operations software. There are similar guides for software [UsersQuickStart users] and [InstallpersQuickStart installers].
+This page collects together useful links for developers of the operations software. There are similar guides for software [UsersQuickStart users] and [InstallersQuickStart installers].
 
 == Background Material ==
 
@@ -18,6 +18,6 @@ This page collects together useful links for developers of the operations softwa
   * Browsing the [CodeDocs code documentation]
   * [http://code.google.com/p/tops/issues/list Issue tracking]
   * Running [UnitTests automatic unit tests]
-  * Running non-automated tests
+  * Running [OtherTests non-automated tests]
   * [RuntimeConfig Runtime configuration] of the operations software
   * [Running Running the operations software]
