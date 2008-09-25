@@ -52,22 +52,6 @@ class TCCSession(VMSSession):
 	tcc_command = 'telrun'
 	tcc_ready = 'UserNum=(\d+); UserAdded'
 	
-	# TCC status codes from src/subr/msg/format.for
-	status_codes = {
-		':': 'Done',    # also 'Superceded'
-		'>': 'Started',
-		'I': 'Information',
-		'W': 'Warning',
-		'F': 'Error',
-		'!': 'Fatal'
-	}
-	
-	# regular expressions for parsing message lines and token strings
-	line_pattern = re.compile('\r?0 (\d+) ([\:IWF>])\s+')
-	token_pattern = re.compile('\s*([A-Za-z0-9_]+)\s*(=\s*)?')
-
-	string_literal = re.compile(r'"([^"\\]|\\.)*"')
-	
 	def session_started(self):
 		self.state = 'STARTING_INTERPRETER'
 		self.send(self.tcc_command + '\n')
@@ -76,7 +60,7 @@ class TCCSession(VMSSession):
 		started = re.search(self.tcc_ready,data)
 		if started:
 			self.user_num = int(started.group(1))
-			print 'You are user number %d' % self.user_num
+			logging.info('connected as user number %d',self.user_num)
 			self.update_pattern = re.compile('\r0 %d ([IWF]) (.+)' % self.user_num)
 			self.state = 'COMMAND_LINE_READY'
 			session.do('interpreter_started')
@@ -93,7 +77,7 @@ class TCCSession(VMSSession):
 				(mystery_num,user_num,status,keywords) = message.parse(line)
 				self.process_message(user_num,status,keywords)
 			except message.MessageError,e:
-				print 'unable to parse line (READY) >>%r<<' % line
+				logging.warn('unable to parse line (READY) >>%r<<',line)
 	
 	def session_COMMAND_LINE_BUSY(self,data):
 		"""
@@ -116,7 +100,7 @@ class TCCSession(VMSSession):
 					else:
 						self.error(TCCException('Command failed: %s' % self.running.payload))
 			except message.MessageError,e:
-				print 'unable to parse line (BUSY) >>%r<<' % line
+				logging.warn('unable to parse line (BUSY) >>%r<<',line)
 
 	def process_message(self,user_num,status,keywords):
 		"""
@@ -124,7 +108,7 @@ class TCCSession(VMSSession):
 		"""
 		print '%2d %10s %s' % (user_num,status,keywords)
 		if status == 'Done' and 'Cmd' in keywords:
-			log.info('user %d issued %s',user_num,keywords['Cmd'])
+			logging.info('user %d issued %s',user_num,keywords['Cmd'])
 
 
 def got_users(response):
