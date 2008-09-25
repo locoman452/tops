@@ -75,7 +75,7 @@ def parse(line):
 		raise MessageError('unexpected trailing characters: %s' % line)
 	(mystery_num,user_num,status,pseq) = parsed.groups()
 	if status in status_codes:
-		status = status_code[status]
+		status = status_codes[status]
 	# The line might not have any parameter values, e.g.
 	# 0 3 : [from 'gcamera status' and 'broadcast...']
 	if not pseq:
