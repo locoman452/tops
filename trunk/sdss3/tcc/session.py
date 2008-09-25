@@ -82,7 +82,8 @@ class TCCSession(VMSSession):
 		Processes incoming data while a command is running.
 		"""
 		for line in data.split('\n'):
-			if line == self.running.payload: # ignore our command echo
+			# ignore our command echo (a previous line may have already completed this command)
+			if self.running and line == self.running.payload:
 				continue
 			(user_num,status,keywords) = self.process_line(line)
 			if status and user_num == self.user_num and 'Cmd' in keywords:
