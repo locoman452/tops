@@ -79,7 +79,7 @@ def parse(line):
 	(mystery_num,user_num,status,pseq) = parsed.groups()
 	try:
 		mystery_num = int(mystery_num)
-		user_num = int(mystery_num)
+		user_num = int(user_num)
 	except ValueError:
 		raise MessageError('internal error parsing integer on line: %r' % line)
 	if status in status_codes:
