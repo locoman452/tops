@@ -22,7 +22,7 @@ requires that the logging and archiving servers are already up.
 from tops.core.network.proxy import *
 
 from tops.core.network.telnet import TelnetSession,TelnetException
-from tops.core.utility.astro_time import AstroTime,UTC
+from tops.core.utility.astro_time import AstroTime,UTC,TAI
 
 import message
 import re
@@ -106,11 +106,37 @@ class TCCSession(VMSSession):
 				logging.info('user %d issued %s',user_num,keywords['Cmd'][0])
 			elif 'UserAdded' in keywords:
 				logging.warn('connected new user number %d' % user_num)
+
+			# update records based on this message
+			if 'AzStat' in keywords:
+				try:
+					(pos,vel,tai,status) = keywords['AzStat']
+					archiving.update(self.timestamp(tai),'AzStat',{
+						'pos': float(pos),
+						'vel': float(vel),
+						'status': int(status,16)
+					})
+				except ValueError:
+					logging.warn('unable to parse AzStat values: %r',keywords['AzStat'])
+
 			return (user_num,status,keywords)
 		except message.MessageError,e:
 			logging.warn('unable to parse line >>%r<<',line)
 			return (None,None,None)
 
+	def timestamp(self,tai):
+		"""
+		Converts an TAI timestamp expressed as MJD seconds(!) into a UTC timestamp
+		"""
+		# convert from MJD seconds to MJD days
+		try:
+			mjdtai = float(tai)/86400.
+		except ValueError:
+			logging.warn('unable to convert MJD TAI timestamp: %r',tai)
+			# as a fallback, return the current time
+			return AstroTime.now(UTC)
+		when = AstroTime.fromMJD(mjdtai,TAI)
+		return when.astimezone(UTC)
 
 def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
@@ -119,8 +145,6 @@ def got_users(response):
 		match = parser.match(line)
 		if match:
 			users[match.group(1)] = int(match.group(2))
-	for (username,nproc) in users.iteritems():
-		print '%s is running %d processes' % (username,nproc)
 	utc = AstroTime.now(UTC)
 	archiving.update(utc,'vms',{
 		'nproc.tcc':		users['TCC'],
@@ -128,7 +152,6 @@ def got_users(response):
 	})
 
 def show_users():
-	print "Requesting show_users..."
 	TelnetSession.do('VMS','show users').addCallback(got_users)
 	
 def show_status():
@@ -184,6 +207,11 @@ if __name__ == '__main__':
 			Monitor('vms',
 				('nproc.tcc',		data.unsigned),
 				('nproc.tccuser',	data.unsigned)
+			),
+			Monitor('AzStat',
+				('pos',				data.double),
+				('vel',				data.double),
+				('status',			data.double)
 			)
 		),
 		ProxyState('FAULT',
