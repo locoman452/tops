@@ -178,8 +178,11 @@ def show_users():
 	
 def show_status():
 	print 'Requesting a TCC status update...'
-	TelnetSession.do('TCC','axis status all')
-	#TelnetSession.do('TCC','mirror status')
+	try:
+		TelnetSession.do('TCC','axis status all')
+		#TelnetSession.do('TCC','mirror status')
+	except TelnetException:
+		session.do('command_overflow')
 
 def configure():
 	"""
@@ -212,7 +215,8 @@ if __name__ == '__main__':
 			Establishing telnet session with the TCC.
 			""",
 			On('interpreter_started').goto('READY'),
-			On('login_failed').goto('FAULT')
+			On('login_failed').goto('FAULT'),
+			On('command_overflow').goto('FAULT')
 		),
 		ProxyState('READY',
 			"""
