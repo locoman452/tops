@@ -1,0 +1,18 @@
+package logging;
+
+message Header {
+	required string name = 1;
+}
+
+message Message {
+	message Context {
+		required string filename = 1;
+		required int32 lineno = 2;
+		required string funcname = 3;
+	}
+	required int32 levelno = 1;
+	required string body = 2;
+	optional string source = 3;
+	optional Context context = 4;
+	optional string exception = 5;
+}
