@@ -182,7 +182,7 @@ def configure():
 	prepareTelnetSession(TCCSession('TCC',username,password,debug=False),hostname,port)
 	
 	# initialize periodic commands
-	#task.LoopingCall(show_status).start(5.0,now=False)
+	task.LoopingCall(show_status).start(5.0,now=False)
 	task.LoopingCall(show_users).start(5.0,now=False)
 
 	
