@@ -11,7 +11,7 @@ function ajaxError(request, textStatus, errorThrown) {
 		msg += '; error thrown "' + errorThrown + '"';
 	}
 	msg += ']. Update OPTIONS to try reconnecting.';
-	alert(msg);
+	//alert(msg);
 }
 
 function displayChannel(index,channel) {
