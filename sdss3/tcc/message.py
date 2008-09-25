@@ -63,6 +63,7 @@ status_codes = {
 # compiled regular expressions used by the parser
 import re
 msgScanner = re.compile('%(msg)s$' % patterns)
+declSplitter = re.compile('%(passign)s')
 
 def parse(line):
 	"""
@@ -80,7 +81,9 @@ def parse(line):
 	# 0 3 : [from 'gcamera status' and 'broadcast...']
 	if not pseq:
 		return (mystery_num,user_num,status,pseq)
-	return (mystery_num,user_num,status,pseq)
+	# split up the parameter declaration sequence
+	declarations = declSplitter.split(pseq)
+	return (mystery_num,user_num,status,declarations)
 
 import unittest
 
