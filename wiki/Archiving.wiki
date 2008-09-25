@@ -1,0 +1,6 @@
+= The Archiving Service =
+
+Archiving is the companion core service to [Logging logging].
+
+  * What is the difference between [Dataflow logging and archiving]?
+  * the archiving service has a [ArchivingClient web client]
