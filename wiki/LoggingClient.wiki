@@ -15,3 +15,9 @@ The screenshots below show the logging client in action. In the first, log messa
 [http://tops.googlecode.com/svn/wiki/images/LoggingClient1.png]
 
 [http://tops.googlecode.com/svn/wiki/images/LoggingClient2.png]
+
+Note that the logging service generates its own periodic 'heartbeat' messages (with a severity level of _DEBUG_) so you know it is still alive and that you have not been missing messages.
+{{{
+Server has been running 0:01:00 and handled 15 messages.
+}}}
+The *Last Update..* and *Showing...* messages on the lower status line are also useful for monitoring the logging service.
