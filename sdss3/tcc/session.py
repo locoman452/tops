@@ -110,9 +110,7 @@ class TCCSession(VMSSession):
 			try:
 				(mystery_num,user_num,status,keywords) = message.parse(line)
 				print 'BUSY:',(user_num,status,keywords)
-				print (user_num == self.user_num),('Cmd' in keywords)
 				if user_num == self.user_num and 'Cmd' in keywords:
-					print 'All done?'
 					self.state = 'COMMAND_LINE_READY'
 					if status == 'Done':
 						self.done()
