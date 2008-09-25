@@ -5,5 +5,3 @@ The MARVELS instrument is already in operation at APO using a dedicated control 
 A preliminary specification of the MARVELS [http://positron.ps.uci.edu/~dkirkby/sdss3-17Jul08/marvels.html proxy states] and [http://positron.ps.uci.edu/~dkirkby/sdss3-17Jul08/marvels-data.html archiving channels] was [http://positron.ps.uci.edu/~dkirkby/marvels-27Jun08/ discussed on 27 Jun 2008], together with a first pass at use cases. The source material used to generate all of the design web pages at these links is in the TOPS code repository under [http://code.google.com/p/tops/source/browse/#svn/trunk/sdss3/design tops/sdss3/design/].
 
 The implementation plan for the MARVELS proxy is to re-use the existing GUI logic for issuing the appropriate low-level commands in response to a high-level AUTOMATIC-mode command. The details of how the MARVELS proxy will communicate with the control computer have not yet been worked out but will presumably be chosen to make the implementation as straightforward as possible.
-
-The operations software currently includes a skeleton proxy for MARVELS named, appropriately, `marvels`.
