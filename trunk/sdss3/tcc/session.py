@@ -142,6 +142,22 @@ class TCCSession(VMSSession):
 		return when.astimezone(UTC)
 
 def got_users(response):
+		users = { 'TCC':0, 'TCCUSER':0 }
+		parser = re.compile('\s*(TCC|TCCUSER)\s+([0-9]+)')
+		for line in response:
+				match = parser.match(line)
+				if match:
+						users[match.group(1)] = int(match.group(2))
+		for (username,nproc) in users.iteritems():
+				print '%s is running %d processes' % (username,nproc)
+		utc = AstroTime.now(UTC)
+		archiving.update(utc,'vms',{
+				'nproc.tcc':			users['TCC'],
+				'nproc.tccuser':		users['TCCUSER']
+		})
+
+'''
+def got_users(response):
 	users = { 'TCC':0, 'TCCUSER':0 }
 	parser = re.compile('\s*(TCC|TCCUSER)\s+([0-9]+)')
 	for line in response:
@@ -153,6 +169,7 @@ def got_users(response):
 		'nproc.tcc':		users['TCC'],
 		'nproc.tccuser':	users['TCCUSER']
 	})
+'''
 
 def show_users():
 	TelnetSession.do('VMS','show users').addCallback(got_users)
@@ -181,7 +198,7 @@ def configure():
 	
 	# initialize periodic commands
 	#task.LoopingCall(show_status).start(5.0,now=False)
-	task.LoopingCall(show_users).start(5.0,now=False)
+	#task.LoopingCall(show_users).start(5.0,now=False)
 
 	
 if __name__ == '__main__':
