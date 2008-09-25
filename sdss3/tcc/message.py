@@ -54,7 +54,7 @@ class MessageError(Exception):
 status_codes = {
 	':': 'Done',    # also 'Superceded'
 	'>': 'Started',
-	'I': 'Information',
+	'I': 'Info',
 	'W': 'Warning',
 	'F': 'Error',
 	'!': 'Fatal'
