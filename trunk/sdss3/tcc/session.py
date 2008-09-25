@@ -103,7 +103,7 @@ class TCCSession(VMSSession):
 		Processes a new line of data received from the TCC
 		"""
 		if not line.strip(): # ignore blank lines
-			continue
+			return (None,None,None)
 		try:
 			(mystery_num,user_num,status,keywords) = message.parse(line)
 			print '%2d %10s %s' % (user_num,status,keywords)
