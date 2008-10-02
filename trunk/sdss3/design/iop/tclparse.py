@@ -295,7 +295,11 @@ class Group(Parser):
 	
 	Groups are considered opaque words in tcl so no command or variable
 	substitutions will be detected within a group. However, any embedded
-	'{' must be balanced by a closing '}' within the group.
+	'{' must be balanced by a closing '}' within the group. This is
+	accomplished here by creating a nested Group for each '{' even
+	though this is not semantically meaningful (since the top-level
+	group is an entire tcl word) and is applied to non-group constructs
+	like ${variable}.
 	"""
 	prefix = '{'
 	suffix = '}'
@@ -339,6 +343,12 @@ class Substitution(Parser):
 class Variable(Parser):
 	"""
 	Represents a tcl variable substition starting with $
+	
+	Completely captures the $name and ${name} forms, but will generally
+	only capture the beginning of $name(index) - up to the first white
+	space in 'index'. The main purpose of this parser is to distinguish
+	between '{' used to start a group and '${' used to start a variable
+	substitution.
 	"""
 	prefix = '$'
 	
@@ -370,6 +380,14 @@ class Variable(Parser):
 import sys,os,os.path
 
 def process_file(source,opath,debug=0):
+	"""
+	Processes source and generates a corresponding html file in opath
+	
+	source should be the name of an existing tcl file. opath should
+	either be None (in which case no output will be generated) or else
+	the name of path where the generated output will go. The opath
+	directory will be created if necessary.
+	"""
 	if not os.path.isfile(source):
 		raise FatalParseError("not a valid source file: %s" % source)
 	if opath and not os.path.exists(opath):
