@@ -352,6 +352,24 @@ class Command(Parser):
 				raise FatalParseError('unexpected ] on line %d during Command' % token.lineno)
 			else:
 				self.append(token.value)
+		# extract the words of this command, if any, ignoring whitespace and comments
+		words = [ ]
+		for token in self.tokens:
+			if isinstance(token,basestring):
+				if token.strip() is not '':
+					words.append(token)
+			elif not isinstance(token,Comment):
+				words.append(token)
+		if len(words) == 0:
+			return
+		# should we do any further processing of this command?
+		if words[0] == 'proc':
+			if len(words) != 4:
+				if debug:
+					print 'ignoring "proc" command with %d words (expected 4)' % len(words)
+			else:
+				if debug:
+					print 'proc "%s"' % words[1]
 
 class Comment(Parser):
 	"""
