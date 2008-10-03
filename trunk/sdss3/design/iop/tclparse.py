@@ -211,10 +211,10 @@ class Parser(object):
 		"""
 		data = self.prefix
 		for token in self.tokens:
-			try:
+			if isinstance(token,Parser):
 				data += token.reconstruct()
-			except AttributeError:
-				data += token
+			else:
+				data += token.value
 		data += self.suffix
 		return data
 		
@@ -228,8 +228,14 @@ class Parser(object):
 		for token in self.tokens:
 			if isinstance(token,Parser):
 				token.export(content)
+			elif isinstance(token,lex.LexToken):
+				# is this literal tagged?
+				if hasattr(token,'tag'):
+					content.append(Span(token.value,id=token.tag,className='tagged'))
+				else:
+					content.append(token.value)
 			else:
-				content.append(token)
+				print 'export: ignoring illegal token "%s"' % token
 		if self.suffix:
 			content.append(self.suffix)
 		container.append(content)
@@ -240,8 +246,10 @@ class Parser(object):
 		"""
 		if isinstance(type_or_value,type):
 			self.tokens.append(type_or_value(self.tokenizer,self.debug,*type_args))
-		else:
+		elif isinstance(type_or_value,lex.LexToken):
 			self.tokens.append(type_or_value)
+		else:
+			raise FatalParseError('append: unrecognized token type: %r' % type_or_args)
 			
 	def embed(self):
 		"""
@@ -330,14 +338,25 @@ class Command(Parser):
 				else:
 					raise
 			if token.type in ('EOL',';'):
-				self.append(token.value)
+				self.append(token)
 				break
 			elif token.type == '#':
-				if len(self.tokens) == 0 or ''.join(self.tokens).strip() == '':
+				# only white space can precede a valid comment
+				is_comment = True
+				for tok in self.tokens:
+					if not isinstance(tok,lex.LexToken):
+						is_comment = False
+						break
+					if not tok.type in ('WS','EOL'):
+						is_comment = False
+						break
+				if is_comment:
 					self.append(Comment)
 					break
 				else:
-					self.append(token.value)
+					if debug:
+						print 'found non-comment # in command on line %d' % token.lineno
+					self.append(token)
 			elif token.type == '$':
 				self.append(Variable)
 			elif token.type == '[':
@@ -351,25 +370,48 @@ class Command(Parser):
 			elif token.type == ']':
 				raise FatalParseError('unexpected ] on line %d during Command' % token.lineno)
 			else:
-				self.append(token.value)
+				self.append(token)
 		# extract the words of this command, if any, ignoring whitespace and comments
 		words = [ ]
-		for token in self.tokens:
-			if isinstance(token,basestring):
-				if token.strip() is not '':
-					words.append(token)
-			elif not isinstance(token,Comment):
-				words.append(token)
+		for tok in self.tokens:
+			if isinstance(tok,lex.LexToken) and tok.type in ('WS','EOL'):
+				continue
+			if isinstance(tok,Comment):
+				continue
+			words.append(tok)
 		if len(words) == 0:
 			return
+		# do we have a literal base word?
+		if not isinstance(words[0],lex.LexToken) or words[0].type != 'WORD':
+			return
+		baseword = words[0].value
 		# should we do any further processing of this command?
-		if words[0] == 'proc':
+		if baseword == 'proc':
+			# Process a tcl 'proc' command: http://www.tcl.tk/man/tcl8.4/TclCmd/proc.htm
+			# a proc command should always have 4 words
 			if len(words) != 4:
 				if debug:
-					print 'ignoring "proc" command with %d words (expected 4)' % len(words)
-			else:
+					print ('ignoring "proc" with %d words (expected 4) on line %d'
+						% (len(words),words[0].lineno))
+				return
+			# expand the procedure body if it is a Group
+			#if isinstance(words[3],Group):
+			#	words[3].embed()
+			# do we have a literal proc name?
+			if not isinstance(words[1],lex.LexToken) or words[1].type != 'WORD':
 				if debug:
-					print 'proc "%s"' % words[1]
+					print 'ignoring "proc" with computed name on line %d' % words[0].lineno
+				return
+			# record this procedure definition in the global dictionary
+			proc_name = words[1].value
+			if proc_name in tclproc:
+				tclproc[proc_name].append(filetitle)
+				tag = "%s_%d" % (proc_name,len(tclproc[proc_name]))
+			else:
+				tclproc[proc_name] = [ filetitle ]
+				tag = proc_name
+			# tag the procedure name for our HTML markup
+			words[1].tag = tag
 
 class Comment(Parser):
 	"""
@@ -383,7 +425,7 @@ class Comment(Parser):
 	def parse(self,debug):
 		while True:
 			token = self.next()
-			self.append(token.value)
+			self.append(token)
 			if token.type == 'EOL':
 				break
 
@@ -413,7 +455,7 @@ class Quoted(Parser):
 			elif token.type == '"':
 				break
 			else:
-				self.append(token.value)
+				self.append(token)
 
 class Group(Parser):
 	"""
@@ -443,7 +485,7 @@ class Group(Parser):
 			elif token.type == '}':
 				break
 			else:
-				self.append(token.value)
+				self.append(token)
 
 class Substitution(Parser):
 	"""
@@ -464,7 +506,7 @@ class Substitution(Parser):
 			elif token.type in ('EOL','}'):
 				raise FatalParseError('unexpected Substitution token %s' % token)
 			else:
-				self.append(token.value)
+				self.append(token)
 		# now that we have captured the whole substitution text, try to
 		# re-parse it as an embedded script
 		self.embed()
@@ -486,10 +528,10 @@ class Variable(Parser):
 			token = self.next()
 			if token.type == '{':
 				if len(self.tokens) == 0:
-					self.append(token.value)
+					self.append(token)
 					while True:
 						token = self.next()
-						self.append(token.value)
+						self.append(token)
 						if token.type == '}':
 							break
 					break
@@ -497,7 +539,7 @@ class Variable(Parser):
 					raise FatalParseError('unexpected { in Variable on line %d' % token.lineno)
 			elif token.type == 'WORD':
 				# will match $name and part or all of $name(index)
-				self.append(token.value)
+				self.append(token)
 				break
 			else:
 				raise FatalParseError('unexpected token %s in Variable' % token)
@@ -563,10 +605,16 @@ if __name__ == '__main__':
 	# one-time initialization of lexical analyzer
 	lexer = LexicalAnalyzer().lexer
 	
+	# Initialize a dictionary of tcl procedures. Keys are procedure names
+	# with an array of filenames as the corresponding value. Note that a tcl
+	# procedure of the same name can be defined more than once, even in the
+	# same file.
+	tclproc = { }
+	
 	# do we just have a single file to parse?
 	if os.path.isfile(source):
-		title = os.path.basename(source)
-		process_file(source,opts.output,title,opts.debug)
+		filetitle = os.path.basename(source)
+		process_file(source,opts.output,filetitle,opts.debug)
 		sys.exit(0)
 		
 	# walk through the source tree

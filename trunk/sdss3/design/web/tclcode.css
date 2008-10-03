@@ -34,5 +34,10 @@ h1 {
 }
 
 .Group:hover {
-	background-color: #fcc;
+	background-color: #fee;
+}
+
+.tagged {
+	background-color: #55f;
+	color: white;
 }
