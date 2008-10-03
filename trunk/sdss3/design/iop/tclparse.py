@@ -170,9 +170,10 @@ class Parser(object):
 	suffix = ''
 
 	def __init__(self,tokenizer,debug,info=''):
+		self.tokenizer = tokenizer
+		self.debug = debug
 		self.tokens = [ ]
 		self.name = self.__class__.__name__
-		self.tokenizer = tokenizer
 		if debug > 1:
 			print 'line %4d: %s begin %s' % (tokenizer.lineno(),self.name,info)
 		self.parse(tokenizer,debug)
@@ -228,6 +229,15 @@ class Parser(object):
 		if self.suffix:
 			content.append(self.suffix)
 		container.append(content)
+		
+	def append(self,type_or_value,*type_args):
+		"""
+		Appends a new token of the specified type or value
+		"""
+		if isinstance(type_or_value,type):
+			self.tokens.append(type_or_value(self.tokenizer,self.debug,*type_args))
+		else:
+			self.tokens.append(type_or_value)
 
 class Script(Parser):
 	"""
@@ -236,7 +246,7 @@ class Script(Parser):
 	def parse(self,tokenizer,debug):
 		try:
 			while True:
-				self.tokens.append(Command(tokenizer,debug))
+				self.append(Command)
 		except EndOfTokens:
 			pass
 	
@@ -258,28 +268,28 @@ class Command(Parser):
 					print 'non-empty final line is missing \\n'
 				raise
 			if token.type in ('EOL',';'):
-				self.tokens.append(token.value)
+				self.append(token.value)
 				break
 			elif token.type == '#':
 				if len(self.tokens) == 0 or ''.join(self.tokens).strip() == '':
-					self.tokens.append(Comment(tokenizer,debug))
+					self.append(Comment)
 					break
 				else:
-					self.tokens.append(token.value)
+					self.append(token.value)
 			elif token.type == '$':
-				self.tokens.append(Variable(tokenizer,debug))
+				self.append(Variable)
 			elif token.type == '[':
-				self.tokens.append(Substitution(tokenizer,debug))
+				self.append(Substitution)
 			elif token.type == '"':
-				self.tokens.append(Quoted(tokenizer,debug))
+				self.append(Quoted)
 			elif token.type == '{':
-				self.tokens.append(Group(tokenizer,debug))
+				self.append(Group)
 			elif token.type == '}':
 				raise FatalParseError('unexpected } on line %d during Command' % token.lineno)
 			elif token.type == ']':
 				raise FatalParseError('unexpected ] on line %d during Command' % token.lineno)
 			else:
-				self.tokens.append(token.value)
+				self.append(token.value)
 
 class Comment(Parser):
 	"""
@@ -293,7 +303,7 @@ class Comment(Parser):
 	def parse(self,tokenizer,debug):
 		while True:
 			token = self.next()
-			self.tokens.append(token.value)
+			self.append(token.value)
 			if token.type == 'EOL':
 				break
 
@@ -311,11 +321,11 @@ class Quoted(Parser):
 		while True:
 			token = self.next()
 			if token.type == '$':
-				self.tokens.append(Variable(tokenizer,debug))
+				self.append(Variable)
 			elif token.type == '[':
-				self.tokens.append(Substitution(tokenizer,debug))
+				self.append(Substitution)
 			elif token.type == '{':
-				self.tokens.append(Group(tokenizer,debug))
+				self.append(Group)
 			elif token.type == '}':
 				raise FatalParseError('unexpected } on line %d during Quoted' % token.lineno)
 			elif token.type == ']':
@@ -323,7 +333,7 @@ class Quoted(Parser):
 			elif token.type == '"':
 				break
 			else:
-				self.tokens.append(token.value)
+				self.append(token.value)
 
 class Group(Parser):
 	"""
@@ -349,11 +359,11 @@ class Group(Parser):
 		while True:
 			token = self.next()
 			if token.type == '{':
-				self.tokens.append(Group(tokenizer,debug,self.depth+1))
+				self.append(Group,self.depth+1)
 			elif token.type == '}':
 				break
 			else:
-				self.tokens.append(token.value)
+				self.append(token.value)
 
 class Substitution(Parser):
 	"""
@@ -368,13 +378,13 @@ class Substitution(Parser):
 			if token.type == ']':
 				break
 			elif token.type == '[':
-				self.tokens.append(Substitution(tokenizer,debug))
+				self.append(Substitution)
 			elif token.type == '{':
-				self.tokens.append(Group(tokenizer,debug))
+				self.append(Group)
 			elif token.type in ('EOL','}'):
 				raise FatalParseError('unexpected Substitution token %s' % token)
 			else:
-				self.tokens.append(token.value)
+				self.append(token.value)
 
 class Variable(Parser):
 	"""
@@ -393,13 +403,10 @@ class Variable(Parser):
 			token = self.next()
 			if token.type == '{':
 				if len(self.tokens) == 0:
-					self.tokens.append(token.value)
+					self.append(token.value)
 					while True:
-						try:
-							token = tokenizer.next_token()
-						except EndOfTokens:
-							raise FatalParseError('unexpected EOF in Variable after ${')
-						self.tokens.append(token.value)
+						token = self.next()
+						self.append(token.value)
 						if token.type == '}':
 							break
 					break
@@ -407,7 +414,7 @@ class Variable(Parser):
 					raise FatalParseError('unexpected { in Variable on line %d' % token.lineno)
 			elif token.type == 'WORD':
 				# will match $name and part or all of $name(index)
-				self.tokens.append(token.value)
+				self.append(token.value)
 				break
 			else:
 				raise FatalParseError('unexpected token %s in Variable' % token)
