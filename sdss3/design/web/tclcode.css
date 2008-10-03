@@ -1,0 +1,38 @@
+body {
+	background-color: #ffe;
+	color: brown;
+	margin: 8px;
+	padding: 0;
+}
+
+h1 {
+	background-color: brown;
+	color: #ffe;
+	text-align: right;
+	padding: 4px 24px;
+}
+
+#content {
+	white-space: pre;
+	font-family: "Courier New",monospace;
+	font-size: small;
+}
+
+.Comment {
+	font-style: italic;
+	background-color: #ffa;
+}
+
+.Quoted {
+	font-style: italic;
+	color: green;
+}
+
+.Substitution {
+	font-weight: bold;
+	color: red;
+}
+
+.Group:hover {
+	background-color: #fcc;
+}

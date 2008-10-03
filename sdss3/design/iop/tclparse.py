@@ -49,6 +49,8 @@ class LexicalAnalyzer(object):
 	def __init__(self):
 		self.lexer = lex.lex(object=self)
 
+from tops.core.utility.html import *
+
 class File(object):
 	"""
 	Prepares a tcl file for parsing
@@ -78,6 +80,7 @@ class File(object):
 		self.lexer = lexer
 		self.debug = debug
 		self.last_line = 0
+		self.script = None
 
 	def lineno(self,offset=None):
 		"""
@@ -138,10 +141,27 @@ class File(object):
 		"""
 		self.lexer.input(self.data)
 		try:
-			return Script(self,self.debug)
+			self.script = Script(self,self.debug)
+			return self.script
 		except FatalParseError,e:
 			print 'ERROR:',e
-	
+			
+	def export(self,filename,title,stylesheet='tclcode.css'):
+		if not self.script:
+			print 'file has not been successfully parsed yet, nothing to export'
+			return
+		doc = HTMLDocument(
+			Head(title=title,css=stylesheet),
+			Body(
+				H1(title),
+				Div(id='content')
+			)
+		)
+		self.script.export(doc['content'])
+		f = open(filename,'w')
+		print >> f,doc
+		f.close()
+
 class Parser(object):
 	"""
 	Provides functionality needed by all language element parsers
@@ -192,6 +212,22 @@ class Parser(object):
 				data += token
 		data += self.suffix
 		return data
+		
+	def export(self,container):
+		"""
+		Fills the DOM container with an HTML description of this instance
+		"""
+		content = Span(className=self.name)
+		if self.prefix:
+			content.append(self.prefix)
+		for token in self.tokens:
+			if isinstance(token,Parser):
+				token.export(content)
+			else:
+				content.append(token)
+		if self.suffix:
+			content.append(self.suffix)
+		container.append(content)
 
 class Script(Parser):
 	"""
@@ -379,7 +415,7 @@ class Variable(Parser):
 
 import sys,os,os.path
 
-def process_file(source,opath,debug=0):
+def process_file(source,opath,title,debug=0):
 	"""
 	Processes source and generates a corresponding html file in opath
 	
@@ -406,6 +442,7 @@ def process_file(source,opath,debug=0):
 			ofile = os.path.join(opath,ofile+'.html')
 			if debug:
 				print 'generating',ofile
+			f.export(ofile,title)
 
 if __name__ == '__main__':
 	
@@ -413,7 +450,7 @@ if __name__ == '__main__':
 
 	# parse command-line options
 	options = OptionParser(usage = 'usage: %prog [options] source')
-	options.add_option("--debug",type="int",metavar="INT",
+	options.add_option("-d","--debug",type="int",metavar="INT",
 		help="debug printout level (0=none, default is %default)")
 	options.add_option("-o","--output",metavar="PATH",
 		help="output path (created if necessary, omit for no output)")
@@ -438,7 +475,8 @@ if __name__ == '__main__':
 	
 	# do we just have a single file to parse?
 	if os.path.isfile(source):
-		process_file(source,opts.output,opts.debug)
+		title = os.path.basename(source)
+		process_file(source,opts.output,title,opts.debug)
 		sys.exit(0)
 		
 	# walk through the source tree
@@ -454,14 +492,18 @@ if __name__ == '__main__':
 				opathsegs.append(seg)
 			opathsegs.reverse()
 			opath = opts.output
+			title = ''
 			for seg in opathsegs:
+				title = os.path.join(title,seg)
 				opath = os.path.join(opath,seg)
 		else:
 			opath = None
+			title = None
 		for filename in files:
 			# process any tcl files in this directory
 			(base,ext) = os.path.splitext(filename)
 			if ext != '.tcl':
 				continue
+			filetitle = os.path.join(title,filename)
 			filename = os.path.join(root,filename)
-			process_file(filename,opath,opts.debug)
+			process_file(filename,opath,filetitle,opts.debug)
