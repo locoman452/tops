@@ -173,10 +173,11 @@ class Parser(object):
 		self.tokenizer = tokenizer
 		self.debug = debug
 		self.tokens = [ ]
+		self.stream = [ ]
 		self.name = self.__class__.__name__
 		if debug > 1:
 			print 'line %4d: %s begin %s' % (tokenizer.lineno(),self.name,info)
-		self.parse(tokenizer,debug)
+		self.parse(debug)
 		if debug > 1:
 			print 'line %4d: %s end   %s' % (tokenizer.lineno(),self.name,info)
 
@@ -185,10 +186,13 @@ class Parser(object):
 		Returns the next token
 		
 		Raises a fatal error if end_is_fatal is True (the default) and
-		there are no more tokens available.
+		there are no more tokens available. Stores the lexical tokens
+		read by this instance in the stream array.
 		"""
 		try:
-			return self.tokenizer.next_token()
+			token = self.tokenizer.next_token()
+			self.stream.append(token)
+			return token
 		except EndOfTokens:
 			if end_is_fatal:
 				raise FatalParseError('unexpected EOF in %s' % self.name)
@@ -238,17 +242,72 @@ class Parser(object):
 			self.tokens.append(type_or_value(self.tokenizer,self.debug,*type_args))
 		else:
 			self.tokens.append(type_or_value)
+			
+	def embed(self):
+		"""
+		Re-parses this object as an embedded self-contained script
+		"""
+		if self.debug:
+			print 're-parsing %s as an embedded script' % self.name
+		try:
+			embedded = EmbeddedScript(self.tokenizer,self.debug,parent=self)
+			self.tokens[:] = [embedded]
+		except FatalParseError,e:
+			if self.debug:
+				print 're-parse failed:' % e
 
 class Script(Parser):
 	"""
 	Represents a tcl script consisting of a sequence of Commands
 	"""
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		try:
 			while True:
 				self.append(Command)
 		except EndOfTokens:
 			pass
+			
+class EmbeddedScript(Script):
+	"""
+	Represents a complete script embedded within a parse object
+	
+	The embedded script is built by replaying the lexical tokens of
+	the specified parent parse object.
+	"""
+	def __init__(self,tokenizer,debug,parent):
+		# we use our parent's lexical stream as our token source
+		self.source = parent.stream[:]
+		if parent.suffix:
+			assert(self.source[-1].value == parent.suffix)
+			del self.source[-1]
+		self.index = 0
+		# we take over the tokenizer's job ourself
+		Script.__init__(self,tokenizer=self,debug=debug)
+		
+	def lineno(self):
+		"""
+		Returns the line number corresponding to the next token
+		"""
+		try:
+			return self.source[self.index].lineno
+		except IndexError:
+			try:
+				return self.source[-1].lineno
+			except IndexError:
+				return -1
+			
+	def next_token(self):
+		"""
+		Returns the next token or raises EndOfTokens
+		"""
+		try:
+			token = self.source[self.index]
+			self.index += 1
+			if self.debug > 2:
+				print 'shift',token
+			return token
+		except IndexError:
+			raise EndOfTokens()
 	
 class Command(Parser):
 	"""
@@ -259,14 +318,17 @@ class Command(Parser):
 	The whitespace between words is preserved so that the original file
 	can be exactly reconstructed after parsing.
 	"""
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		while True:
 			try:
 				token = self.next(end_is_fatal=False)
 			except EndOfTokens:
-				if debug and len(self.tokens) > 0:
-					print 'non-empty final line is missing \\n'
-				raise
+				if len(self.tokens) > 0:
+					if debug > 1:
+						print 'non-empty final line is missing \\n'
+					break
+				else:
+					raise
 			if token.type in ('EOL',';'):
 				self.append(token.value)
 				break
@@ -300,7 +362,7 @@ class Comment(Parser):
 	"""
 	prefix = '#'
 	
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		while True:
 			token = self.next()
 			self.append(token.value)
@@ -317,7 +379,7 @@ class Quoted(Parser):
 	prefix = '"'
 	suffix = '"'
 
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		while True:
 			token = self.next()
 			if token.type == '$':
@@ -355,7 +417,7 @@ class Group(Parser):
 		info = '-'*depth + ('> %2d' % depth)
 		Parser.__init__(self,tokenizer,debug,info)
 	
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		while True:
 			token = self.next()
 			if token.type == '{':
@@ -372,7 +434,7 @@ class Substitution(Parser):
 	prefix = '['
 	suffix = ']'
 	
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		while True:
 			token = self.next()
 			if token.type == ']':
@@ -385,6 +447,9 @@ class Substitution(Parser):
 				raise FatalParseError('unexpected Substitution token %s' % token)
 			else:
 				self.append(token.value)
+		# now that we have captured the whole substitution text, try to
+		# re-parse it as an embedded script
+		self.embed()
 
 class Variable(Parser):
 	"""
@@ -398,7 +463,7 @@ class Variable(Parser):
 	"""
 	prefix = '$'
 	
-	def parse(self,tokenizer,debug):
+	def parse(self,debug):
 		while True:
 			token = self.next()
 			if token.type == '{':
