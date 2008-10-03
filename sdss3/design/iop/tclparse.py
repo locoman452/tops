@@ -403,6 +403,7 @@ class Command(Parser):
 					print 'ignoring "proc" with computed name on line %d' % words[0].lineno
 				return
 			# record this procedure definition in the global dictionary
+			global tclproc,filetitle
 			proc_name = words[1].value
 			if proc_name in tclproc:
 				tclproc[proc_name].append(filetitle)
@@ -547,7 +548,7 @@ class Variable(Parser):
 
 import sys,os,os.path
 
-def process_file(source,opath,title,debug=0):
+def process_file(source,opath,lexer,debug=0):
 	"""
 	Processes source and generates a corresponding html file in opath
 	
@@ -562,7 +563,7 @@ def process_file(source,opath,title,debug=0):
 		os.makedirs(opath)
 	if opath and not os.path.isdir(opath):
 		raise FatalParseError("not a valid output directory: %s" % opath)
-	f = File(source,lexer,debug=opts.debug)
+	f = File(source,lexer,debug)
 	if debug:
 		print 'parsing %s (%d lines)' % (source,f.nlines)
 	script = f.parse()
@@ -574,10 +575,13 @@ def process_file(source,opath,title,debug=0):
 			ofile = os.path.join(opath,ofile+'.html')
 			if debug:
 				print 'generating',ofile
-			f.export(ofile,title)
+			global filetitle
+			f.export(ofile,filetitle)
 
-if __name__ == '__main__':
-	
+def main():
+
+	global filetitle,tclproc
+
 	from optparse import OptionParser
 
 	# parse command-line options
@@ -605,16 +609,10 @@ if __name__ == '__main__':
 	# one-time initialization of lexical analyzer
 	lexer = LexicalAnalyzer().lexer
 	
-	# Initialize a dictionary of tcl procedures. Keys are procedure names
-	# with an array of filenames as the corresponding value. Note that a tcl
-	# procedure of the same name can be defined more than once, even in the
-	# same file.
-	tclproc = { }
-	
 	# do we just have a single file to parse?
 	if os.path.isfile(source):
 		filetitle = os.path.basename(source)
-		process_file(source,opts.output,filetitle,opts.debug)
+		process_file(source,opts.output,lexer,opts.debug)
 		sys.exit(0)
 		
 	# walk through the source tree
@@ -644,4 +642,19 @@ if __name__ == '__main__':
 				continue
 			filetitle = os.path.join(title,filename)
 			filename = os.path.join(root,filename)
-			process_file(filename,opath,filetitle,opts.debug)
+			process_file(filename,opath,lexer,opts.debug)
+
+if __name__ == '__main__':
+	
+	# filetitle is the name of the tcl file currently being parsed, relative
+	# the initial path specified on the command line
+	filetitle = ''
+	
+	# Initialize a dictionary of tcl procedures. Keys are procedure names
+	# with an array of filenames as the corresponding value. Note that a tcl
+	# procedure of the same name can be defined more than once, even in the
+	# same file.
+	tclproc = { }
+
+	main()
+	
