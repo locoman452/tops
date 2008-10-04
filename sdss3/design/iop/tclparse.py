@@ -55,11 +55,13 @@ class File(object):
 	"""
 	Prepares a tcl file for parsing
 	
+	The title and base will be used in HTML output.
+
 	A debug level of 0 is silent unless there is a fatal error. Level 2
 	prints the line numbers where each parsing unit begins and ends.
 	Level 3 also prints each token.
 	"""
-	def __init__(self,name,lexer,debug=0):
+	def __init__(self,name,title,base,lexer,debug=0):
 		self.data = ''
 		self.offsets = [ ]
 		self.escapes = [ ]
@@ -78,6 +80,8 @@ class File(object):
 				self.data += line
 		self.nlines = len(self.offsets)
 		self.lexer = lexer
+		self.title = title
+		self.base = base
 		self.debug = debug
 		self.last_line = 0
 		self.script = None
@@ -139,6 +143,8 @@ class File(object):
 		
 		Raises a FatalParseError exception if there is a problem.
 		"""
+		if self.debug:
+			print 'parsing %s (%d lines)' % (self.title,self.nlines)
 		self.lexer.input(self.data)
 		try:
 			self.script = Script(self,self.debug)
@@ -146,7 +152,7 @@ class File(object):
 		except FatalParseError,e:
 			print 'ERROR:',e
 			
-	def export(self,filename,title,stylesheet='tclcode.css'):
+	def export(self,filename,title,index,stylesheet='tclcode.css'):
 		if not self.script:
 			print 'file has not been successfully parsed yet, nothing to export'
 			return
@@ -154,6 +160,7 @@ class File(object):
 			Head(title=title,css=stylesheet),
 			Body(
 				H1(title),
+				index,
 				Div(id='content')
 			)
 		)
@@ -164,7 +171,7 @@ class File(object):
 
 class Parser(object):
 	"""
-	Provides functionality needed by all language element parsers
+	Provides common functionality needed by all language element parsers
 	"""	
 	prefix = ''
 	suffix = ''
@@ -173,13 +180,15 @@ class Parser(object):
 		self.tokenizer = tokenizer
 		self.debug = debug
 		self.tokens = [ ]
-		self.stream = [ ]
 		self.name = self.__class__.__name__
 		if debug > 1:
 			print 'line %4d: %s begin %s' % (tokenizer.lineno(),self.name,info)
 		self.parse(debug)
 		if debug > 1:
 			print 'line %4d: %s end   %s' % (tokenizer.lineno(),self.name,info)
+
+	def __repr__(self):
+		return '%s%s' % (self.name,str(self.tokens))
 
 	def next(self,end_is_fatal=True):
 		"""
@@ -190,18 +199,39 @@ class Parser(object):
 		read by this instance in the stream array.
 		"""
 		try:
-			token = self.tokenizer.next_token()
-			self.stream.append(token)
-			return token
+			self.last_token = self.tokenizer.next_token()
+			return self.last_token
 		except EndOfTokens:
 			if end_is_fatal:
 				raise FatalParseError('unexpected EOF in %s' % self.name)
 			else:
 				raise
 
-	def __repr__(self):
-		return '%s%s' % (self.name,str(self.tokens))
+	def token_stream(self):
+		"""
+		Returns the list of tokens associated with this parsing object
 		
+		Works recursively on any embedded parsing objects to flatten the
+		token stream that is returned and only return LexToken objects.
+		Our own prefix or suffix tokens, if any, are not included but
+		those of any descendents are.
+		"""
+		stream = [ ]
+		for tok in self.tokens:
+			# emit a lexical token directly
+			if isinstance(tok,lex.LexToken):
+				stream.append(tok)
+			else:
+				# emit parsed object's prefix token, if any
+				if tok.prefix_token:
+					stream.append(tok.prefix_token)
+				# let the parsed object emit its own content tokens
+				stream.extend(tok.token_stream())
+				# emit parsed object's suffix token, if any
+				if tok.suffix_token:
+					stream.append(tok.suffix_token)
+		return stream
+
 	def reconstruct(self):
 		"""
 		Reconstructs the string that was parsed to create this instance
@@ -244,25 +274,40 @@ class Parser(object):
 		"""
 		Appends a new token of the specified type or value
 		"""
-		if isinstance(type_or_value,type):
-			self.tokens.append(type_or_value(self.tokenizer,self.debug,*type_args))
+		if isinstance(type_or_value,type) and issubclass(type_or_value,Parser):
+			# we are appending a new Parser instance
+			(prefix,suffix) = (None,None)
+			if type_or_value.prefix:
+				# capture the token that triggered this new Parser instance
+				prefix = self.last_token
+				assert(prefix.value == type_or_value.prefix)
+			# create the new Parser instance (the ctor actually does the parsing)
+			parsed = type_or_value(self.tokenizer,self.debug,*type_args)
+			if type_or_value.suffix:
+				# capture the token that ended this new Parser instance
+				suffix = parsed.last_token
+				assert(suffix.value == type_or_value.suffix)
+			# record the prefix and suffix tokens in the new instance
+			parsed.prefix_token = prefix
+			parsed.suffix_token = suffix
+			self.tokens.append(parsed)
 		elif isinstance(type_or_value,lex.LexToken):
 			self.tokens.append(type_or_value)
 		else:
-			raise FatalParseError('append: unrecognized token type: %r' % type_or_args)
+			raise FatalParseError('append: unrecognized token type: %r' % type_or_value)
 			
 	def embed(self):
 		"""
 		Re-parses this object as an embedded self-contained script
 		"""
-		if self.debug:
+		if self.debug > 1:
 			print 're-parsing %s as an embedded script' % self.name
 		try:
 			embedded = EmbeddedScript(self.tokenizer,self.debug,parent=self)
 			self.tokens[:] = [embedded]
 		except FatalParseError,e:
 			if self.debug:
-				print 're-parse failed:' % e
+				print 're-parsing of %s as embedded script failed: %s' % (self.name,e)
 
 class Script(Parser):
 	"""
@@ -283,13 +328,11 @@ class EmbeddedScript(Script):
 	the specified parent parse object.
 	"""
 	def __init__(self,tokenizer,debug,parent):
-		# we use our parent's lexical stream as our token source
-		self.source = parent.stream[:]
-		if parent.suffix:
-			assert(self.source[-1].value == parent.suffix)
-			del self.source[-1]
+		# we re-use our parent's token stream as our input source
+		self.source = parent.token_stream()
 		self.index = 0
 		# we take over the tokenizer's job ourself
+		self.title = tokenizer.title
 		Script.__init__(self,tokenizer=self,debug=debug)
 		
 	def lineno(self):
@@ -371,10 +414,11 @@ class Command(Parser):
 				raise FatalParseError('unexpected ] on line %d during Command' % token.lineno)
 			else:
 				self.append(token)
-		# extract the words of this command, if any, ignoring whitespace and comments
+		# extract the words of this command, if any, ignoring whitespace and comments,
+		# and any final semicolon
 		words = [ ]
 		for tok in self.tokens:
-			if isinstance(tok,lex.LexToken) and tok.type in ('WS','EOL'):
+			if isinstance(tok,lex.LexToken) and tok.type in ('WS','EOL',';'):
 				continue
 			if isinstance(tok,Comment):
 				continue
@@ -403,16 +447,30 @@ class Command(Parser):
 					print 'ignoring "proc" with computed name on line %d' % words[0].lineno
 				return
 			# record this procedure definition in the global dictionary
-			global tclproc,filetitle
 			proc_name = words[1].value
-			if proc_name in tclproc:
-				tclproc[proc_name].append(filetitle)
-				tag = "%s_%d" % (proc_name,len(tclproc[proc_name]))
+			title = self.tokenizer.title
+			if proc_name in self.dictionary:
+				self.dictionary[proc_name].append(title)
+				tag = "%s_%d" % (proc_name,len(self.dictionary[proc_name]))
+				if debug:
+					print ('added duplicate %d of "%s" to command dictionary on line %d'
+						% (len(self.dictionary[proc_name]),proc_name,words[0].lineno))
 			else:
-				tclproc[proc_name] = [ filetitle ]
+				self.dictionary[proc_name] = [ title ]
 				tag = proc_name
+				if debug > 1:
+					print 'added "%s" to command dictionary on line %d' % (proc_name,words[0].lineno)
 			# tag the procedure name for our HTML markup
 			words[1].tag = tag
+	"""
+	Initialize a dictionary to capture all tcl procedure definitions we
+	find. Keys are procedure names with an array of file titles as the
+	corresponding value. Note that a tcl procedure of the same name can
+	be defined more than once, even in the same file.
+	"""
+	dictionary = { }
+
+
 
 class Comment(Parser):
 	"""
@@ -548,39 +606,38 @@ class Variable(Parser):
 
 import sys,os,os.path
 
-def process_file(source,opath,lexer,debug=0):
+def build_index(ftitle=None):
 	"""
-	Processes source and generates a corresponding html file in opath
+	Creates an HTML index of tcl procedures
 	
-	source should be the name of an existing tcl file. opath should
-	either be None (in which case no output will be generated) or else
-	the name of path where the generated output will go. The opath
-	directory will be created if necessary.
+	The index will be alphabetical. If ftitle is specified, only
+	procedures defined with a matching filetitle will be included. If a
+	procedure is defined in the specified file but also in other files,
+	links to all files where the procedure is defined will be included
+	in the generated index.
 	"""
-	if not os.path.isfile(source):
-		raise FatalParseError("not a valid source file: %s" % source)
-	if opath and not os.path.exists(opath):
-		os.makedirs(opath)
-	if opath and not os.path.isdir(opath):
-		raise FatalParseError("not a valid output directory: %s" % opath)
-	f = File(source,lexer,debug)
-	if debug:
-		print 'parsing %s (%d lines)' % (source,f.nlines)
-	script = f.parse()
-	if script:
-		if debug > 3:
-			print script
-		if opath:
-			(ofile,ext) = os.path.splitext(os.path.basename(source))
-			ofile = os.path.join(opath,ofile+'.html')
-			if debug:
-				print 'generating',ofile
-			global filetitle
-			f.export(ofile,filetitle)
-
+	global tclproc
+	index = Div(className='index')
+	first_letter = '?'
+	for proc in sorted(tclproc):
+		files = tclproc[proc]
+		if not ftitle or ftitle in files:
+			if proc[0].upper() != first_letter:
+				first_letter = proc[0].upper()
+				index.append(
+					Div(Entity('mdash'),' ',first_letter,' ',Entity('mdash'),className='letter')
+				)
+			for (k,f) in enumerate(files):
+				target = f.replace('.tcl','.html')
+				if k == 0:
+					link = A(proc,href="%s#%s" % (target,proc))
+					index.extend([' ',link])
+				else:
+					link = A(k+1,href="%s#%s_%d" % (target,proc,k+1))
+					index.extend([Entity('nbsp'),link])
+	return index
+	
 def main():
-
-	global filetitle,tclproc
 
 	from optparse import OptionParser
 
@@ -609,52 +666,41 @@ def main():
 	# one-time initialization of lexical analyzer
 	lexer = LexicalAnalyzer().lexer
 	
-	# do we just have a single file to parse?
+	# the list of files we have parsed
+	parsed_files = [ ]
+	
+	# parse the source files
 	if os.path.isfile(source):
-		filetitle = os.path.basename(source)
-		process_file(source,opts.output,lexer,opts.debug)
-		sys.exit(0)
-		
-	# walk through the source tree
-	for (root,dirs,files) in os.walk(source):
-		if not opts.recursive:
-			del dirs[:]
-		# calculate the output path
-		if opts.output:
-			ipath = root
-			opathsegs = [ ]
+		# process a single file
+		title = os.path.basename(source)
+		f = File(source,title,'',lexer,opts.debug)
+		f.parse()
+		parsed_files.append(f)
+	else:
+		# walk through the source tree
+		for (root,dirs,files) in os.walk(source):
+			if not opts.recursive:
+				del dirs[:]
+			# calculate the output path relative to the command-line 'source'
+			# and the return path to the source
+			(ipath,opath,rpath) = (root,'','')
 			while not os.path.samefile(ipath,source):
-				(ipath,seg) = os.path.split(ipath)
-				opathsegs.append(seg)
-			opathsegs.reverse()
-			opath = opts.output
-			title = ''
-			for seg in opathsegs:
-				title = os.path.join(title,seg)
-				opath = os.path.join(opath,seg)
-		else:
-			opath = None
-			title = None
-		for filename in files:
-			# process any tcl files in this directory
-			(base,ext) = os.path.splitext(filename)
-			if ext != '.tcl':
-				continue
-			filetitle = os.path.join(title,filename)
-			filename = os.path.join(root,filename)
-			process_file(filename,opath,lexer,opts.debug)
+				(ipath,segment) = os.path.split(ipath)
+				opath = os.path.join(segment,opath)
+				rpath = os.path.join(rpath,'..')
+			# loop over files in this source directory
+			for filename in files:
+				# we are only interested in tcl files
+				(base,ext) = os.path.splitext(filename)
+				if ext != '.tcl':
+					continue
+				name = os.path.join(root,filename)
+				title = os.path.join(opath,filename)
+				f = File(name,title,rpath,lexer,opts.debug)
+				f.parse()
+				parsed_files.append(f)
 
 if __name__ == '__main__':
-	
-	# filetitle is the name of the tcl file currently being parsed, relative
-	# the initial path specified on the command line
-	filetitle = ''
-	
-	# Initialize a dictionary of tcl procedures. Keys are procedure names
-	# with an array of filenames as the corresponding value. Note that a tcl
-	# procedure of the same name can be defined more than once, even in the
-	# same file.
-	tclproc = { }
 
 	main()
 	
