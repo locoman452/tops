@@ -1,7 +1,9 @@
 """
-Parses the IOP tcl code to generate web documentation
+Parses tcl code to generate web documentation
 
-Run with option --help for usage info.
+Designed for semantic analysis of the SDSS legacy IOP code. Uses the PLY
+lexical analyzer (http://www.dabeaz.com/ply/) Run with option --help for
+usage info.
 """
 
 ## @package tops.sdss3.design.iop
@@ -41,7 +43,6 @@ class LexicalAnalyzer(object):
 	# Define a TCL word as a sequence of non-whitespace characters excluding the literals above
 	# unless they are escaped.
 	t_WORD = r'([^%s\\ \t\n]|(\\.))+' % (literals)
-	#t_WORD = r'([^%s \t\n]|(\\[%s]))+' % (literals,literals)
 
 	def t_error(self,t):
 		raise FatalParseError("Illegal character on line %d: '%s'" % (1+t.lineno,t.value))
@@ -152,7 +153,7 @@ class File(object):
 		except FatalParseError,e:
 			print 'ERROR:',e
 			
-	def export(self,filename,title,index,stylesheet='tclcode.css'):
+	def export(self,filename,title,index,stylesheet):
 		if not self.script:
 			print 'file has not been successfully parsed yet, nothing to export'
 			return
@@ -470,7 +471,37 @@ class Command(Parser):
 	"""
 	dictionary = { }
 
-
+	@staticmethod
+	def build_index(title=None):
+		"""
+		Returns an HTML index of tcl command procedures
+		
+		The index will be alphabetical. If title is specified, only
+		procedures defined within a file having a matching title will be
+		included. If a procedure is defined in the specified file but
+		also in other files, links to all files where the procedure is
+		defined will be included in the generated index. Returns a DIV
+		element with class='index'.
+		"""
+		index = Div(className='index')
+		first_letter = '?'
+		for proc in sorted(self.dictionary):
+			titles = self.dictionary[proc]
+			if not title or title in titles:
+				if proc[0].upper() != first_letter:
+					first_letter = proc[0].upper()
+					index.append(
+						Div(Entity('mdash'),' ',first_letter,' ',Entity('mdash'),className='letter')
+					)
+				for (k,f) in enumerate(titles):
+					target = f.replace('.tcl','.html')
+					if k == 0:
+						link = A(proc,href="%s#%s" % (target,proc))
+						index.extend([' ',link])
+					else:
+						link = A('[',k+1,']',href="%s#%s_%d" % (target,proc,k+1))
+						index.extend([Entity('nbsp'),link])
+		return index
 
 class Comment(Parser):
 	"""
@@ -604,39 +635,10 @@ class Variable(Parser):
 				raise FatalParseError('unexpected token %s in Variable' % token)
 			
 
-import sys,os,os.path
+import sys
+import os,os.path
+import shutil
 
-def build_index(ftitle=None):
-	"""
-	Creates an HTML index of tcl procedures
-	
-	The index will be alphabetical. If ftitle is specified, only
-	procedures defined with a matching filetitle will be included. If a
-	procedure is defined in the specified file but also in other files,
-	links to all files where the procedure is defined will be included
-	in the generated index.
-	"""
-	global tclproc
-	index = Div(className='index')
-	first_letter = '?'
-	for proc in sorted(tclproc):
-		files = tclproc[proc]
-		if not ftitle or ftitle in files:
-			if proc[0].upper() != first_letter:
-				first_letter = proc[0].upper()
-				index.append(
-					Div(Entity('mdash'),' ',first_letter,' ',Entity('mdash'),className='letter')
-				)
-			for (k,f) in enumerate(files):
-				target = f.replace('.tcl','.html')
-				if k == 0:
-					link = A(proc,href="%s#%s" % (target,proc))
-					index.extend([' ',link])
-				else:
-					link = A(k+1,href="%s#%s_%d" % (target,proc,k+1))
-					index.extend([Entity('nbsp'),link])
-	return index
-	
 def main():
 
 	from optparse import OptionParser
@@ -649,7 +651,9 @@ def main():
 		help="output path (created if necessary, omit for no output)")
 	options.add_option("-R","--recursive",action="store_true",
 		help="recursively visit all source tcl files (%default by default)")
-	options.set_defaults(debug=0,recursive=False)
+	options.add_option("--title",
+		help="title to use for master index web page (default is %default)")
+	options.set_defaults(debug=0,recursive=False,title='Command Index')
 	(opts,args) = options.parse_args()
 
 	# validate command-line options
@@ -699,6 +703,28 @@ def main():
 				f = File(name,title,rpath,lexer,opts.debug)
 				f.parse()
 				parsed_files.append(f)
+	if not opts.output:
+		sys.exit(0)
+	# create the output path if necessary
+	if not os.path.isdir(output):
+		if debug:
+			print 'creating output directory',output
+		os.makedirs(output)
+	# copy our stylesheet to the output directory
+	stylesheet='tclcode.css'
+	shutil.copyfile(stylesheet,os.path.join(opts.output,stylesheet))
+	# write out a master index file if we parsed multiple files
+	if len(parsed_files) > 1:
+		if debug:
+			print 'writing master index with title "%s"' % opts.title
+		doc = HTMLDocument(
+			Head(title=opts.title,css=stylesheet),
+			Body(H1(opts.title),Command.build_index())
+		)
+		f = open(os.path.join(opts.output,'index.html'),'w')
+		print >> f,doc
+		f.close()
+		
 
 if __name__ == '__main__':
 
