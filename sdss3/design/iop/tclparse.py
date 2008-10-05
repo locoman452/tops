@@ -153,17 +153,13 @@ class File(object):
 		except FatalParseError,e:
 			print 'ERROR:',e
 			
-	def export(self,filename,title,index,stylesheet):
+	def export(self,filename,index,stylesheet):
 		if not self.script:
 			print 'file has not been successfully parsed yet, nothing to export'
 			return
 		doc = HTMLDocument(
-			Head(title=title,css=stylesheet),
-			Body(
-				H1(title),
-				index,
-				Div(id='content')
-			)
+			Head(title=self.title,base={'href':self.base},css=stylesheet),
+			Body(H1(self.title),index,Div(id='content'))
 		)
 		self.script.export(doc['content'])
 		f = open(filename,'w')
@@ -485,8 +481,8 @@ class Command(Parser):
 		"""
 		index = Div(className='index')
 		first_letter = '?'
-		for proc in sorted(self.dictionary):
-			titles = self.dictionary[proc]
+		for proc in sorted(Command.dictionary,key=str.lower):
+			titles = Command.dictionary[proc]
 			if not title or title in titles:
 				if proc[0].upper() != first_letter:
 					first_letter = proc[0].upper()
@@ -706,16 +702,17 @@ def main():
 	if not opts.output:
 		sys.exit(0)
 	# create the output path if necessary
-	if not os.path.isdir(output):
-		if debug:
-			print 'creating output directory',output
-		os.makedirs(output)
+	if not os.path.isdir(opts.output):
+		if opts.debug:
+			print 'creating output directory',opts.output
+		os.makedirs(opts.output)
 	# copy our stylesheet to the output directory
-	stylesheet='tclcode.css'
-	shutil.copyfile(stylesheet,os.path.join(opts.output,stylesheet))
+	module_path = os.path.dirname(__file__)
+	stylesheet = 'tclcode.css'
+	shutil.copyfile(os.path.join(module_path,stylesheet),os.path.join(opts.output,stylesheet))
 	# write out a master index file if we parsed multiple files
 	if len(parsed_files) > 1:
-		if debug:
+		if opts.debug:
 			print 'writing master index with title "%s"' % opts.title
 		doc = HTMLDocument(
 			Head(title=opts.title,css=stylesheet),
@@ -724,7 +721,21 @@ def main():
 		f = open(os.path.join(opts.output,'index.html'),'w')
 		print >> f,doc
 		f.close()
-		
+	# write out each source file with its own index
+	for f in parsed_files:
+		(root,ext) = os.path.splitext(f.title)
+		filename = os.path.join(opts.output,root)
+		filename += '.html'
+		dirname = os.path.dirname(filename)
+		if not os.path.isdir(dirname):
+			if opts.debug:
+				print 'creating',dirname
+			os.makedirs(dirname)
+		index = Command.build_index(f.title)
+		if opts.debug:
+			print 'writing',filename
+		f.export(filename,index,stylesheet)
+
 
 if __name__ == '__main__':
 
