@@ -89,7 +89,7 @@ class File(object):
 		self.last_line = 0
 		self.script = None
 
-	def lineno(self,offset=None):
+	def get_lineno(self,offset=None):
 		"""
 		Returns the line number in the input file for the given offset
 		
@@ -123,7 +123,7 @@ class File(object):
 		if not token:
 			raise EndOfTokens
 		# store this token's line number based on its file offset
-		token.lineno = self.lineno(token.lexpos)
+		token.lineno = self.get_lineno(token.lexpos)
 		# undo any escaped-newline substitution applied to this token's value
 		start = token.lexpos
 		end = start + len(token.value)
@@ -184,6 +184,7 @@ class Parser(object):
 
 	def __init__(self,tokenizer,debug,embedded=False,depth=1):
 		self.tokenizer = tokenizer
+		self.lineno = tokenizer.get_lineno()
 		self.debug = debug
 		self.embedded = embedded
 		self.depth = depth
@@ -191,10 +192,10 @@ class Parser(object):
 		self.name = self.__class__.__name__
 		if debug > 1:
 			arrow = '-'*self.depth + '>'
-			print 'line %4d %s %s begin' % (tokenizer.lineno(),arrow,self.name)
+			print 'line %4d %s %s begin' % (tokenizer.get_lineno(),arrow,self.name)
 		self.parse(debug)
 		if debug > 1:
-			print 'line %4d %s %s end' % (tokenizer.lineno(),arrow,self.name)
+			print 'line %4d %s %s end' % (tokenizer.get_lineno(),arrow,self.name)
 
 	def __repr__(self):
 		return '%s%s' % (self.name,str(self.tokens))
@@ -261,7 +262,7 @@ class Parser(object):
 		"""
 		Fills the DOM container with an HTML description of this instance
 		"""
-		content = Span(className=self.name)
+		content = Span(className=self.name,title=self.name)
 		if self.prefix:
 			content.append(self.prefix)
 		for token in self.tokens:
@@ -312,11 +313,12 @@ class Parser(object):
 		if self.debug > 1:
 			print 're-parsing %s as an embedded script' % self.name
 		try:
-			embed = EmbeddedScript(self.tokenizer,self.debug,self.depth+1,parent=self)
-			self.tokens[:] = [embed]
+			reparsed = EmbeddedScript(self.tokenizer,self.debug,self.depth+1,parent=self)
+			self.tokens[:] = [reparsed]
 		except FatalParseError,e:
 			if self.debug:
-				print 're-parsing of %s as embedded script failed: %s' % (self.name,e)
+				print ('re-parsing of %s on line %d as embedded script failed: %s'
+					% (self.name,self.lineno,e))
 
 class Script(Parser):
 	"""
@@ -347,7 +349,7 @@ class EmbeddedScript(Script):
 		self.title = tokenizer.title
 		Script.__init__(self,tokenizer=self,debug=debug,embedded=True,depth=depth)
 		
-	def lineno(self):
+	def get_lineno(self):
 		"""
 		Returns the line number corresponding to the next token
 		"""
@@ -392,7 +394,7 @@ class Command(Parser):
 					break
 				else:
 					raise
-			if token.type == ';' or (token.type == 'EOL' and not self.embedded):
+			if token.type in (';','EOL'):
 				self.append(token)
 				break
 			elif token.type == '#':
@@ -409,11 +411,11 @@ class Command(Parser):
 					self.append(Comment)
 					break
 				else:
-					if debug:
+					if debug > 1:
 						print 'found non-comment # in command on line %d' % token.lineno
 					self.append(token)
-			elif token.type == '$':
-				self.append(Variable)
+			#elif token.type == '$':
+			#	self.append(Variable)
 			elif token.type == '[':
 				self.append(Substitution)
 			elif token.type == '"':
@@ -426,42 +428,55 @@ class Command(Parser):
 				raise FatalParseError('unexpected ] on line %d during Command' % token.lineno)
 			else:
 				self.append(token)
-		# extract the words of this command, if any, ignoring whitespace and comments,
-		# and any final semicolon
+		# Extract the words of this command, if any, ignoring whitespace and comments,
+		# and any final semicolon. Tokens that are not separated by white space are grouped
+		# into a single word.
 		words = [ ]
+		index = 0
 		for tok in self.tokens:
 			if isinstance(tok,lex.LexToken) and tok.type in ('WS','EOL',';'):
+				if tok.type == 'WS' and len(words) > 0:
+					index += 1
 				continue
 			if isinstance(tok,Comment):
 				continue
-			words.append(tok)
+			if len(words) == index:
+				words.append([tok])
+			else:
+				words[index].append(tok)
 		if len(words) == 0:
 			return
+		if debug > 1:
+			for (index,word) in enumerate(words):
+				print 'command word[%d] is [%s]' % (index,','.join([
+					'"%s"'%tok.value if isinstance(tok,lex.LexToken)
+						else '<%s>'%tok.name for tok in word]))
 		# do we have a literal base word?
 		baseword = Command.word(words[0])
 		if not baseword:
 			return
+		cmd_lineno = words[0][0].lineno
 		# should we do any further processing of this command?
 		if baseword == 'proc':
 			# Process a tcl 'proc' command: http://www.tcl.tk/man/tcl8.4/TclCmd/proc.htm
 			if debug > 1:
-				print 'processing "proc..." command on line %d' % words[0].lineno
+				print 'processing "proc..." command on line %d' % cmd_lineno
 			# a proc command should always have 4 words
 			if len(words) != 4:
 				if debug:
 					print ('ignoring "proc" with %d words (expected 4) on line %d'
-						% (len(words),words[0].lineno))
+						% (len(words),cmd_lineno))
 				return
 			# expand the procedure body if it is a Group
-			if isinstance(words[3],Group):
-				words[3].embed()
+			if len(words[3]) == 1 and isinstance(words[3][0],Group):
+				words[3][0].embed()
 			elif debug:
-				print '"proc" has unexpected body type on line %d' % words[0].lineno
+				print '"proc" has unexpected body type on line %d' % cmd_lineno
 			# do we have a literal proc name?
 			proc_name = Command.word(words[1])
 			if not proc_name:
 				if debug:
-					print 'ignoring "proc" with computed name on line %d' % words[0].lineno
+					print 'ignoring "proc" with computed name on line %d' % cmd_lineno
 				return
 			# record this procedure definition in the global dictionary
 			title = self.tokenizer.title
@@ -470,18 +485,18 @@ class Command(Parser):
 				tag = "%s_%d" % (proc_name,len(self.dictionary[proc_name]))
 				if debug:
 					print ('added duplicate %d of "%s" to command dictionary on line %d'
-						% (len(self.dictionary[proc_name]),proc_name,words[0].lineno))
+						% (len(self.dictionary[proc_name]),proc_name,cmd_lineno))
 			else:
 				self.dictionary[proc_name] = [ title ]
 				tag = proc_name
 				if debug > 1:
-					print 'added "%s" to command dictionary on line %d' % (proc_name,words[0].lineno)
+					print 'added "%s" to command dictionary on line %d' % (proc_name,cmd_lineno)
 			# tag the procedure name for our HTML markup
-			words[1].tag = tag
+			words[1][0].tag = tag
 		elif baseword == 'if':
 			# Process a tcl 'if' command: http://www.tcl.tk/man/tcl8.4/TclCmd/if.htm
 			if debug > 1:
-				print 'processing "if..." command on line %d' % words[0].lineno
+				print 'processing "if..." command on line %d' % cmd_lineno
 			next_body_index = 2
 			while next_body_index < len(words):
 				if debug > 1:
@@ -492,13 +507,13 @@ class Command(Parser):
 							% Command.word(words[next_body_index]))
 					next_body_index += 1
 					if next_body_index >= len(words):
-						print 'badly formed "if...then/else" command on line %d' % words[0].lineno
+						print 'badly formed "if...then/else" command on line %d' % cmd_lineno
 						break
-				if isinstance(words[next_body_index],Group):
+				if len(words[next_body_index]) == 1 and isinstance(words[next_body_index][0],Group):
 					# expand this conditional body
 					if debug > 1:
 						print 'expanding "if" body in word[%d]' % next_body_index
-					words[next_body_index].embed()
+					words[next_body_index][0].embed()
 					next_body_index += 1
 					if (next_body_index < len(words) and
 						Command.word(words[next_body_index]) == 'elseif'):
@@ -506,16 +521,20 @@ class Command(Parser):
 							print 'advancing to "elseif" clause after "if"'
 						next_body_index += 2
 						if next_body_index >= len(words):
-							print 'badly formed "if...elseif" command on line %d' % words[0].lineno
+							print 'badly formed "if...elseif" command on line %d' % cmd_lineno
 				else:
-					print '"if" has unexpected body type on line %d' % words[0].lineno
+					if debug:
+						print '"if" has unexpected body type on line %d' % cmd_lineno
 					break
 
 	@staticmethod
-	def word(token):
+	def word(content):
 		"""
-		Returns the string literal value if token is a 'WORD'		
+		Returns the string literal value if content is a 'WORD' token
 		"""
+		if len(content) != 1:
+			return None
+		token = content[0]
 		if isinstance(token,lex.LexToken) and token.type == 'WORD':
 			return token.value
 		else:
@@ -589,10 +608,10 @@ class Quoted(Parser):
 	def parse(self,debug):
 		while True:
 			token = self.next()
-			if token.type == '$':
-				self.append(Variable)
-			elif token.type == '[':
+			if token.type == '[':
 				self.append(Substitution)
+			#elif token.type == '$':
+			#	self.append(Variable)
 			elif token.type == '{':
 				self.append(Group)
 			elif token.type == '}':
@@ -666,25 +685,22 @@ class Variable(Parser):
 	prefix = '$'
 	
 	def parse(self,debug):
-		while True:
-			token = self.next()
-			if token.type == '{':
-				if len(self.tokens) == 0:
-					self.append(token)
-					while True:
-						token = self.next()
-						self.append(token)
-						if token.type == '}':
-							break
-					break
-				else:
-					raise FatalParseError('unexpected { in Variable on line %d' % token.lineno)
-			elif token.type == 'WORD':
-				# will match $name and part or all of $name(index)
+		token = self.next()
+		if token.type == '{':
+			if len(self.tokens) == 0:
 				self.append(token)
-				break
+				while True:
+					token = self.next()
+					self.append(token)
+					if token.type == '}':
+						break
 			else:
-				raise FatalParseError('unexpected token %s in Variable' % token)
+				raise FatalParseError('unexpected { in Variable on line %d' % token.lineno)
+		elif token.type == 'WORD':
+			# will match $name and part or all of $name(index)
+			self.append(token)
+		else:
+			raise FatalParseError('unexpected token %s in Variable' % token)
 			
 
 import sys
