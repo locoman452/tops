@@ -420,10 +420,6 @@ class Command(Parser):
 				self.append(Quoted)
 			elif token.type == '{':
 				self.append(Group)
-			elif token.type == '}':
-				raise FatalParseError('unexpected } on line %d during Command' % token.lineno)
-			elif token.type == ']':
-				raise FatalParseError('unexpected ] on line %d during Command' % token.lineno)
 			else:
 				self.append(token)
 		# Extract the words of this command, if any, ignoring whitespace and comments,
@@ -654,8 +650,6 @@ class Substitution(Parser):
 				self.append(Substitution)
 			elif token.type == '{':
 				self.append(Group)
-			elif token.type == '}':
-				raise FatalParseError('unexpected Substitution token %s' % token)
 			else:
 				self.append(token)
 		# now that we have captured the whole substitution text, try to
