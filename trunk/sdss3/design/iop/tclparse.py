@@ -379,9 +379,9 @@ class Command(Parser):
 	Represents a tcl command
 	
 	A commmand is either a Comment or a sequence of words, each
-	represented by a string, Variable, Substitution, Quoted, or Group.
-	The whitespace between words is preserved so that the original file
-	can be exactly reconstructed after parsing.
+	represented by a string, Substitution, Quoted, or Group. The
+	whitespace between words is preserved so that the original file can
+	be exactly reconstructed after parsing.
 	"""
 	def parse(self,debug):
 		while True:
@@ -414,8 +414,6 @@ class Command(Parser):
 					if debug > 1:
 						print 'found non-comment # in command on line %d' % token.lineno
 					self.append(token)
-			#elif token.type == '$':
-			#	self.append(Variable)
 			elif token.type == '[':
 				self.append(Substitution)
 			elif token.type == '"':
@@ -467,8 +465,8 @@ class Command(Parser):
 					print ('ignoring "proc" with %d words (expected 4) on line %d'
 						% (len(words),cmd_lineno))
 				return
-			# expand the procedure body if it is a Group
-			if len(words[3]) == 1 and isinstance(words[3][0],Group):
+			# expand the procedure body if it is a Group or Substitution
+			if len(words[3]) == 1 and isinstance(words[3][0],(Group,Substitution)):
 				words[3][0].embed()
 			elif debug:
 				print '"proc" has unexpected body type on line %d' % cmd_lineno
@@ -610,14 +608,6 @@ class Quoted(Parser):
 			token = self.next()
 			if token.type == '[':
 				self.append(Substitution)
-			#elif token.type == '$':
-			#	self.append(Variable)
-			elif token.type == '{':
-				self.append(Group)
-			elif token.type == '}':
-				raise FatalParseError('unexpected } on line %d during Quoted' % token.lineno)
-			elif token.type == ']':
-				raise FatalParseError('unexpected ] on line %d during Quoted' % token.lineno)
 			elif token.type == '"':
 				break
 			else:
@@ -664,44 +654,13 @@ class Substitution(Parser):
 				self.append(Substitution)
 			elif token.type == '{':
 				self.append(Group)
-			elif token.type in ('EOL','}'):
+			elif token.type == '}':
 				raise FatalParseError('unexpected Substitution token %s' % token)
 			else:
 				self.append(token)
 		# now that we have captured the whole substitution text, try to
 		# re-parse it as an embedded script
-		self.embed()
-
-class Variable(Parser):
-	"""
-	Represents a tcl variable substition starting with $
-	
-	Completely captures the $name and ${name} forms, but will generally
-	only capture the beginning of $name(index) - up to the first white
-	space in 'index'. The main purpose of this parser is to distinguish
-	between '{' used to start a group and '${' used to start a variable
-	substitution.
-	"""
-	prefix = '$'
-	
-	def parse(self,debug):
-		token = self.next()
-		if token.type == '{':
-			if len(self.tokens) == 0:
-				self.append(token)
-				while True:
-					token = self.next()
-					self.append(token)
-					if token.type == '}':
-						break
-			else:
-				raise FatalParseError('unexpected { in Variable on line %d' % token.lineno)
-		elif token.type == 'WORD':
-			# will match $name and part or all of $name(index)
-			self.append(token)
-		else:
-			raise FatalParseError('unexpected token %s in Variable' % token)
-			
+		self.embed()			
 
 import sys
 import os,os.path
@@ -740,6 +699,7 @@ def main():
 	
 	# the list of files we have parsed
 	parsed_files = [ ]
+	total_lines = 0
 	
 	# parse the source files
 	if os.path.isfile(source):
@@ -748,6 +708,7 @@ def main():
 		f = File(source,title,lexer,opts.debug)
 		f.parse()
 		parsed_files.append(f)
+		total_lines += f.nlines
 	else:
 		# walk through the source tree
 		for (root,dirs,files) in os.walk(source):
@@ -770,6 +731,7 @@ def main():
 				f = File(name,title,lexer,opts.debug)
 				f.parse()
 				parsed_files.append(f)
+				total_lines += f.nlines
 	if not opts.output:
 		sys.exit(0)
 	# create the output path if necessary
@@ -801,6 +763,7 @@ def main():
 		if opts.debug:
 			print 'writing',filename
 		f.export(filename,index,stylesheet)
+	print 'parsed %d lines from %d file(s)' % (total_lines,len(parsed_files))
 
 
 if __name__ == '__main__':
