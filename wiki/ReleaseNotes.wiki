@@ -2,6 +2,14 @@
 
 In reverse chronological order...
 
+== V0.5 ==
+
+Created 06-Oct-2008.
+
+This is the last release for active development on tops.googlecode.com and the initial release imported to sdss3.org.
+
+The main new functionality is a TCL parser for automated analysis of the SDSS-3 IOP legacy code in the module tops.sdss3.design.iop.tclparser.
+
 == V0.4 ==
 
 Created 25-Sep-2008.
