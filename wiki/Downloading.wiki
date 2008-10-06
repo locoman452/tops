@@ -1,5 +1,7 @@
 = Downloading the Operations Software =
 
+*As of 6 Oct 2008, active development of the code repository has moved to sdss3.org*
+
 == Tagged Releases ==
 
 You can get a list of all the available tagged releases with:
