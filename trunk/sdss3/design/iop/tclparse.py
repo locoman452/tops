@@ -12,7 +12,7 @@ usage info.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 1-Oct-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 class EndOfTokens(Exception):
 	pass

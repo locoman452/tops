@@ -11,7 +11,7 @@ a telnet client session. Based on the classes in twisted.conch.telnet.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 13-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from twisted.conch import telnet
 from twisted.internet import defer

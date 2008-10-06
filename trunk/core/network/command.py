@@ -19,7 +19,7 @@ The current implementation of this module is not thread safe.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 16-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from collections import deque
 from twisted.internet.defer import Deferred

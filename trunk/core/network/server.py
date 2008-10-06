@@ -15,7 +15,7 @@ corresponding client class in this package.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 21-Aug-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import twisted.protocols.basic
 import twisted.internet.error

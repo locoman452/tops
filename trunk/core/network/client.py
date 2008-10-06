@@ -15,7 +15,7 @@ corresponding server class in this package.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 26-Aug-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import socket
 import struct

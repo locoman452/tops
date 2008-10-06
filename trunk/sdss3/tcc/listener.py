@@ -16,7 +16,7 @@ requires that the logging and archiving servers are already up.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 18-Aug-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from tops.core.network.proxy import *
 

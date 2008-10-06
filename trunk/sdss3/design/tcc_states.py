@@ -12,7 +12,7 @@ generate an HTML page documenting the state chart defined here.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 16-Jul-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from tops.core.utility.state_chart import *
 

@@ -18,7 +18,7 @@ TODO:
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 6-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import os
 import sys

@@ -12,4 +12,4 @@ devices, such as a telescope and its associated instruments.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 24-Jun-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
