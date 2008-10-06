@@ -10,7 +10,7 @@ Classes to allow (X)HTML files to be generated via python declarations.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 28-Jun-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from time import ctime
 from getpass import getuser

@@ -11,7 +11,7 @@ producer clients and serves consumer clients via a web server.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 8-Aug-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from twisted.internet.protocol import Factory
 from twisted.internet.task import LoopingCall

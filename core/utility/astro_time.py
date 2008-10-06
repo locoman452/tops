@@ -10,7 +10,7 @@ Enhancements to the standard datetime package for astronomical applications.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 29-Jul-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from datetime import tzinfo,timedelta,datetime
 from math import floor

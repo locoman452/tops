@@ -20,7 +20,7 @@ getboolean() functions, e.g.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 11-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import sys,os,os.path
 from ConfigParser import SafeConfigParser,NoOptionError

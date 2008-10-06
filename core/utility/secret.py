@@ -10,7 +10,7 @@ Provides an interface to secret data
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 23-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import getpass
 from Crypto.Hash import MD5 as hasher

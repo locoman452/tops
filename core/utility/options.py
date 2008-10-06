@@ -15,7 +15,7 @@ so must be obtained via the command line.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 19-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import sys
 from optparse import OptionParser

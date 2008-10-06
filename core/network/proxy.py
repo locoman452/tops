@@ -13,7 +13,7 @@ specific and should be described by classes that inherit from this one.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 18-Aug-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import sys
 

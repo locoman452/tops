@@ -12,7 +12,7 @@ Running this module will start a TCC UDP simulator on port 1200.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 29-Jul-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 from struct import Struct
 from random import random

@@ -11,7 +11,7 @@ a pattern-matching utility class.
 # @author David Kirkby, dkirkby@uci.edu
 # @date Created 10-Sep-2008
 #
-# This project is hosted at http://tops.googlecode.com/
+# This project is hosted at sdss3.org and tops.googlecode.com
 
 import re
 
