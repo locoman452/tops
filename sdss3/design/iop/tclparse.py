@@ -425,49 +425,50 @@ class Command(Parser):
 		# Extract the words of this command, if any, ignoring whitespace and comments,
 		# and any final semicolon. Tokens that are not separated by white space are grouped
 		# into a single word.
-		words = [ ]
+		self.words = [ ]
 		index = 0
 		for tok in self.tokens:
 			if isinstance(tok,lex.LexToken) and tok.type in ('WS','EOL',';'):
-				if tok.type == 'WS' and len(words) > 0:
+				if tok.type == 'WS' and len(self.words) > 0:
 					index += 1
 				continue
 			if isinstance(tok,Comment):
 				continue
-			if len(words) == index:
-				words.append([tok])
+			if len(self.words) == index:
+				self.words.append([tok])
 			else:
-				words[index].append(tok)
-		if len(words) == 0:
+				self.words[index].append(tok)
+		if len(self.words) == 0:
 			return
+		self.nwords = len(self.words)
 		if debug > 1:
-			for (index,word) in enumerate(words):
+			for (index,word) in enumerate(self.words):
 				print 'command word[%d] is [%s]' % (index,','.join([
 					'"%s"'%tok.value if isinstance(tok,lex.LexToken)
 						else '<%s>'%tok.name for tok in word]))
 		# do we have a literal base word?
-		baseword = Command.word(words[0])
+		baseword = self.word_literal(0)
 		if not baseword:
 			return
-		cmd_lineno = words[0][0].lineno
+		cmd_lineno = self.words[0][0].lineno
 		# should we do any further processing of this command?
 		if baseword == 'proc':
 			# Process a tcl 'proc' command: http://www.tcl.tk/man/tcl8.4/TclCmd/proc.htm
 			if debug > 1:
 				print 'processing "proc..." command on line %d' % cmd_lineno
 			# a proc command should always have 4 words
-			if len(words) != 4:
+			if self.nwords != 4:
 				if debug:
 					print ('ignoring "proc" with %d words (expected 4) on line %d'
-						% (len(words),cmd_lineno))
+						% (self.nwords,cmd_lineno))
 				return
 			# expand the procedure body if it is a Group or Substitution
-			if len(words[3]) == 1 and isinstance(words[3][0],(Group,Substitution)):
-				words[3][0].embed()
+			if len(self.words[3]) == 1 and isinstance(self.words[3][0],(Group,Substitution)):
+				self.words[3][0].embed()
 			elif debug:
 				print '"proc" has unexpected body type on line %d' % cmd_lineno
 			# do we have a literal proc name?
-			proc_name = Command.word(words[1])
+			proc_name = self.word_literal(1)
 			if not proc_name:
 				if debug:
 					print 'ignoring "proc" with computed name on line %d' % cmd_lineno
@@ -486,54 +487,57 @@ class Command(Parser):
 				if debug > 1:
 					print 'added "%s" to command dictionary on line %d' % (proc_name,cmd_lineno)
 			# tag the procedure name for our HTML markup
-			words[1][0].tag = tag
+			self.words[1][0].tag = tag
 		elif baseword == 'if':
 			# Process a tcl 'if' command: http://www.tcl.tk/man/tcl8.4/TclCmd/if.htm
 			if debug > 1:
 				print 'processing "if..." command on line %d' % cmd_lineno
 			next_body_index = 2
-			while next_body_index < len(words):
+			while next_body_index < self.nwords:
 				if debug > 1:
-					print 'looking for "if" body in word[%d] of %d' % (next_body_index,len(words))
-				if Command.word(words[next_body_index]) in ('then','else'):
+					print 'looking for "if" body in word[%d]' % next_body_index
+				if self.word_literal(next_body_index) in ('then','else'):
 					if debug > 1:
 						print ('skipping optional "%s" after "if"'
-							% Command.word(words[next_body_index]))
+							% self.word_literal(next_body_index))
 					next_body_index += 1
-					if next_body_index >= len(words):
+					if next_body_index >= self.nwords:
 						print 'badly formed "if...then/else" command on line %d' % cmd_lineno
 						break
-				if len(words[next_body_index]) == 1 and isinstance(words[next_body_index][0],Group):
+				if (len(self.words[next_body_index]) == 1 and
+					isinstance(self.words[next_body_index][0],Group)):
 					# expand this conditional body
 					if debug > 1:
 						print 'expanding "if" body in word[%d]' % next_body_index
-						words[next_body_index][0].embed()
+					self.words[next_body_index][0].embed()
 				else:
 					if debug > 1:
 						print '"if" has unusual body type on line %d' % cmd_lineno
 				next_body_index += 1
-				if next_body_index < len(words):
-					if Command.word(words[next_body_index]) == 'elseif':
+				if next_body_index < self.nwords:
+					if self.word_literal(next_body_index) == 'elseif':
 						if debug > 1:
 							print 'advancing to "elseif" clause after "if"'
 						next_body_index += 2
-						if next_body_index >= len(words):
+						if next_body_index >= self.nwords:
 							print 'badly formed "if...elseif" command on line %d' % cmd_lineno
 					else:
 						# there should be at most two more words left
-						if len(words) > next_body_index + 2:
+						if self.nwords > next_body_index + 2:
 							if debug:
 								print 'too many words at end of "if..." on line %d' % cmd_lineno
 							break
-
-	@staticmethod
-	def word(content):
+	def word_literal(self,index):
 		"""
-		Returns the string literal value if content is a 'WORD' token
+		Returns the string literal value of the indexed word
 		"""
-		if len(content) != 1:
+		try:
+			word = self.words[index]
+			token = word[0]
+		except IndexError:
 			return None
-		token = content[0]
+		if len(word) > 1:
+			return None
 		if isinstance(token,lex.LexToken) and token.type == 'WORD':
 			return token.value
 		else:
