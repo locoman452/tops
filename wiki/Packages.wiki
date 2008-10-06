@@ -12,6 +12,7 @@ The operations code is organized into the following hierarchy of packages:
       * utility: common utilities
     * sdss3: SDSS-3 project-specific services
       * design: Design documents for the SDSS-3 operations software
+        * iop: Tools for automated analysis of the legacy IOP tcl code
       * tcc: Supports the two TCC proxies
       * marvels: Supports the MARVELS proxy
 The top-level division between _core_ and _sdss3_ is [Projects explained here].
