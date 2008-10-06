@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Starts the telescope operations software
+# See http://code.google.com/p/tops/wiki/Running
+#
+# @author David Kirkby, dkirkby@uci.edu
+# @date Created 19-Sep-2008
+#
+# This project is hosted at sdss3.org and tops.googlecode.com
+
+exec /usr/bin/env python2.5 $0".py" $*

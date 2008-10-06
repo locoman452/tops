@@ -1,0 +1,56 @@
+a:link, a:visited {
+	color: #8A8139;
+	text-decoration: none;
+}
+
+a:hover, a:active {
+	border-bottom: 1px dotted #8A8139;
+}
+
+body {
+	background-color: #C5B7FF;
+	font-family: Verdana, Arial, sans-serif;
+}
+
+div.title,h1 {
+	color: white;
+	background-color: #54478a;
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: x-large;
+	text-align: right;
+	padding: 8px 16px;
+}
+
+div.node,div.scenario {
+	margin: 8px;
+}
+
+div.nodename,div.scenarioname,h2 {
+	color: #54478a;
+	font-size: large;
+	border-bottom: 2px solid #54478a;
+}
+
+div.relationships {
+	font-size: small;
+	font-style: italic;
+}
+
+div.description {
+	padding: 8px 8px 8px 24px;
+	font-size: normal;
+}
+
+span.count {
+	color: white;
+	background-color: #54478a;
+	font-size: x-small;
+	padding: 2px 4px;
+}
+
+li.alternate {
+	margin: 8px 0;
+	padding: 4px 0;
+	background-color: #ffb7ff;
+	font-style: italic;
+}

@@ -1,0 +1,59 @@
+body {
+	background-color: #ffe;
+	color: brown;
+	margin: 8px;
+	padding: 0;
+	font-family: "Courier New",monospace;
+	font-size: small;
+}
+
+h1 {
+	background-color: brown;
+	font-family: 'Times New Roman','Georgia',serif;
+	color: #ffe;
+	text-align: right;
+	padding: 4px 24px;
+}
+
+a { color: #55f; }
+a:link,a:visited { text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+#content {
+	white-space: pre;
+}
+
+.index {
+	text-align: center;
+	border-bottom: brown solid 8px;
+	padding-bottom: 8px;
+	margin-bottom: 12px;
+}
+
+.letter {
+	font-family: 'Times New Roman','Georgia',serif;
+	font-size: normal;
+	font-weight: bold;
+}
+
+.Comment {
+	background-color: #ffa;
+}
+
+.Quoted {
+	font-style: italic;
+	color: green;
+}
+
+.Substitution {
+	font-weight: bold;
+}
+
+.Group:hover {
+	background-color: #fee;
+}
+
+.tagged {
+	background-color: #55f;
+	color: white;
+}
