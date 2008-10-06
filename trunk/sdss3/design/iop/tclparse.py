@@ -29,7 +29,7 @@ class LexicalAnalyzer(object):
 	Uses the PLY lexer to do the hard work: http://www.dabeaz.com/ply/
 	"""
 	# list the single-character literal tokens we care about
-	literals = '{}#$"\[\];'
+	literals = '{}#"\[\];'
 
 	# list the non-literal token types defined below
 	tokens = ('WS','EOL','WORD')
@@ -507,19 +507,24 @@ class Command(Parser):
 					# expand this conditional body
 					if debug > 1:
 						print 'expanding "if" body in word[%d]' % next_body_index
-					words[next_body_index][0].embed()
-					next_body_index += 1
-					if (next_body_index < len(words) and
-						Command.word(words[next_body_index]) == 'elseif'):
+						words[next_body_index][0].embed()
+				else:
+					if debug > 1:
+						print '"if" has unusual body type on line %d' % cmd_lineno
+				next_body_index += 1
+				if next_body_index < len(words):
+					if Command.word(words[next_body_index]) == 'elseif':
 						if debug > 1:
 							print 'advancing to "elseif" clause after "if"'
 						next_body_index += 2
 						if next_body_index >= len(words):
 							print 'badly formed "if...elseif" command on line %d' % cmd_lineno
-				else:
-					if debug:
-						print '"if" has unexpected body type on line %d' % cmd_lineno
-					break
+					else:
+						# there should be at most two more words left
+						if len(words) > next_body_index + 2:
+							if debug:
+								print 'too many words at end of "if..." on line %d' % cmd_lineno
+							break
 
 	@staticmethod
 	def word(content):
